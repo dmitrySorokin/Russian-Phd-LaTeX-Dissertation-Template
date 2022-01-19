@@ -63,16 +63,20 @@ Q^*(s, a) = E(r_{t + 1} + \gamma \max_{a' \in \mathcal{A}} Q^*(s_{t + 1}, a'))
 
 \begin{algorithm}[H]
 	\SetAlgoLined
-	\KwResult{Write here the result }
-	\KwOut{$\pi(s) = argmax_{a} \sum_{s', r}p(s',r|s,a)[r + \gamma V(s')]$}
+	\KwIn{t - stop threshold}
+	\KwOut{$\pi(s) = \mathrm{argmax}_{a} \sum_{s', r}p(s',r|s,a)[r + \gamma V(s')]$}
 	initialization V(s) = 0 (for all $s \in \mathcal{S}$)\;
-	\While{$\Delta$ > threshold}{
+	\While{$\Delta$ > t}{
 		$\Delta$ = 0\;
 		\ForEach{s $\in \mathcal{S}$}{
-			V(s) = $\max_a \sum_{s', r}p(s', r|s, a)[r + \gamma V(s')]$
+		    $V_{old}$ = V(s)\\
+		    %V_{old}(s) = V(s)\par
+			V(s) = $\max_a \sum_{s', r}p(s', r|s, a)[r + \gamma V(s')]$\\
+			$\Delta = \max(\Delta, |V_{old} - V(s)|)$
 		}
 	}
 	\caption{Value iteration algorithm}
+
 \end{algorithm}
 
 \subsection{Policy iteration}
@@ -81,11 +85,9 @@ Q^*(s, a) = E(r_{t + 1} + \gamma \max_{a' \in \mathcal{A}} Q^*(s_{t + 1}, a'))
 
 \begin{algorithm}[H]
 	\SetAlgoLined
-	\KwResult{Write here the result }
 	\KwOut{$\pi(s) = argmax_{a} \sum_{s', r}p(s',r|s,a)[r + \gamma V(s')]$}
 	initialization V(s) = 0 (for all $s \in \mathcal{S}$)\;
-	\While{$\Delta$ > threshold}{
-		$\Delta$ = 0\;
+	\While{$\pi$ not converged}{
 		\ForEach{s $\in \mathcal{S}$}{
 			$\pi(s) = argmax_{a}Q(s,a)$
 		}
@@ -111,8 +113,13 @@ $$\nabla_{\theta} J(s) = \sum \log(\pi(a|s))R(s,a )$$
 Мотивация 
 REINFORCE, Actor-Critic, PPO
 
+\subsection{Использование внутренней мотивации в средах с редкой наградой}
+curiosity, RND , count based 
+
 \subsection{Meta-learning}
 Мотивация MAML, PEARL, RL2
+
+\subsection{Иерархические методы обучения с подкреплением}
 
 \section{Обзор применения методов обучения с подкреплением в роботике}\label{sec:ch1/sec2}
 Перечислить подходы и открытые проблемы (from proposal)
