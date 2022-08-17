@@ -46,7 +46,7 @@
 
 \subsection{Обучение с подкреплением}
 
-Принципиальная схема обучения RL алгоритмов приведена на рисунке \ref{fig:rl}. На ней агент получает от среды состояние (s $\in \mathcal{S}$), награду ($r: \mathcal{S} \times \mathcal{A} \to \mathbb{R}$), и флаг завершения эпизода (done $\in \{0, 1\}$).  В среде агент совершает действие ($a \in \mathcal{A}$) которое переводит среду в следующее состояние ($s^{\prime} \in \mathcal{S}$). В зависимости от того является ли переход из состояния $s$ в состояние $s^{\prime}$ при действии $a$ единственным или одним из возможных с вероятностью $p(s^{\prime},r|s,a)$, среда называется детерминированной или не детерминированной. 
+Принципиальная схема обучения RL алгоритмов приведена на рисунке \ref{fig:rl}. На ней RL агент взаимодействуя со средой получает от нее состояние (s $\in \mathcal{S}$), награду ($r: \mathcal{S} \times \mathcal{A} \to \mathbb{R}$), и флаг завершения эпизода (done $\in \{0, 1\}$).  В среде агент совершает действие ($a \in \mathcal{A}$) которое переводит среду в следующее состояние ($s^{\prime} \in \mathcal{S}$). В зависимости от того является ли переход из состояния $s$ в состояние $s^{\prime}$ при действии $a$ единственным или одним из возможных с вероятностью $p(s^{\prime},r|s,a)$, среда называется детерминированной или не детерминированной. 
 
 \begin{figure}[ht]
 	\centerfloat{
@@ -56,9 +56,9 @@
 	\label{fig:rl}
 \end{figure}
 
-Процесс работы RL агента строится на марковском процессе принятия решений (МППР). В нем предполагается, что следующее состояние и награда которую получит агент зависит только от предыдуюего состояния и действия которое агент совершил. Если же у среды есть некоторые не наблюдаемые параметры, то говорят о частично наблюдаемом марковском процессе принятия решений (ЧНМППР). В нем наблюдение в момент времени $t$ --- $o_t \in \mathcal{O}$ определяется распределением $o_t \sim U(o_t|s_t)$, где $s_t \in \mathcal{S}$ полное состояние среды. 
+Процесс работы RL агента происходит в рамках марковского процесса принятия решений (МППР). В нем предполагается, что следующее состояние и награда которую получит агент зависит только от предыдущего состояния и действия которое агент совершил. Если же у среды есть некоторые не наблюдаемые параметры, то говорят о частично наблюдаемом марковском процессе принятия решений (ЧНМППР). В нем наблюдение в момент времени $t$ --- $o_t \in \mathcal{O}$ определяется распределением $o_t \sim U(o_t|s_t)$, где $s_t \in \mathcal{S}$ полное состояние среды. 
 
-Стратегия агента является детерминированной функцией $a_t=\pi(s_t)$ отображающей пространство состояний (наблюдений) в пространство действий $\mathcal{A}$. Задача агента состоит в максимизации суммарной ожидаемой дисконтированной награды к концу эпизода:
+Стратегия агента задается детерминированной функцией $a_t=\pi(s_t)$ отображающей пространство состояний (наблюдений) в пространство действий $\mathcal{A}$. Задача агента состоит в максимизации суммарной ожидаемой дисконтированной награды к концу эпизода:
 
 \begin{equation}
 \ex_{\tau \sim \pi_{\theta}} [J(\tau)] = \ex_{\tau \sim \pi_{\theta}} [r_0 + \gamma r_{1} + \gamma ^ 2 r_{2} + ...] = \ex_{\tau \sim \pi_{\theta}} [\sum_{t} \gamma ^t r_{t}]
@@ -72,14 +72,12 @@
      p(\tau|\pi) = p(s_0) \prod^T_{t=1}p(s_t|s_{t-1}, a_{t-1})\pi(a_{t-1}, s_{t-1})
 \end{equation}
 
- где $p(s_0)$ - распределение начальных состояний в каждом эпизоде, $p(s_t|s_{t-1}, a_{t-1})$ - распределение описывающее динамику среды.
- 
- Таким образом для задания среды необходимо определить $<\mathcal{S, R, A, P}, \gamma>$.
+ где $p(s_0)$ - распределение начальных состояний в каждом эпизоде, $p(s_t|s_{t-1}, a_{t-1})$ - распределение описывающее динамику среды. Таким образом для задания среды нужно определить набор $<\mathcal{S, R, A, P}, \gamma>$.
 
 
 \subsection{Уравнение Беллмана}
 
-Ценность нахождения агента в состоянии $s_t$ описывается с помощью V-функции и  Q-функции. $V(s_t) = \ex[\sum_{t} \gamma ^t r_{t}]$ оценивает суммарную дисконтированную награду, которую получит агент находящийся в состоянии $s_t$ если он будет следовать текущей стратегии. $Q(s_t, a_t) = \ex[r_t + \sum_{t} \gamma ^{t + 1} r_{t + 1}]$ --- суммарная дисконтированная награда, которую получит агент при совершении действия $a$ в состоянии $s_t$ и следовании дальше текущей стратегии. Значения V,Q-функций в точках $s_t$ и $s_{t + 1}$ при условии, что текущая стратегия является оптимальной связаны между собой уравнениями Беллмана: 
+Ценность нахождения агента в текущем состоянии $s_t$ описывается с помощью V-функции и связанной с ней Q-функции. $V(s_t) = \ex[\sum_{t} \gamma ^t r_{t}]$ оценивает суммарную дисконтированную награду, которую получит агент находящийся в состоянии $s_t$ если он будет действовать согласно текущей стратегии. $Q(s_t, a_t) = \ex[r_t + \sum_{t} \gamma ^{t + 1} r_{t + 1}]$ --- суммарная дисконтированная награда, которую получит агент при совершении действия $a$ в состоянии $s_t$ и следовании дальше текущей стратегии. V-функция позволяет сравнивать между собой две стратегии --- стратегия $\pi^{\prime}$ лучше стратегии $\pi$ если ожидаемая награда для первой стратегии $V_{\pi^{\prime}} \geq V_{\pi}$ для всех $s \in \mathcal{S}$. Таким образом можно определить оптимальную стратегию $\pi^*: V_{\pi^*} \geq  V_{\pi} \  \forall \pi$. Значения V,Q-функций в точках $s_t$ и $s_{t + 1}$ при условии, что текущая стратегия является оптимальной связаны между собой уравнениями Беллмана: 
 
 \begin{equation}
 	V^*(s) = \max_{a \in \mathcal{A}} \ex(r_{t + 1} + \gamma V^*(s_{t + 1}))
@@ -88,7 +86,6 @@
 \begin{equation}
 Q^*(s, a) = \ex(r_{t + 1} + \gamma \max_{a' \in \mathcal{A}} Q^*(s_{t + 1}, a'))
 \end{equation}
-
 
 Смысл V-функции можно легко представить в задаче изображенной на рис. \ref{fig:minigrid}. В ней агент движется из верхнего левого угла ($s_0$) сетки в правый нижний угол ($s_f$). Если агент за каждый шаг получает награду $r = -1$, то оптимальная V-функция в состоянии $s_t$ будет равна числу действий необходимых для достижения состояния $s_f$ со знаком ``-''. 
 
@@ -124,68 +121,113 @@ Q^*(s, a) = \ex(r_{t + 1} + \gamma \max_{a' \in \mathcal{A}} Q^*(s_{t + 1}, a'))
 
 \end{algorithm}
 
-In model-free RL, the agent learns from trial-and-error directly without any model for the reward and transitions. There are two approaches in deep RL named on-policy and off-policy diverse on data usage. In on-policy methods agent improves the policy and value function based on samples from the current policy. Policy gradients methods \cite{rl_book} e.g., TRPO \cite{trpo}, PPO \cite{ppo} learn directly policy $\pi(\cdot|s_t)$ based on the state observed under the current policy during training. In off-policy methods agent learns the optimal policy (Q-function) from replay buffer data generated by previous copies of the current policy. For example, Q-learning learns to find optimal action-value without fitting policy that generates data. Roughly speaking, off-policy and on-policy can be devised as different policy and same policy methods respectively \cite{rl_book, RL_review}. 
-
-%TRPO \cite{trpo} is the well-known on-policy improvement of REINFORCE \cite{rl_book} based on the natural gradient approach. In our work, it’s an outer loop algorithm in the on-policy meta-learning algorithm MAML \cite{maml}. Using the Gaussian parametrization method work well in a suit of robotic continuous task (MuJoCo benchmark \cite{mujoco, mujoco_benchmark}). The main problem of on-policy algorithms is sample inefficiency compared with off-policy approaches. They sensitive to current policy and can be easily trapped by any perturbation in current policy. 
-
-%SAC \cite{sac, sac_applications} is a state-of-the-art off-policy algorithm. It addresses learning maximum entropy policies in continuous action space. The maximum entropy objective generalizes the standard objective by augmented it with the entropy term, such that optimal policy aims to optimize entropy overall visited states. TQC \cite{tqc} gives a better solution of overestimation bias in critic networks compared to SAC. Instead of using minimum between the prediction of two nets \cite{two_nets_critic} TQC uses a distributional representation of a critic, truncation of critics predictions, and ensembling of multiple critics. %%We use TQC in our experiments.
+В рамках данной работы были использованы алгоритмы глубокого обучения с подкреплением обучающиеся методом проб и ошибок и не строящие в явном виде моделей награды и переходов среды. В зависимости от того, как используются данные полученные от среды такие алгоритмы можно разделить на два больших класса on-policy и off-policy. В on-policy алгоритмах агент обучается на данных полученных с помощью текущей стратегии. Благодаря этому получается добиться большей стабильности обучения, но требуется гораздо больше данных так как нет возможности переиспльзовать данные полученные при взаимодействии устаревшей стратегии со средой. 
+В off-policy алгоритмах агент выучивает оптимальную стратегию (Q-функцию) используя исторические данные взаимодействия со средой полученные при использовании предыдущих версий стратегии. 
 
 \subsection{Off-policy алгоритмы}
 
 \paragraph{Алгоритм DQN}
-Существенной прорыв в глубоком обучении с подкреплением был достигнут в 2015 году. Авторами \cite{mnih2013atari} был разработан метод DQN который научился играть в 49 игр Atari на уровне человека. Алгоритм строится на обучении глубокой нейронной сети аппроксимировать Q-функцию для текущего состояния среды на основе изображения. 
+
+Одними из наиболее популярных методов основанных на приближенном вычислении Q-функции являются алгоритмы Q-learning \cite{Watkins_1992} и Deep Q-learning \cite{mnih2013atari}. В методе Q-learning $Q(s, a)$ иттеративно обновляется на основании опыта собранной текущей стратегией. В работе \cite{SuttonQLearning} показано, что функция обновляемая таким методом сходится к оптимальной Q-функции. 
+
+Существенной прорыв в методах основанных на Q-обучении был достигнут в 2015 году. Благоданя использованию нейронных сетей в качестве аппрокиматора для Q-функции авторами \cite{mnih2013atari} был разработан метод DQN который смог научился играть в 49 игр Atari на уровне человека. 
+
+Алгоритм строится на обучении глубокой нейронной сети аппроксимировать Q-функцию для каждого возможного действия в зависимости от текущего состояния игры --- изображения. Для стабилизации процесса обучения авторы использовали следующее выражение для функции потерь:
+
+\begin{equation}
+    L(\theta) = \ex_{<s, a, r, s^{\prime}> \sim \mathcal{D}}\left[\left(r + \gamma \max_{a^{\prime}}
+    Q_{\theta^-(s^{\prime}, a^{\prime})} - Q_{\theta}(s, a)\right)^2 \right]
+\label{eq:dqn}
+\end{equation}
+
+где буфер $\mathcal{D}$ содержит состояния и действия полученные при взаимодействии со средой $<s, a, r, s^{\prime}>$. В уравнении \ref{eq:dqn} для вычисления Q-значения в следующем состоянии $s^{\prime}$ используется скользящее средние весов Q-функции что позволяет стабилизировать обучение и делает алгоритм DQN эффективным для решения многих задач обучения с подкреплением.
+
+Для заданной Q-функции стратегия агента определяется $\varepsilon$-жадным способом: 
+
+\begin{equation}
+    \pi =  \begin{cases}
+      \mathrm{argmax}_{a}(Q(s, a)) & \text{if $\zeta \sim$ U(0, 1) > $\varepsilon$}\\
+      a \sim \mathcal{A} & \text{otherwise}
+    \end{cases}       
+\end{equation}
+
+При каждом шаге взаимодействия со средой во время обучения выбирается случайное число $\zeta \sim U(0, 1)$ и если оно больше параметра $\varepsilon$, то агент использует свое знание о среде и действует жадно -- выбирает действие с большим значением Q-функции. Если же $\zeta < \varepsilon$, то агент исследует среду выбирая случайное действие.  
 
 \paragraph{Алгоритм TD3}
-Существенным ограничением метода DQN является то, что он применим исключительно для сред с дискретным набором действий. 
+Существенным ограничением метода DQN является то, что он применим исключительно для сред с дискретным набором действий так как для получения стратегии находится максимум по действиям значения Q-функции. Также одной из проблем возникающих при аппроксимации Q-функции с использованием нейронных сетей является частая переоценка значения Q-функции в большую сторону.
 
- 
-
-The agent's objective is to learn the policy $\pi^*$ that maximizes the expected return $J(\pi) = \mathbb{E}_{\tau\sim p(\tau | \pi)}[R_0]$ where $p(\tau | \pi)$ is the distribution of trajectories $\tau = (o_0, a_0, o_1, a_1, ..., a_{T-1}, o_{T})$ produced by policy $\pi$:
-\begin{equation}
-    \label{eq:optEq}
-    \pi^* = \argmax_{\pi}J(\pi).
-\end{equation}
-
-The agent objective is to learn policy $\pi^*$ that maximize the expected return $J(\pi) = \mathbb{E}_{\tau\sim p(\tau | \pi)}[R_0]$ where $p(\tau | \pi)$ is the likelihood of sampling trajectory $\tau = (o_0, a_0, o_1, a_1, ..., a_{T-1}, o_{T})$ having policy $\pi$.
- 
- \begin{equation}
-     \pi^* = \argmax_{\pi}J(\pi)
- \end{equation}
- 
-
-
-\textbf{Policy gradient. }
-The policy $\pi$ is defined by parameters $\theta$ (i.e.~$\pi=\pi_{\theta}$), so the optimization \eqref{eq:optEq} is performed with respect to the parameters: $\theta^* = \argmax_{\theta}J(\pi_{\theta})$. A common approach to such a problem is policy gradient \citep{sutton1999policy}, which iteratively improves the policy in terms of expected return via gradient ascent:
+Одним из наиболее популярных алгоритмов применяемых в условиях марковского процесса принятия решений с использованием непрерывного пространства действий является алгоритм TD3 \cite{Fujimoto2018AddressingFA}. Алгоритм TD3 использует три нейронных сети: первая (актор) для задания детерминированной стратегии агента $\pi_{\theta}$ и две оставшиеся (критики) для оценки значений $Q_{\theta_1}, Q_{\theta_2}$. 
 
 \begin{equation}
-    \theta_{t+1} = \theta_{t} + \alpha  \frac{\partial J(\pi_{\theta})}{\partial \theta},
+    y(r, s, a) = r + \gamma \min(Q_{\theta_1}(s, a), Q_{\theta_2}(s, a))
 \end{equation}
 
-where $\alpha$ is the learning rate. The algorithms of this family vary by the method of approximating the unknown $J(\pi_\theta)$.
+\begin{equation}
+    L(\theta_1, \mathcal{D}) = \ex_{<s, a, r, s^{\prime}> \sim \mathcal{D}}\left[\left(Q_{\theta_1}(s, a - y(r, s, a)\right)^2 \right]
+\end{equation}
 
-A common approach to continuous-action Markov decision processes is TD3 \citep{fujimoto2018addressing} which is an extension of another popular algorithm DDPG \citep{lillicrap2015continuous}. This algorithm uses three neural networks: one (actor) for a deterministic policy and two (critics) for evaluating the action-state values $Q(s_t,a_t)$. Using two critics allows the algorithm to suffer less from overestimating the Q-values; in addition, the algorithm smoothens the Q-functions by adding Gaussian noise to the target actions when updating the parameters of the critics. Gaussian noise is also added to each policy action during the training to encourage exploration.
+\begin{equation}
+    L(\theta_2, \mathcal{D}) = \ex_{<s, a, r, s^{\prime}> \sim \mathcal{D}}\left[\left(Q_{\theta_2}(s, a - y(r, s, a)\right)^2 \right]
+\end{equation}
 
-Данный алгоритм использует нейронную сеть, определенную набором параметров $\theta$, для реализации детерминированной политики $a = \pi_{\theta}(o)$. Для обучения такой политики  функция $J(\pi_\theta)$ приближается с помощью двух Q-функций, заданных нейронными сетями что уменьшает переоценку Q-значений. 
+Обе Q-функции обучаются при минимизации ошибки с одной целевой функцией вычисляемой с использованием наименьшего из значений Q-функций. Использование наименьшего значения из двух Q-функций позволяет уменьшить переоценку Q-значений. Дополнительно во время обучения алгоритм TD3 сглаживает значения Q-функции при помощи случайного шума, который добавляется в действия $a + \mathcal{N}(0, 1)$ при обновлении параметров нейронных сетей критиков. 
 
+Стратегия агента обучается максимизировать значение $Q_{\theta_1}$ в состоянии $s$:
 
-Так TD3 использует две Q-функции вместо одной, для предотвращения переоценки $J(\pi_\theta)$, реже обновляет политику, а также сглаживает Q-функции, добавляя шум к целевому действию. 
+\begin{equation}
+    \max_{\phi}\ex_{s \sim \mathcal{D}}\left(Q_{\theta_1}(s, \pi_{\phi}(s))\right)
+\end{equation}
 
-Добавить про TD3. Exploration noise ???
+Для стабилизации процесса обучения нейронная сеть определяющая текущую стратегию агента обновляется реже чем нейронные сети вычисляющие Q-функции. 
 
-что это, формулы
-адвантаж, оверэстимэйшен 
+Также случайный шум добавляется в каждой действие в процессе обучения агента для лучшего исследования среды.
+
 
 \subsection{On-policy алгоритмы}
 
-\paragraph{Алгоритм PPO}
-credit assignment problem (какие действия привели к награде)
-Альтернативным подходом является оптимизация стратегии на прямую. 
+Одной из проблем off-policy методов является то, что хорошая оценка Q-функции не является гарантией оптимальности стратегии агента. 
+Это можно представить на примере среды содержащей только два действия $a_1, a_2$. Рассмотрим две стратегии $Q_1, Q_2$ и оптимальную стратегию $Q^*$ в начальном состоянии $s_0$: 
+
+\begin{equation}
+    Q_1(s_0, a) = 
+    \begin{cases}
+    6 & \text{if $a = a_1$}\\
+    5 & \text{otherwise}
+    \end{cases}
+\end{equation}
+
+\begin{equation}
+    Q_2(s_0, a) = 
+    \begin{cases}
+    7 & \text{if $a = a_1$}\\
+    10 & \text{otherwise}
+    \end{cases}
+\end{equation}
+
+\begin{equation}
+    Q^*(s_0, a) = 
+    \begin{cases}
+    5 & \text{if $a = a_1$}\\
+    6 & \text{otherwise}
+    \end{cases}
+\end{equation}
+
+Стратегия задаваемая $Q_2$ будет выбирать оптимальное действие $a_2$ несмотря на то, что ошибка измеряемая квадратичной функцией потерь у нее существенно больше чем у $Q_1$ которая будет выбирать не оптимальное действие $a_1$.
+
+Решением этой проблемы может быть оптимизация параметров стратегии напрямую. Так как целью агента является максимизация ожидаемой суммарной дисконтированной награды $J(\pi) = \ex_{\tau\sim \pi}\left[ \sum_t \gamma^t r_t \right]$: 
+ 
+\begin{equation}
+    \theta_{i+1} = \theta_{i} + \alpha  \frac{\partial J(\pi_{\theta})}{\partial \theta},
+\end{equation}
+
+где параметр $\alpha$ --- величина градиентного шага. 
 
 $$J(s) = \sum_{\pi} R(s,a )$$
 $$\nabla_{\theta} J(s) = \sum_{\pi} \pi(a|s)\frac{\nabla \pi(a|s)}{\pi(a|s)}R(s,a )$$
 $$\nabla_{\theta} J(s) = \sum \log(\pi(a|s))R(s,a )$$
 
-Мотивация 
+\paragraph{Алгоритм PPO}
+
 REINFORCE, Actor-Critic, PPO
 
 The Actor network $\pi_{\theta} (\cdot|s_i)$ minimizes the following clipped objective: 
@@ -253,6 +295,7 @@ In contrast to \citep{ecoffet_first_2021}, though, by using learnt state represe
 \section{Обзор применения методов обучения с подкреплением в роботике}\label{sec:ch1/sec2}
 
 В настоящее время роботы успешно справляются с четко поставленными задачами в условиях неизменного внешнего окружения. Примерами таких задач являются автоматизация конвейерных линий сборки автомобилей или различных устройств. Также в бытовых условиях, где окружение меняется ежедневно, но незначительно, современные роботы – например, пылесосы или голосовые помощники – находят свое применение. Однако, в сильно недетерминированных средах или в областях, где требуется многозадачность, роботы все еще сильно уступают человеку. Причин этому множество, начиная со слабой степени развития некоторых типов сенсоров, например, тактильных, которые должны передавать роботу информацию об окружающей среде, и заканчивая отсутствием интеллектуальных самообучающихся алгоритмов, которые были бы способны быстро адаптироваться к изменяющемуся окружению после лишь нескольких взаимодействий с ним. 
+
 %Методы основанные на глубоком обучении с подкреплением будут способны быстро адаптироваться под изменяющиеся условия окружающей среды и новые задачи, т. е. быстро обучаться в реальных условиях.
 
 Искусственный интеллект призван заменить жесткие программы, разработанные человеком, для управления роботами. Конечной целью исследований в области искусственного интеллекта является создание безопасного для человека общего искусственного интеллекта (Artificial general intelligence - AGI). Важную роль в создании AGI играют методы обучения с подкреплением и глубокие нейронные сети. 
