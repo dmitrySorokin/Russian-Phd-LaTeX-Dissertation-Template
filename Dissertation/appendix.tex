@@ -4,36 +4,35 @@
 проблемы с поддержкой кириллицы (у вас может встречаться в~комментариях
 и~печатаемых сообщениях), он представлен на листинге~\cref{lst:hwbeauty}.
 \begin{ListingEnv}[!h]% настройки floating аналогичны окружению figure
-    \captiondelim{ } % разделитель идентификатора с номером от наименования
-    \caption{Программа ,,Hello, world`` на \protect\cpp}\label{lst:hwbeauty}
-    % окружение учитывает пробелы и табуляции и применяет их в сответсвии с настройками
-    \begin{lstlisting}[language={[ISO]C++}]
-	#include <iostream>
-	using namespace std;
+\captiondelim{ } % разделитель идентификатора с номером от наименования
+\caption{Листинг функции трассировки луча через систему зеркал}\label{lst:beam_trace}
+% окружение учитывает пробелы и табуляции и применяет их в сответсвии с настройками
+\begin{lstlisting}[language=Python]
+def trace(self, mirror1_normal, mirror2_normal):
+    # initial center and wave_vector
+    center = np.array(
+        [0, -self.a, -(self.b + self.c)]
+    )
+    wave_vector = np.array([0, 0, 1])
 
-	int main() //кириллица в комментариях при xelatex и lualatex имеет проблемы с пробелами
-	{
-		cout << "Hello, world" << endl; //latin letters in commentaries
-		system("pause");
-		return 0;
-	}
-    \end{lstlisting}
-\end{ListingEnv}%
-Второй не~такой красивый, но без ограничений (см.~листинг~\cref{lst:hwplain}).
-\begin{ListingEnv}[!h]
-    \captiondelim{ } % разделитель идентификатора с номером от наименования
-    \caption{Программа ,,Hello, world`` без подсветки}\label{lst:hwplain}
-    \begin{Verb}
+    # reflect beam by first mirror
+    center = project(
+        center, wave_vector, 
+        mirror1_normal, np.array([0, -self.a, -self.c])
+    )
+    wave_vector = reflect(wave_vector, mirror1_normal)
 
-        #include <iostream>
-        using namespace std;
+    # reflect beam by second mirror
+    center = project(
+        center, wave_vector, 
+        mirror2_normal, np.array([0, 0, -self.c])
+    )
+    wave_vector = reflect(wave_vector2, mirror2_normal)
 
-        int main() //кириллица в комментариях
-        {
-            cout << "Привет, мир" << endl;
-        }
-    \end{Verb}
+    return center, wave_vector
+\end{lstlisting}
 \end{ListingEnv}
+
 
 Можно использовать первый для вставки небольших фрагментов
 внутри текста, а второй для вставки полного
