@@ -1,6 +1,8 @@
 \chapter{Настройка оптического интерферометра методами машинного обучения с подкреплением}\label{ch:ch2}
 
-\section{Физические принципы работы оптического интерферометра}\label{sec:ch2/sec1}
+\section{Физические принципы работы и модель оптического интерферометра}\label{sec:ch2/sec1}
+
+\subsection{Математическая модель интерференции света}
 
 Работа оптического интерферометра основана на принципе интерференции света --- физического процесса при котором два когерентных световых пучка накладываются друг на друга и образуют в пространстве периодическую структуру состоящую из минимумов и максимумов интенсивности получившую название интерференционной картины. 
 
@@ -51,6 +53,7 @@
 
 где $\Delta \phi = \phi_1 - \phi_2$ --- разность фаз двух волн. Из уравнения \ref{eq:interf} следует, что если две волны складываются синфазно т.е. $\Delta \phi = 0$, то интенсивность света максимальна $I = I_1 + I_2 + 2\sqrt{I_1I_2}$. Если же две волны складываются в противофазе т.е. $\Delta \phi = \pi$, то интенсивность света минимальна $I = I_1 + I_2 - 2\sqrt{I_1I_2}$.
 
+\subsection{Математическая модель интерферометра Маха-Цендера}
 
 Интерферометры являются одними из основных инструментов в экспериментальной оптике и служат для прецизионного измерения разности фаз между двумя лучами. Интерферометр Фабри-Перо\cite{fabry-perot1899} используется в оптической спектрометрии; интерферометр Майкельсона является основной частью современных детекторов гравитационных волн LIGO и VIRGO \cite{LIGO, VIRGO} он также используется для измерения шероховатости поверхностей; интерферометр Саньяка используется в современных навигационных системах; интерферометр Маха-Цендера является основным инструментом в современных экспериментах в квантовой оптике \cite{Sarkar2006, Sychev2017}. 
 
@@ -85,40 +88,87 @@
 \end{equation}
 
 
-Для вычисления интерференционной картины по формуле \ref{eq:interf} необходимо знать положение центров лучей на камере и их фазы. 
+Для вычисления интерференционной картины по формуле \ref{eq:interf} необходимо знать положение центров лучей на камере и их фазы. Предполагаем, что верхний луч распространяется точно вдоль оси  $z$, таким образом для него $x_0\equiv y_0\equiv k_x\equiv k_y\equiv 0$. Для нижнего луча в работе производится трассировка нижнего луча через систему зеркал. Введем систему координат с центром в камере как показано на рис. \ref{fig:MZI_coordis}. 
 
-//TODO описать систему координат
 
-Для этого в работе производится трассировка нижнего луча через систему зеркал. При прохождении каждого зеркала находится точка пересечения луча с плоскостью зеркала и рассчитывается угол поворота луча. Луч вращается относительно плоскости перпендикулярной плоскости образованной вектором нормали зеркала и первоначальным направлением луча. Величина угла определяется из закона отражения. Листинг функции трассировки приведен в приложении \ref{lst:beam_trace}.
+\begin{figure}[ht]
+\centerfloat{
+    \includegraphics[scale=2.0]{images/MZI_matmodel.png}
+}
+\caption{Система координат}
+\label{fig:MZI_coordis}
+\end{figure}
 
-The intensity of the interferometric picture produced by the two superimposed beams in the camera plane ($z=0$) is then  $I(x,y,t)=|E_1(x,y,0)+E_2(x,y,0)e^{i\phi_{\mathrm{piezo}}(t)}|^2$, where  and $\phi_{\mathrm{piezo}}(t)$ is the phase shift induced by the piezo mirror movement.%with centers $\vec{x}_{01}$, $\vec{x}_{02}$, wave vectors $\vec{k}_1$, $\vec{k}_2$ in an arbitrary point with coordinate vector $\vec{x}$ is given by: 
-%\begin{equation}
-%    I(\vec{x}, t) = A_1^2 + A_2^2 + 2 A_1 A_2 \cos \left( \phi_1 - \phi_2 + \phi_{\mathrm{piezo}}(t) \right),
-%    \label{eq:intens}
-%\end{equation}
+При прохождении каждого зеркала находится точка пересечения луча с плоскостью зеркала и рассчитывается угол поворота луча. Луч вращается относительно плоскости перпендикулярной плоскости образованной вектором нормали зеркала и первоначальным направлением луча. Величина угла определяется из закона отражения. Листинг функции трассировки приведен в приложении \ref{lst:beam_trace}.
 
-The traditional alignment quality metric is the visibility defined as 
+
+\subsection{Видность интерференционной картины}
+
+Интенсивность интерференционной картины получаемой при наложении двух лучей в плоскости камеры ($z=0$) задается выражением:
+
 \begin{equation}
-    V = \frac{            \max_{t}(I_{\mathrm tot}) - \min_t(I_{\mathrm tot})
-            } {
-                \max_{t}(I_{\mathrm tot}) + \min_t(I_{\mathrm tot})
-            },
+    I(x,y,t)=|E_1(x,y,0)+E_2(x,y,0)e^{i\phi_{\mathrm{piezo}}(t)}|^2  
+\end{equation}
+
+где $\phi_{\mathrm{piezo}}(t)$ фазовый сдвиг получаемый из-за движения пьезо зеркала. Таким образом разность фаз $\Delta \phi$ в уравнении \ref{eq:interf} за один проход пьезо зеркала пробегает интервал от $0$ до $2\pi$. Суммарной интенсивностью интерференционной картины называется величина: 
+
+\begin{equation}
+    I_{\mathrm{tot}}(t) = \iint_{-\infty}^{+\infty} I(x, y, t) {\mathrm{d}}x{\mathrm{d}}y
+\end{equation}
+
+Периодическое движение пьезо зеркала приводит к периодическому изменению суммарной интенсивности. Пример изменения интенсивности интерференционной картины показан на рис. \ref{fig:intens_plot}.
+
+\begin{figure}[ht]
+\centerfloat{
+    \includegraphics[scale=0.7]{images/piezo_intens_plot.pdf}
+}
+\caption{График изменения интенсивности (слева) и график движения пьезо зеркала (справа) TODO}
+\label{fig:intens_plot}
+\end{figure}
+
+Основным критерием качества настройки интерферометра является видность интерференционной картины: 
+
+\begin{equation}
+    V = \frac{            
+        \max_{t}(I_{\mathrm{tot}}) - \min_t(I_{\mathrm{tot}})}
+        {\max_{t}(I_{\mathrm{tot}}) + \min_t(I_{\mathrm{tot}})}
     \label{eq:visib}
 \end{equation}
-where $I_{\mathrm tot}(t) = \iint_{-\infty}^{+\infty} I(x, y, t) {\mathrm d}x{\mathrm d}y$ is a total optical power incident on the camera; the maximum and minimum are taken over the piezo movement period. The visibility is a real number between 0 and 1. For a fully aligned interferometer [Fig.~\ref{fig:visib_expl}(a)], $\min_t(I_{\mathrm tot})=0$, so $V=1$, whereas when the interferometer is misaligned [Fig.~\ref{fig:visib_expl}(c)], $\min_t(I_{\mathrm tot})\approx\max_t(I_{\mathrm tot})$, so $V\approx 0$.
 
-To simplify the simulation, we assume that  the upper beam propagates exactly along $z$, so $x_0\equiv y_0\equiv k_x\equiv k_y\equiv 0$ for that beam. From Eqs.~\eqref{eq:Exyzt} and \eqref{eq:visib}, we find the visibility to equal 
-%To simulate the light intensity distribution of two interfering beams, we introduce a coordinate system with the origin at the center of the camera and axes directed as shown in Fig. \ref{fig:setup_axis}. The used mirrors mounts \cite{newport_mirror} have two screws, each screw can be rotated using special handle either manually or by PC controller. Rotation of screws is independent of each other in the small-angle approximation and leads to rotation of wave vector of a lower beam in two orthogonal planes yOz and yOx while the upper beam transmits through the second beamsplitter and remains unchanged. Let's consider situation when the upper beam hits the camera at a point with coordinates $(0,0,0)$ along the normal to the plane xOz, while the mirror 1 and BS 2 are rotated around the x-axis counterclockwise by a small angle $\alpha_1$ and $\alpha_2$ respectively. In this case, the angle between the wave vectors of the upper and lower beams is equal to $2 \alpha_2 - 2 \alpha_1$, and the lower beam hits the camera at the point with coordinates $(0, 2 \alpha_2 c - 2 \alpha_1 (a + c), 0)$. The case of rotation of the mirror 1 and the BS 2 around the y-axis is considered in a similar way. Then the expression for the interference visibility takes the form
+Видность интерференционной картины вычисляется с помощью минимума $\min_t(I_{\mathrm{tot}})$ и максимума $\max_t(I_{\mathrm{tot}})$ суммарной интенсивности света на камере. Максимум и минимум вычисляются за один полный период прохода пьезо зеркала. По определению видность является действительным числом и находится в интервале $V \in [0, 1]$. 
+
+Примеры интерференционных картин и графики соответствующих им суммарных интенсивностей приведены на рис. \ref{fig:visib_expl}. Для полностью настроенного интерферометра [рис.~\ref{fig:visib_expl}(a)], $\min_t(I_{\mathrm{tot}})=0$, таким образом видность $V=1$, для полностью расстроенного интерферометра [Fig.~\ref{fig:visib_expl}(c)], $\min_t(I_{\mathrm{tot}})\approx\max_t(I_{\mathrm{tot}})$, таким образом видность $V\approx 0$.
+
+\begin{figure}[ht]
+\centerfloat{
+    \includegraphics[scale=0.7]{images/visib_expl.png}
+}
+\caption{Примеры интерференционных картин полученные в симуляции. (a) Полностью настроенный интерферометр, видность = 1; (b) Слабо расстроенный интерферометр, видность = 0.3; (c) Сильно расстроенный интерферометр, видность =
+0.0026. Изображения слева на право соответствуют различной разности фаз [$\phi_{\mathrm{piezo}}(t)$] между двумя плечами интерферометра из-за движения пьезо зеркала}
+\label{fig:visib_expl}
+\end{figure}
+
+
+Из уравнений.~\eqref{eq:Exyzt} и \eqref{eq:visib}, получим точное выражение для видности интерференционной картины:
+
 \begin{equation}
     V = \exp\left(- \frac{x_0^2 + y_0^2}{2 r^2}\right)  \exp\left[- \frac{(k_x^2 + k_y^2) r^2}{8}\right],
     \label{eq:visib_rot}
 \end{equation}
-where $x_0$ and $y_0$ are the coordinates of the center of the lower beam at the camera and $k_x$ and $k_y$ the components of its wave-vector. %We now relate these parameters to the mirror angles. 
-Assuming that the beam arrives at mirror 1 parallel to the $z$ axis and at the origin of the $(x,y)$ plane, we have 
-\begin{equation}
-k_{x,y}/k= \alpha_{1x,y} +  \alpha_{2x,y} \textrm{ and }x,y= \alpha_{2x,y} c +  \alpha_{1x,y} (a + c)\label{eq:xykxky}
-\end{equation}
-where $k=\sqrt{k_x^2+k_y^2+k_z^2}=2\pi/\lambda$, $\lambda$ is the wavelength, $\alpha_{1x,y}\ll1$ and  $\alpha_{2x,y}\ll1$ are the horizontal and vertical angles by which mirror 1 and BS2, respectively, deflect the beam (with respect to the default $90^\circ$ reflection) while $a$ and $c$ are the interferometer dimensions as shown in Fig.~\ref{fig:interf_scheme_and_setup}(a) and listed in Table 1. We used the fact that, in the paraxial approximation, the horizontal and vertical angles of the beam with respect to the $z$ axis are given by $k_x/k$ and $k_y/k$, respectively.
+
+где $x_0$ и $y_0$ координаты центра нижнего луча на камере; $k_x$ и $k_y$ компоненты волнового вектора нижнего луча. Вывод уравнения \ref{eq:visib_rot} приведен в приложении \ref{app:B1}.
+
+\subsection{Математическая модель интерферометра Маха-Цендера с линзами}
+
+Интерферометр Маха-Цендера показанный на рис.
+
+
+\subsection{Видность интерференционной картины в интерферометре Маха-Цендера с линзами}
+
+\subsection{Численная модель интерферометра Маха-Цендера}
+
+python, C++, threads, camera pixel parallel computation
+
 
 \section{Настройка оптического интерферометра как задача машинного обучения с подкреплением}\label{sec:ch2/sect2}
 
