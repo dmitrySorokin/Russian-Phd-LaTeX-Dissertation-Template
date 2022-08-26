@@ -339,32 +339,76 @@ $r(z)$ радиус луча, $\rho(z)$ радиус кривизны волно
     R = V - \log(1-V) - 1
 \end{equation}
 
+Данная функция награды позволяет агенту различать состояния с близкой видностью. В области с низкой видностью награда растет линейно от достигнутого значения видности. А в области с высокой видностью награда растет экспоненциально. Например, при видности равной $V = 0.95$ награда $R = 2.9$, а видности равной $V = 0.98$ награда $R = 3.9$. Также в награде учитывается штраф $-1$ за каждый шаг агента. 
 
-In this way, Interferobot is punished for each additional step, but significantly rewarded for high alignment quality.
+\begin{figure}[ht]
+\centerfloat{
+    \includegraphics[scale=0.7]{images/reward_visib.pdf}
+}
+\caption{Зависимость функции награды от значения видности}
+\label{fig:reward_visib}
+\end{figure}
 
 \subsection{Архитектура нейронной сети агента}
 
-Описание + листинг в аппендиксе
+Для параметризации $Q$-функции в работе использовалась нейронная сеть с архитектурой эквивалентной \cite{mnih2013atari}. В ней для работы с изображениями применяется 3-слойная сверточная нейронная сеть с параметрами (выходное число каналов, размер ядра, и сдвиг) равными [(32, 8, 4), (64, 4, 2), (64, 3, 1)] и функцией активации $ReLU$. Далее для обработки признаков получаемых на выходе сверточной нейронной сети использовался двухслойный перцептрон с функцией активации $ReLU$. Листинг задания нейронной сети DQN агента приведен в приложении \ref{lst:dqn}. 
+Huber loss
 
+
+\subsection{Параметры обучения}
+
+При обучении DQN агента использовались стандартные параметры совпадающие с параметрами использованными в работе \cite{mnih2013atari}. Значения параметров приведены в таб.~\ref{tab:dqn_params}.
+
+\begin{table} [htbp]
+    \centering
+    \begin{threeparttable}% выравнивание подписи по границам таблицы
+        \caption{Параметры Double duelling DQN агента}\label{tab:dqn_params}%
+        \begin{tabular}{| p{5cm} || p{5cm} |}
+            \hline
+            \hline
+            параметр & значение \\
+            \hline
+            total steps & $10^8$ \\
+            $\varepsilon$-decay steps & $10^6$ \\
+            rollout steps & 4 \\
+            final $\varepsilon$ & 0.1 \\
+            max grad norm & 50 \\
+            batch size & 32 \\
+            buffer size & $10^6$ \\
+            init buffer size & $5 \cdot 10^4$ \\
+            learning rate & $5 \cdot 10^{-4}$ \\
+            gamma & 0.99 \\
+            %Месяц   & \centering  \((T_{max} - T_{min})\), К & \\
+            %\hline 
+            \hline
+            \hline
+        \end{tabular}
+    \end{threeparttable}
+\end{table}
+
+                        
 \section{Настройка интерферометра с помощью алгоритма TD3}
 
-Много полезных советов приведено в материале
-<<\href{https://kostyrka.ru/main/ru/typesetting-and-typography-crash-course-by-kostyrka/}{Краткий курс благородного набора}>>
-(автор А.\:В.~Костырка).
-Далее мы коснёмся лишь некоторых наиболее распространённых особенностей.
+Для настройки интерферометра с использованием непрерывных действий бал выбран алгоритм TD3. Его можно рассматривать как обобщение алгоритма DQN на пространство непрерывных действий. Основной частью алгоритма TD3 является нейронная сеть параметризующая стратегию агента $\pi_{\theta}(s_t)$ которая обучается предсказывать действия максимизирующие значение $Q$-функциии $\pi_{\theta}(s_t) = a_t: Q(s_t, a_t) \to \max$
 
 \subsection{Пространство действий}
 
-В~русском наборе принято:
-\begin{itemize}
-    \item единицы измерения, знак процента отделять пробелами от~числа:
-          10~кВт, 15~\% (согласно ГОСТ 8.417, раздел 8);
-    \item \(\tg 20\text{\textdegree}\), но: 20~{\textdegree}C
-          (согласно ГОСТ 8.417, раздел 8);
-    \item знак номера, параграфа отделять от~числа: №~5, \S~8;
-    \item стандартные сокращения: т.\:е., и~т.\:д., и~т.\:п.;
-    \item неразрывные пробелы в~предложениях.
-\end{itemize}
+Действия представляют собой 5и мерный вектор $a \in \mathcal{R}^5$. Компоненты вектора соответствуют угловым отклонениям обоих зеркал вокруг осей $x$ и $y$ и линейному смещению линзы относительно начального положения. Каждая компонента вектора действия лежит в интервале $[-1,1]$, где значения $\pm 1$ соответствуют максимальному и минимальному значениям из таб.~\ref{table:TODO}. В случае, если после применения действий суммарное смещение будет по модулю больше $1$, то его значение устанавливается равным соответственно $1$ или $-1$.
+Амплитуда каждой компоненты вектора действия ограничиваются в интервале $[2.5 \cdot 10^{-3}, 1]$, так как действия меньшей амплитуды не приводят к видимому изменению интерференционной картины и лежат в пределах шумов пьезо моторов используемых в механизированных подвижках.
+
+\textbf{Масштабирование действий.} 
+В процессе настройки агент должен оперировать все более маленькими и более точными действиями. В среднем амплитуда действий в процессе настройки уменьшается на два порядка (as illustrated in the experimental Section \ref{sec:Exp} below). It is therefore desirable that the exploration noise also decrease with the action magnitude. We satisfy this by setting the agent's neural network to output a ``raw action" value $a_0\in[-1,1]$, from which the actual action is calculated according to By using actions sampled from standard Gaussian distribution we either strongly eliminate the probability of choosing low-amplitudes actions, or train with extremely small exploration noise that leads to a lack of exploration and stack in local optima. To make different actions amplitudes $0.01, 0.1, 1$ have a similar probability of being produced by an agent we applied a special function:
+
+\begin{equation}\label{eq:rescale}
+a =
+   \begin{cases}
+    {\mathrm{sign}}(a_0) \cdot 1000^{|a_0| - 1}  & \quad \text{если $|a_0| > 0.17$} 
+    \\
+    0  & \quad \text{иначе}
+  \end{cases}
+\end{equation}
+This transformation produces rescaled actions with absolute values $|a|\in\{0\}\cup[2.5 \cdot 10^{-3}, 1]$.  range and $0$ for every action unobservable on camera images.
+\textcolor{red}{The exploration noise is first added to “raw action” and then action rescaler is applied, it is also significant that noisy “raw action” $a_0$  is stored in the replay buffer, while a is executed in the environment}
 
 \subsection{Функция награды}
 
