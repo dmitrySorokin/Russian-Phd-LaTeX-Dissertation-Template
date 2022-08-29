@@ -240,6 +240,55 @@ class DuelDQNModel(nn.Module):
 \end{ListingEnv}
 
 
+\begin{ListingEnv}[!h]
+\captiondelim{ }
+\caption{Нейронная сеть TD3 агента}\label{lst:td3}
+
+\begin{lstlisting}[language=Python]
+
+class TD3Actor(nn.Module):
+    def __init__(self, state_dim, action_dim, hid_dim):
+        super(Actor, self).__init__()
+        self.vgg16 = nn.Sequential(
+            nn.Conv2d(16, 32, kernel_size=3, padding=1)
+            nn.ReLU(),
+            nn.Conv2d(32, 32, kernel_size=3, padding=1)
+            nn.ReLU(),
+            nn.MaxPool2d(2, 2), 
+            nn.Conv2d(32, 64, kernel_size=3, padding=1)
+            nn.ReLU(),
+            nn.Conv2d(64, 64, kernel_size=3, padding=1)
+            nn.ReLU(),
+            nn.MaxPool2d(2, 2), 
+            nn.Conv2d(64, 128, kernel_size=3, padding=1)
+            nn.ReLU(),
+            nn.Conv2d(128, 128, kernel_size=3, padding=1)
+            nn.ReLU(),
+            nn.MaxPool2d(2, 2), 
+            nn.Conv2d(128, 256, kernel_size=3, padding=1)
+            nn.ReLU(),
+            nn.Conv2d(256, 256, kernel_size=3, padding=1)
+            nn.ReLU(),
+            nn.MaxPool2d(2, 2),
+            nn.Flatten()
+        )
+
+        self.mlp = nn.Sequential(
+            nn.Linear(get_layer_out(self.vgg16, state_dim), hid_dim),
+            nn.ReLU(),
+            nn.Linear(hid_dim, hid_dim),
+            nn.ReLU(),
+            nn.Linear(hid_dim, action_dim),
+            nn.Tanh()
+        )
+
+    def forward(self, obs):
+        return self.mlp(self.vgg16(obs))
+        
+\end{lstlisting}
+\end{ListingEnv}    
+
+
 \chapter{Вывод основных формул}\label{app:B}
 
 \section{Вывод формулы видности для интерферометра Маха-Цендера (\ref{eq:visib_rot})}\label{app:B1}
