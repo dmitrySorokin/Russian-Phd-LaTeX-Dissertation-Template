@@ -470,11 +470,18 @@ a^{\prime} =
             $\pi$ learning rate & $10^{-5}$ \\
             $q$ learning rate & $10^{-4}$ \\
             $\gamma$ & 0.8 \\
+            $\rho_{\mathrm{polyak}}$ & 0.995 \\
+            num\_epochs & 10  \\
+            policy\_delay & 1 \\
+            $\sigma_{\mathrm{targ}}$ & 0.2 \\
+            $c$ & 0.5 \\
             \hline
             \hline
         \end{tabular}
     \end{threeparttable}
 \end{table}
+
+        
 
 \section{Программно-аппаратный комплекс Интерферобот}
 
@@ -488,7 +495,7 @@ a^{\prime} =
 \label{fig:interf_complex}
 \end{figure}
 
-Схема взаимодействия модулей в комплексе Интерферобот представлена на рис.~\ref{fig:interf_complex}. В нем RL агент или человек используют один и тот же интерфейс как для взаимодействия с симулятором интерферометра, так и с физической установкой. 
+Схема взаимодействия модулей в комплексе Интерферобот представлена на рис.~\ref{fig:interf_complex}. В нем RL агент или человек используют один и тот же интерфейс как для взаимодействия с симулятором интерферометра, так и с физической установкой. Отличительно чертой разработанного программно-аппаратного комплекса является то, что он не специализирован под конкретный тип интерферометра и может быть легко использован для настройки различных типов интерферометров. Для адаптации к другому типу интерферометра нужно изменить модель интерферометра в симуляторе и обучить соответствующего RL агента. 
 
 \paragraph{Симулятор оптического интерферометра Маха-Цендера}
 Математическая и численная модели лежащие в основе симулятора описаны в разделе \ref{sec:ch2/sec1}. Для обучения RL агентов симулятор имеет стандартный gym интерфейс \cite{brockman2016openai}. Симулятор реализован на языках программирования Python3 и С++. Трекинг лучей через систему линз и зеркал и интерфейс для взаимодействия с RL агентом реализована на языке программирования Python3. Для ускорения работы симулятора вычисление интерференционной картины как наиболее вычислительно сложная часть реализована на C++ с использованием параллельных вычислений. Взаимодействие между C++ и Python3 осуществляется с помощью библиотеки ctypes. Благодаря такой архитектуре и использованию параллельных вычислений симулятор с использованием 16 потоков на персональном компьютере с процессором intel core i7 рассчитывает 200 состояний среды (16 изображений 64х64 пикселя) за одну секунду. 
@@ -505,23 +512,115 @@ a^{\prime} =
 \label{fig:gui}
 \end{figure}
 
-Интерфейс состоит из двух окон. В левом окне показаны значения метрик таких как видность интерференционной картины, расстояние и угол между пучками, радиус кривизны волнового фронта и радиус пучка в динамике в процессе настройки интерферометра. В правом окне показана интерференционная картина. Управление производится с помощью клавиатуры. 
-
+Пользовательский интерфейс программы состоит из двух окон. В левом окне показаны значения метрик таких как видность интерференционной картины, расстояние и угол между пучками, радиус кривизны волнового фронта и радиус пучка в динамике в процессе настройки интерферометра. В правом окне показана интерференционная картина. Управление производится с помощью клавиатуры. Клавиши $i,j,k,l$ управляют поворотами светоделителя 2 в двух плоскостях на положительный и отрицательный угол. Клавиши $w,a,s,d$ аналогично управляют поворотами зеркала 2. Для управления положением линзы служат клавиши $m,n$. Включение и выключение RL агента производится по нажатию на клавишу пробел.
 
 \paragraph{Экспериментальная установка}
 
-Описание компонент, таблица с размерами
+Экспериментальная установка соответствующая схеме \ref{fig:MZI} представлена на рис.~\ref{fig:MZI_exp}. 
 
+\begin{figure}[ht]
+\centerfloat{
+    \includegraphics[scale=2.3]{images/interf_real_1.pdf}
+}
+\caption{Экспериментальная установка интерферометра Маха-Цендера соответствующая схеме \ref{fig:MZI}.}
+\label{fig:MZI_exp}
+\end{figure}
+
+Геометрические параметры установки, максимальные углы отклонения зеркал, и радиус пучков приведены вы таб.~\ref{tab:MZI_params}. 
+
+\begin{table} [htbp]
+    \centering
+    \begin{threeparttable}
+        \caption{Параметры экспериментальной установки интерферометра Маха-Цендера.}\label{tab:MZI_params}
+        \begin{tabular}{| p{5cm} || p{5cm} |}
+            \hline
+            \hline
+            параметр & значение \\
+            \hline
+            Mirror 2 $\to$ BS 2 & 200 mm\\
+            BS 1 $\to$ Mirror 2 & 300 mm\\
+            BS 2 $\to$ Camera & 100 mm\\
+            radius & 0.95 mm\\
+            $\alpha_{{\mathrm{max}}(x,1)}$ & $5.2 \cdot 10^{-3}$ rad\\
+            $\alpha_{{\mathrm{max}}(y,1)}$ & $3.7 \cdot 10^{-3}$ rad\\
+            $\alpha_{{\mathrm{max}}(x,2)}$ & $2.6 \cdot 10^{-3}$ rad\\
+            $\alpha_{{\mathrm{max}}(y,2)}$ & $1.8 \cdot 10^{-3}$ rad\\
+            \hline
+            \hline
+        \end{tabular}
+    \end{threeparttable}
+\end{table}
+
+При использовании линз согласно схеме \ref{fig:MZI_expl_lenses} геометрические параметры интерферометра сохраняются. Был уменьшен первоначальный размер пучков на выходе из лазера, линзы были выбраны с одинаковым фокусным расстоянием равным 50 мм. Расстояние от светоделителя 1 до первой линзы также равно 50 мм. Параметры приведены в таб.~\ref{tab:MZI_lens_params}. 
+
+\begin{table} [htbp]
+    \centering
+    \begin{threeparttable}
+        \caption{Параметры экспериментальной установки интерферометра Маха-Цендера с системой линз.}\label{tab:MZI_lens_params}
+        \begin{tabular}{| p{5cm} || p{5cm} |}
+            \hline
+            \hline
+            параметр & значение \\
+            \hline
+            BS 1 $\to$ Lens 1 & 50 mm\\
+            $f_{\mathrm{lens 1}}$ = $f_{\mathrm{lens 2}}$ & 50 mm\\
+            radius & 0.71 mm\\
+            \hline
+            \hline
+        \end{tabular}
+    \end{threeparttable}
+\end{table}
+
+Автоматизированное управление интерферометром осуществляется с помощью персонального компьютера под управлением ОС Ubuntu. Управление подвижками зеркал производилось с помощью библиотеки lsusb \cite{lsusb}. Для управления подвижкой линзы использовалась библиотека xilab \cite{standa_soft}. Для получения изображений с камеры использовалась библиотека ueye \cite{ids_soft}. 
 
 
 \paragraph{Агент}
 
-Благодаря тому, интерфейс взаимодействия агента со 
+Благодаря тому, интерфейс симулятора и экспериментальной установки стандартизирован, агент обученный на симуляторе может быть без изменений запущен на физической установке. 
 
 
 \section{Перенос из симуляции в реальность (Sim2Real transfer)}
 
 Описать шумы, их источники и их симуляцию
+
+% and reality always have a significant gap, which limits the performance of agents trained in simulation in real-world environments. 
+To make the learned policy applicable in a physical environment, we applied several domain randomizations inspired by uncertainties in experimental measurements. 
+For each episode, we randomly vary the beam radius by $\pm 20\%$, as this parameter is difficult to precisely measure in the experiment. Varying the radius also helps addressing the deviation of the experimental beam profile from precise Gaussian shape.
+
+The following further randomizations are applied once per time step. First, we randomly scaled the brightness by $\pm 30\%$ to model the variable exposure time of the camera. Second, we added $20\%$ of white noise to each pixel to address the camera detector noise as well as the effects of dust and spurious interference  (Fig.~\ref{fig:rad_fit}). The third randomization addresses the challenge of synchronizing the piezo movement with the triggering of the camera. We applied a cyclic shift of simulated interference pattern images within each period of the piezo voltage. In addition, we randomized the ``duty cycle'', i.e.~how the 16 images acquired during the period are distributed between the forward and backward passes of the piezo. The fraction of images acquired during the forward pass was maintained greater than 50\% (at least 9 per period), so Interferobot had enough information to distinguish between the two directions.
+
+%The real step motors move slightly more or less than intended with the bias which is different for each motor and also depends on a previous movement. We do not randomize the action effects because in our setup the agent can always go back if the action appeared to be too big or go forward in the opposite case.
+
+
+%In an experiment, precise measurement of beam radius is not always possible, and the beam can not be precisely modeled with Gaussian function. To address that and force the agent to learn a general policy for different beam radii, we varied beam radius $\pm 20\%$. Also, real beams have optical noises. Comparing experimental beam (Fig.~\ref{fig:rad_fit_exp}) with simulated Gaussian beam without noise (fig. \ref{fig:rad_fit_sim}) we can see the domain gap: fig. \ref{fig:rad_fit_exp} has optical noises and contains spurious interference at the right side of the beam. To give the agent notion of noise (fig. \ref{fig:rad_fit_noisy}). The brightness of the experimental image depends on camera exposure time. We randomize it in simulation by variation of image brightness by $\pm 30\%$. 
+
+
+
+\begin{figure}
+\centering
+  \includegraphics[width=0.8\linewidth]{images/beamsamples.pdf}
+
+\caption{Одиночные лазерные лучи: (a) экспериментальный; (b) модель; (c) модель с шумом. На рис.(a), полосы видны из-за эффекта резонатора на защитном стекле камеры.}
+\label{fig:rad_fit}
+\end{figure}
+
+To learn a more generalized policy and facilitate sim-to-real transfer, we introduce several domain randomizations, which are used during the training. The only randomization that changes the dynamic of the environment $F(s_{t+1}|s_{t},a_{t})$ is the beam radius randomization within $\pm20\%$ of the measured radius $r=0.71$ mm. The randomization is applied at the beginning of each episode. 
+
+Additionally, we introduce the following randomizations of the observation $U(o_t|s_t)$. First, to address the noise of the camera detector, scattering, air fluctuations and dust effects, we add Gaussian noise to each pixel acquired by the camera. The standard deviation of the noise is 20\% with respect to the simulated intensity value. %The other important source of discrepancy is the uncertainty in the camera sensor  therefore the following randomizations are applied on every step of environment execution. First, for every $(x,y)$ pair we sample $E_{\rm upper}(x, y)$ and $E_{\rm lower}(x, y)$ from Gaussian distribution $\mathcal{N}(E_{\rm upper/lower}, 0.2)$ . 
+Second, we rearrange cyclically the images within the video sequence to account for the randomness of the camera trigger. In addition, we randomize the duty cycle (fraction of time spent on the forward and backward passes) of the piezo. Third, we  vary the beams' brightness by $\pm 30\%$ to model the variance of the camera exposure.
+All these randomizations are applied to each time step (i.e.~they are constant for the 16 frames acquired in each step).
+
+The randomizations described above have  been used in and have proven their effectiveness. An additional randomization we introduce in this work addresses irregularities in the motion of the piezo mirror and the frame rate, as well as fluctuations in the air density in different arms of the interferometer, all of which lead to random variation of the optical path length difference between the two MZI arms. To simulate these effects, we add Gaussian noise with the standard deviation of $0.5$ rad to this phase difference. We propose to use randomization that we name phase noise. For each frame $k$, it samples the phase between beams either from the distribution $\mathcal{N}(\frac{2\pi * k}{N_{\mathrm{forw}}}, 0.5)$ or from $\mathcal{N}(\frac{2\pi * k}{N_{\mathrm{backw}}}, 0.5)$ depending on whether it is a forward or a backward pass, $N_{\mathrm{forw/backw}}$ is a number of frames taken during the pass.
+
+We also add relative action noise of $6\%$, but it is not affect training because of the exploration noise existing, however, it helps to choose the most effective model in the validation phase.
+Third, we simulate uneven piezo phase distance between images by adding Gaussian noise $n = \mathcal{N}(0, 0.5)$ to every equidistant piezo phase
+
+\begin{figure}
+  \includegraphics[width=1\linewidth]{images/Piezo_noise.pdf}
+  \centering
+  \caption{Эффект фазового шума. The plots display the integrated intensity of the interference pattern as the path length difference is varied. The behavior becomes closer to real after applying phase noise.}
+  \label{fig:piezo_noise}
+\end{figure}
 
 
 \section{Оценка результатов работы агента на экспериментальной установке}
