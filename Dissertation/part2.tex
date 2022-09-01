@@ -513,6 +513,7 @@ a^{\prime} =
 \end{figure}
 
 Пользовательский интерфейс программы состоит из двух окон. В левом окне показаны значения метрик таких как видность интерференционной картины, расстояние и угол между пучками, радиус кривизны волнового фронта и радиус пучка в динамике в процессе настройки интерферометра. В правом окне показана интерференционная картина. Управление производится с помощью клавиатуры. Клавиши $i,j,k,l$ управляют поворотами светоделителя 2 в двух плоскостях на положительный и отрицательный угол. Клавиши $w,a,s,d$ аналогично управляют поворотами зеркала 2. Для управления положением линзы служат клавиши $m,n$. Включение и выключение RL агента производится по нажатию на клавишу пробел.
+%In this interface far mirror is controlled by w,a,s,d keys, near mirror is controlled by i,j,k,l keys. To change the step size user can press 1,2,3 keys. To do nothing user can press 0, to reset - r. 
 
 \paragraph{Экспериментальная установка}
 
@@ -526,7 +527,15 @@ a^{\prime} =
 \label{fig:MZI_exp}
 \end{figure}
 
-Геометрические параметры установки, максимальные углы отклонения зеркал, и радиус пучков приведены вы таб.~\ref{tab:MZI_params}. 
+Геометрические параметры установки, максимальные углы отклонения зеркал, и радиус пучков приведены в таб.~\ref{tab:MZI_params}. Для определения радиуса пучка распределение интенсивности пучка полученное в эксперименте было аппроксимировано в соответствии с ур.~\eqref{eq:I_def}. Мы использовали непрерывный лазер с длинной волны $\lambda =  635$ нм, управляемые подвижки для зеркал Newport \cite{newport_mirror}, 
+камеру IDS UI-2230SE-M-GL с разрешением $1600\times1200$ pixels, и временным разрешением 18 кадров в секунду. Полученные изображения затем были масштабированы к разрешению $64\times64$ пикселя с использованием библиотеки opencv.
+
+\paragraph{Измерение параметров пучка}
+Для измерения радиуса пучка мы сняли изображение одного пучка и аппроксимировали его квадратом Гауссово распределения $y = \left( A \cdot \exp(-(x - x_0)^2 / r^2) \right) ^2$. Square of Gaussian function was used to model beam intensity, which is a square of beam amplitude. Fitted and experimental beams are presented in fig. \ref{fig:rad_fit}. Fitted radius is r = 0.95 mm. 
+
+\paragraph{Ошибка измерения видности}
+To calculate the instrumental error, we compared visibility calculated using images from the camera and measured using a photodiode. The photodiode can be viewed as a camera with only one pixel and large time resolution, so it provides integral light intensity with much smaller time discretization than the camera. The standard deviation of visibility calculated using images from the camera compared to visibility measured using photodiode was $0.02$.
+
 
 \begin{table} [htbp]
     \centering
@@ -581,20 +590,7 @@ a^{\prime} =
 
 \section{Перенос из симуляции в реальность (Sim2Real transfer)}
 
-Описать шумы, их источники и их симуляцию
-
-% and reality always have a significant gap, which limits the performance of agents trained in simulation in real-world environments. 
-To make the learned policy applicable in a physical environment, we applied several domain randomizations inspired by uncertainties in experimental measurements. 
-For each episode, we randomly vary the beam radius by $\pm 20\%$, as this parameter is difficult to precisely measure in the experiment. Varying the radius also helps addressing the deviation of the experimental beam profile from precise Gaussian shape.
-
-The following further randomizations are applied once per time step. First, we randomly scaled the brightness by $\pm 30\%$ to model the variable exposure time of the camera. Second, we added $20\%$ of white noise to each pixel to address the camera detector noise as well as the effects of dust and spurious interference  (Fig.~\ref{fig:rad_fit}). The third randomization addresses the challenge of synchronizing the piezo movement with the triggering of the camera. We applied a cyclic shift of simulated interference pattern images within each period of the piezo voltage. In addition, we randomized the ``duty cycle'', i.e.~how the 16 images acquired during the period are distributed between the forward and backward passes of the piezo. The fraction of images acquired during the forward pass was maintained greater than 50\% (at least 9 per period), so Interferobot had enough information to distinguish between the two directions.
-
-%The real step motors move slightly more or less than intended with the bias which is different for each motor and also depends on a previous movement. We do not randomize the action effects because in our setup the agent can always go back if the action appeared to be too big or go forward in the opposite case.
-
-
-%In an experiment, precise measurement of beam radius is not always possible, and the beam can not be precisely modeled with Gaussian function. To address that and force the agent to learn a general policy for different beam radii, we varied beam radius $\pm 20\%$. Also, real beams have optical noises. Comparing experimental beam (Fig.~\ref{fig:rad_fit_exp}) with simulated Gaussian beam without noise (fig. \ref{fig:rad_fit_sim}) we can see the domain gap: fig. \ref{fig:rad_fit_exp} has optical noises and contains spurious interference at the right side of the beam. To give the agent notion of noise (fig. \ref{fig:rad_fit_noisy}). The brightness of the experimental image depends on camera exposure time. We randomize it in simulation by variation of image brightness by $\pm 30\%$. 
-
-
+Изображения интерференционной картины и динамика среды у симулятора и физической установки существенно отличаются. В эксперименте на изображениях присутствуют аберрации, паразитная интерференция, засветка сторонними источниками света, а также профиль светового пучка отличается от Гауссова. Механизированные подвижки движутся не точно и имеют значительный гистерезис. Поэтому для того, чтобы успешно перенести агента из симуляции на физическую установку  мы добавили в симуляцию шумы основанные на неопределенности в измерениях.
 
 \begin{figure}
 \centering
@@ -604,171 +600,267 @@ The following further randomizations are applied once per time step. First, we r
 \label{fig:rad_fit}
 \end{figure}
 
-To learn a more generalized policy and facilitate sim-to-real transfer, we introduce several domain randomizations, which are used during the training. The only randomization that changes the dynamic of the environment $F(s_{t+1}|s_{t},a_{t})$ is the beam radius randomization within $\pm20\%$ of the measured radius $r=0.71$ mm. The randomization is applied at the beginning of each episode. 
 
-Additionally, we introduce the following randomizations of the observation $U(o_t|s_t)$. First, to address the noise of the camera detector, scattering, air fluctuations and dust effects, we add Gaussian noise to each pixel acquired by the camera. The standard deviation of the noise is 20\% with respect to the simulated intensity value. %The other important source of discrepancy is the uncertainty in the camera sensor  therefore the following randomizations are applied on every step of environment execution. First, for every $(x,y)$ pair we sample $E_{\rm upper}(x, y)$ and $E_{\rm lower}(x, y)$ from Gaussian distribution $\mathcal{N}(E_{\rm upper/lower}, 0.2)$ . 
-Second, we rearrange cyclically the images within the video sequence to account for the randomness of the camera trigger. In addition, we randomize the duty cycle (fraction of time spent on the forward and backward passes) of the piezo. Third, we  vary the beams' brightness by $\pm 30\%$ to model the variance of the camera exposure.
-All these randomizations are applied to each time step (i.e.~they are constant for the 16 frames acquired in each step).
+\paragraph{Шумы применяемые в начале каждого эпизода.} 
+\begin{itemize}
+    \item \textbf{radius randomization}. При проведении эксперимента, точное измерение радиуса пучка не всегда возможно. Также форма пучка часто может отличаться от Гауссова профиля используемого в модели. Для того чтобы учесть это отличие между симулятором и экспериментом мы в процессе обучения агента случайным образом изменяем радиус пучка на $\pm 20\%$. Случайный выбор радиуса пучка также помогает учесть отличие экспериментального профиля пучка от модельного. Экспериментальный пучок показан на рис.~\ref{fig:rad_fit}(a), модельный пучок показан на рис.~\ref{fig:rad_fit}(b).
+\end{itemize}
 
-The randomizations described above have  been used in and have proven their effectiveness. An additional randomization we introduce in this work addresses irregularities in the motion of the piezo mirror and the frame rate, as well as fluctuations in the air density in different arms of the interferometer, all of which lead to random variation of the optical path length difference between the two MZI arms. To simulate these effects, we add Gaussian noise with the standard deviation of $0.5$ rad to this phase difference. We propose to use randomization that we name phase noise. For each frame $k$, it samples the phase between beams either from the distribution $\mathcal{N}(\frac{2\pi * k}{N_{\mathrm{forw}}}, 0.5)$ or from $\mathcal{N}(\frac{2\pi * k}{N_{\mathrm{backw}}}, 0.5)$ depending on whether it is a forward or a backward pass, $N_{\mathrm{forw/backw}}$ is a number of frames taken during the pass.
+\paragraph{Шумы применяемые на каждом шаге взаимодействия со средой.}
+\begin{itemize}
+    \item \textbf{exposure randomization}. Яркость интерференционного изображения зависит от времени выдержки камеры используемой при проведении эксперимента. Мы случайным образом изменяем яркость интерференционной картины на $\pm 30\%$ для того, чтобы агент мог адаптироваться к различному времени выдержки камеры.
+    \item  \textbf{image noise}. Из рис.~\ref{fig:rad_fit}(a) видно, что в изображении экспериментального пучка содержится шум, могут быть пылинки и наблюдаться паразитная интерференция. Для того чтобы дать агенту информацию о шумах в изображениях мы добавляем $20\%$ белого шума в каждый пиксель итогово изображения (рис.~\ref{fig:rad_fit}(с)). 
+    \item \textbf{cycle frame shift}. Наблюдением являются 16 последовательных изображений полученных за один проход пьезо зеркала. При этом, стартовая точка у пьезо зеркала может быть любой. Для того чтобы учесть произвольное стартовое положение пьезо зеркала мы применяем циклический сдвиг на случайную величину к последовательности из 16 интерференционных изображений. 
+    \item \textbf{duty cycle randomization}. Для того чтобы агент мог адаптироваться к соотношению времени прямого и обратного проходов пьезо зеркала мы случайным образом изменяем их длительность. При этом процент изображений полученных в течении прямого прохода поддерживается больше половины (не меньше 9 из 16) для того, чтобы агент получал достаточно информации для определения направления движения интерференционных полос.  
+    \item \textbf{phase noise}. Также важным фактором является то, что разность фаз между последовательными интерференционными изображениями не является постоянной. График демонстрирующий зависимость интенсивности интерференционной картины в зависимости от номера кадра показан на рис.~\ref{fig:piezo_noise}. Видно, что экспериментальная зависимость отличается от модельной зависимости наличием глубоких провалов. Это происходит в следствии неравномерного движения пьезо зеркала и флуктуаций плотности воздуха которые приводят к случайным изменениям в длине оптического пути лучей в двух плечах интерферометра. Для учета данного эффекта мы добавили нормально распределенный шум со стандартным отклонением равным $0.5$ рад. к разности фаз двух лучей. Таким образом фаза для каждого из $k$ кадров выбирается случайным образом из распределений $\mathcal{N}(\frac{2\pi * k}{N_{\mathrm{forw}}}, 0.5)$ or from $\mathcal{N}(\frac{2\pi * k}{N_{\mathrm{backw}}}, 0.5)$ в зависимости от направления прохода, где $N_{\mathrm{forw/backw}}$ число изображений снимаемых за время прямого и обратного проходов соответственно.
+\end{itemize}
 
-We also add relative action noise of $6\%$, but it is not affect training because of the exploration noise existing, however, it helps to choose the most effective model in the validation phase.
-Third, we simulate uneven piezo phase distance between images by adding Gaussian noise $n = \mathcal{N}(0, 0.5)$ to every equidistant piezo phase
+Мы не добавляем шум в действия агента при обучении для моделирования проскальзывания подвижек используемых для управления оптическими элементами. При условии, что шум в проскальзывании является независимыми и несмещенным, то он не будет влиять на величину оптимального действия. 
+Однако при тестировании шум в действиях может быть использован для оценки надежности работы агента.
+
 
 \begin{figure}
   \includegraphics[width=1\linewidth]{images/Piezo_noise.pdf}
   \centering
-  \caption{Эффект фазового шума. The plots display the integrated intensity of the interference pattern as the path length difference is varied. The behavior becomes closer to real after applying phase noise.}
+  \caption{Эффект фазового шума. Суммарная интенсивность интерференционной картины в зависимости от номера кадра. Добавление ``фазового шума'' делает симуляцию ближе к зависимости наблюдаемой в эксперименте.}
   \label{fig:piezo_noise}
 \end{figure}
 
 
-\section{Оценка результатов работы агента на экспериментальной установке}
+\section{Настройки интерферометра Маха-Цендера без линз}
 
-\section{Анализ стратегии используемой агентом при настройке интерферометра}
+\subsection{Оценка результатов работы агента на экспериментальной установке}
+Экспериментальная установка показана на рис.~\ref{fig:MZI_exp}. Мы реализовали для нее gym интерфейс \cite{brockman2016openai} который позволяет запускать без изменения RL агента обученного в симуляции. В качестве наблюдений для RL агента мы использовали 16 последовательных изображений интерференционной картины получаемых с камеры за один период прохода пьезо зеркала. Видность интерференционной картины вычислялась средой напрямую из интерференционных изображений. Время требуемое для получения одного состояния на экспериментальной установке составило $2.7$. Таким образом экспериментальная установка медленнее симулятора более чем в $400$ раз. Агент был протестирован в автоматическом режиме без участия человека Tвтечении $100$ эпизодов по $100$ шагов каждый. В начале каждого эпизода интерферометр был расстроен в случайное начальное положение. 
 
-Любя, съешь щипцы, "--- вздохнёт мэр, "--- кайф жгуч. Шеф взъярён тчк щипцы
-с~эхом гудбай Жюль. Эй, жлоб! Где туз? Прячь юных съёмщиц в~шкаф. Экс-граф?
-Плюш изъят. Бьём чуждый цен хвощ! Эх, чужак! Общий съём цен шляп (юфть) "---
-вдрызг! Любя, съешь щипцы, "--- вздохнёт мэр, "--- кайф жгуч. Шеф взъярён тчк
-щипцы с~эхом гудбай Жюль. Эй, жлоб! Где туз? Прячь юных съёмщиц в~шкаф.
-Экс-граф? Плюш изъят. Бьём чуждый цен хвощ! Эх, чужак! Общий съём цен шляп
-(юфть) "--- вдрызг! Любя, съешь щипцы, "--- вздохнёт мэр, "--- кайф жгуч. Шеф
-взъярён тчк щипцы с~эхом гудбай Жюль. Эй, жлоб! Где туз? Прячь юных съёмщиц
-в~шкаф. Экс-граф? Плюш изъят. Бьём чуждый цен хвощ! Эх, чужак! Общий съём цен
-шляп (юфть) "--- вдрызг! Любя, съешь щипцы, "--- вздохнёт мэр, "--- кайф жгуч.
-Шеф взъярён тчк щипцы с~эхом гудбай Жюль. Эй, жлоб! Где туз? Прячь юных съёмщиц
-в~шкаф. Экс-граф? Плюш изъят. Бьём чуждый цен хвощ! Эх, чужак! Общий съём цен
-шляп (юфть) "--- вдрызг! Любя, съешь щипцы, "--- вздохнёт мэр, "--- кайф жгуч.
-Шеф взъярён тчк щипцы с~эхом гудбай Жюль. Эй, жлоб! Где туз? Прячь юных съёмщиц
-в~шкаф. Экс-граф? Плюш изъят. Бьём чуждый цен хвощ! Эх, чужак! Общий съём цен
-шляп (юфть) "--- вдрызг! Любя, съешь щипцы, "--- вздохнёт мэр, "--- кайф жгуч.
-Шеф взъярён тчк щипцы с~эхом гудбай Жюль. Эй, жлоб! Где туз? Прячь юных съёмщиц
-в~шкаф. Экс-граф? Плюш изъят. Бьём чуждый цен хвощ! Эх, чужак! Общий съём цен
-шляп (юфть) "--- вдрызг! Любя, съешь щипцы, "--- вздохнёт мэр, "--- кайф жгуч.
-Шеф взъярён тчк щипцы с~эхом гудбай Жюль. Эй, жлоб! Где туз? Прячь юных съёмщиц
-в~шкаф. Экс-граф? Плюш изъят. Бьём чуждый цен хвощ! Эх, чужак! Общий съём цен
-шляп (юфть) "--- вдрызг! Любя, съешь щипцы, "--- вздохнёт мэр, "--- кайф жгуч.
-Шеф взъярён тчк щипцы с~эхом гудбай Жюль. Эй, жлоб! Где туз? Прячь юных съёмщиц
-в~шкаф. Экс-граф? Плюш изъят. Бьём чуждый цен хвощ! Эх, чужак! Общий съём цен
-шляп (юфть) "--- вдрызг! Любя, съешь щипцы, "--- вздохнёт мэр, "--- кайф жгуч.
-Шеф взъярён тчк щипцы с~эхом гудбай Жюль. Эй, жлоб! Где туз? Прячь юных съёмщиц
-в~шкаф. Экс-граф? Плюш изъят. Бьём чуждый цен хвощ! Эх, чужак! Общий съём цен
-шляп (юфть) "--- вдрызг! Любя, съешь щипцы, "--- вздохнёт мэр, "--- кайф жгуч.
-Шеф взъярён тчк щипцы с~эхом гудбай Жюль. Эй, жлоб! Где туз? Прячь юных съёмщиц
-в~шкаф. Экс-граф? Плюш изъят. Бьём чуждый цен хвощ! Эх, чужак! Общий съём цен
-шляп (юфть) "--- вдрызг! Любя, съешь щипцы, "--- вздохнёт мэр, "--- кайф жгуч.
-Шеф взъярён тчк щипцы с~эхом гудбай Жюль. Эй, жлоб! Где туз? Прячь юных съёмщиц
-в~шкаф. Экс-граф? Плюш изъят. Бьём чуждый цен хвощ! Эх, чужак! Общий съём цен
-шляп (юфть) "--- вдрызг!Любя, съешь щипцы, "--- вздохнёт мэр, "--- кайф жгуч.
-Шеф взъярён тчк щипцы с~эхом гудбай Жюль. Эй, жлоб! Где туз? Прячь юных съёмщиц
-в~шкаф. Экс-граф? Плюш изъят. Бьём чуждый цен хвощ! Эх, чужак! Общий съём цен
+\begin{figure}[ht]
+\centerfloat{
+    \includegraphics[width=0.8\textwidth]{images/eval1_visib_step.pdf}
+}
+\caption{Сравнение настройки интерферометра DQN агентом в симуляции и на экспериментальной установке с человеком использующим клавиатуру. Результаты работы агента усреднены по 100 эпизодам, человека --- по 18.}
+\label{fig:eval_visib_step}
+\end{figure}
 
-Ку кхоро адолэжкэнс волуптариа хаж, вим граэко ыкчпэтында ты. Граэкы жэмпэр
-льюкяльиюч квуй ку, аэквюы продыжщэт хаж нэ. Вим ку магна пырикульа, но квюандо
-пожйдонёюм про. Квуй ат рыквюы ёнэрмйщ. Выро аккузата вим нэ.
-\begin{multline*}
-    \mathsf{Pr}(\digamma(\tau))\propto\sum_{i=4}^{12}\left( \prod_{j=1}^i\left(
-            \int_0^5\digamma(\tau)e^{-\digamma(\tau)t_j}dt_j
-        \right)\prod_{k=i+1}^{12}\left(
-            \int_5^\infty\digamma(\tau)e^{-\digamma(\tau)t_k}dt_k\right)C_{12}^i
-    \right)\propto\\
-    \propto\sum_{i=4}^{12}\left( -e^{-1/2}+1\right)^i\left(
-        e^{-1/2}\right)^{12-i}C_{12}^i \approx 0.7605,\quad
-    \forall\tau\neq\overline{\tau}
-\end{multline*}
-Квуй ыёюз омниюм йн. Экз алёквюам кончюлату квуй, ты альяквюам ёнвидюнт пэр.
-Зыд нэ коммодо пробатуж. Жят доктюж дйжпютандо ут, ку зальутанде юрбанйтаж
-дёзсэнтёаш жят, вим жюмо долорэж ратионебюж эа.
+На рис.~\ref{fig:eval_visib_step}, \ref{fig:eval_visib_time} мы представили статистики работы DQN агента усредненные по 100 тестовым эпизодам настройки интерферометра и сравниваем качество работы агента с настройкой интерферометра опытным экспериментатором. Человек производил настройку интерферометра в двух постановках:  
 
-Ад ентэгры корпора жплэндидэ хаж. Эжт ат факэтэ дычэрунт пэржыкюти. Нэ нам
-доминг пэрчёус. Ку квюо ёужто эррэм зючкёпит. Про хабэо альбюкиюс нэ.
-\[
-    \begin{pmatrix}
-        a_{11} & a_{12} & a_{13} \\
-        a_{21} & a_{22} & a_{23}
-    \end{pmatrix}
-\]
+\begin{itemize}
+    \item с использованием клавиатуры совершая действия такой же величины, как и RL агент. 
+    \item вращая зеркала с помощью ручек также, как и при проведении оптических экспериментов
+\end{itemize}
 
-\[
-    \begin{vmatrix}
-        a_{11} & a_{12} & a_{13} \\
-        a_{21} & a_{22} & a_{23}
-    \end{vmatrix}
-\]
+Рис.~\ref{fig:eval_visib_step} соответствует первой постановке. В дополнение к DQN агенту настраивающему экспериментальную установку (изображен красным цветом), мы также показываем результаты агента в симуляции (синим цветом) для сравнения. Видно, что качество работы агента в симуляции слегка выше чем в эксперименте из-за отличий между симулированной средой и физической установкой. Несмотря на это, DQN агент превосходит человека использующего тот же набор действий как показано на рис.~\ref{fig:eval_visib_step}. В качестве дополнительной метрики рассмотрим наибольшее значение видности достигнутое в каждом эпизоде и затем усредненное по всем эпизодам представленную в таб.~\ref{tab:highest_visib_dqn}. Также следует заметить, что человек настраивает интерферометр с помощью клавиатуры сильно медленнее по времени чем DQN агент. 
 
-\[
-    \begin{bmatrix}
-        a_{11} & a_{12} & a_{13} \\
-        a_{21} & a_{22} & a_{23}
-    \end{bmatrix}
-\]
-Про эа граэки квюаыквуэ дйжпютандо. Ыт вэл тебиквюэ дэфянятйоныс, нам жолюм
-квюандо мандамюч эа. Эож пауло лаудым инкедыринт нэ, пэрпэтюа форынчйбюж пэр
-эю. Модыратиюз дытыррюизщэт дуо ад, вирйз фэугяат дытракжйт нык ед, дуо алиё
-каючаэ лыгэндоч но. Эа мольлиз юрбанйтаж зигнёфэрумквюы эжт.
+\begin{table} [htbp]
+    \centering
+    \begin{threeparttable}
+        \caption{Средняя наибольшая видность достигнутая при настройке интерферометра}\label{tab:highest_visib_dqn}
+        \begin{tabular}{| p{5cm} || p{5cm} || p{5cm} |}
+            \hline
+            \hline
+            DQN (sim) & DQN (exp) & Human \\
+            \hline
+            0.986 & 0.983 & 0.972 \\
+            \hline
+            \hline
+        \end{tabular}
+    \end{threeparttable}
+\end{table}
 
-Про мандамюч кончэтытюр ед. Трётанё прёнкипыз зигнёфэрумквюы вяш ан. Ат хёз
-эквюедым щуавятатэ. Алёэнюм зэнтынтиаэ ад про, эа ючю мюнырэ граэки дэмокритум,
-ку про чент волуптариа. Ыльит дыкоры аляквюид еюж ыт. Ку рыбюм мюндй ютенам
-дуо.
-\begin{align*}
-    2\times 2       & = 4      & 6\times 8 & = 48 \\
-    3\times 3       & = 9      & a+b       & = c  \\
-    10 \times 65464 & = 654640 & 3/2       & =1,5
-\end{align*}
+Похожие результаты были получены и во второй постановке [рис.~\ref{fig:eval_visib_time}]. Так как в данном случае сложно разделить процесс настройки интерферометра человеком на дискретные шаги, строим видность в зависимости от времени потраченного на настройку. В этом случае среднее максимальное значение видности достигнутой человеком равно $0.968$. Из рис.~\ref{fig:eval_visib_time} видно, что человек в среднем превосходит DQN агента в начале каждого эпизода, но отстает в процессе тонкой настройки. Также видно, что стандартное отклонение у эксперта, в начале настройки установки меньше чем у DQN агента, но к середине настройки оно становится сильно больше. 
 
-\begin{equation}
-    \begin{aligned}
-        2\times 2       & = 4      & 6\times 8 & = 48 \\
-        3\times 3       & = 9      & a+b       & = c  \\
-        10 \times 65464 & = 654640 & 3/2       & =1,5
-    \end{aligned}
-\end{equation}
+\begin{figure}[ht]
+\centerfloat{
+  \includegraphics[width=0.8\textwidth]{images/eval1_visib_time.pdf}
+}
+\caption{Сравнение настройки интерферометра DQN агентом в симуляции и на экспериментальной установке с человеком использующим непосредственно вращающим зеркала. Результаты работы агента усреднены по 100 эпизодам, человека --- по 16.}
+\label{fig:eval_visib_time}
+\end{figure}
 
-Пэр йн тальэ пожтэа, мыа ед попюльо дэбетиз жкрибэнтур. Йн квуй аппэтырэ
-мэнандря, зыд аляквюид хабымуч корпора йн. Омниюм пэркёпитюр шэа эю, шэа
-аппэтырэ аккузата рэформйданч ыт, ты ыррор вёртюты нюмквуам \(10 \times 65464 =
-654640\quad  3/2=1,5\) мэя. Ипзум эуежмод \(a+b = c\) мальюизчыт ад дуо. Ад
-фэюгаят пытынтёюм адвыржаряюм вяш. Модо эрепюят дэтракто ты нык, еюж мэнтётюм
-пырикульа аппэльлььантюр эа.
-
-Мэль ты дэлььынётё такематыш. Зэнтынтиаэ конклььюжионэмквуэ ан мэя. Вёжи лебыр
-квюаыквуэ квуй нэ, дуо зймюл дэлььиката ку. Ыам ку алиё путынт.
-
-%Большая фигурная скобка только справа
-\[\left. %ВАЖНО: точка после слова left делает скобку неотображаемой
-    \begin{aligned}
-        2 \times x      & = 4 \\
-        3 \times y      & = 9 \\
-        10 \times 65464 & = z
-    \end{aligned}\right\}
-\]
+Эксперт настраивает оптический интерферометр анализируя изображения интерференционной картины (см. приложение \ref{app:C}). В начале настройки когда интерферометр сильно расстроен, эксперту просто интерпретировать полосы на интерференционных изображениях и выполнить быструю настройку за несколько действий. Однако, после этого эксперт не способен надежно различать небольшую разницу в положении центров пучков $(x_0,y_0)$ на камере. Для того чтобы увидеть эту разницу, он отодвигает пучок далеко в сторону, что приводит к временному уменьшению видности интерференционной картины. Такое падение видности не наблюдается в первой постановке на рис.~\ref{fig:eval_visib_step}. В первой постановке при использовании клавиатуры для того, чтобы сильно раздвинуть пучки в интерферометре  требуется совершить большое количество дискретных действий. Поэтому человек использует другую стратегию: поворот двух зеркал на равный угол в различных направлениях, что приводит к перемещению центра настраиваемого пучка без изменения угла между пучками. Данный подход часто применяется экспериментаторами на практике при настройке оптических устройств и имеет название ``beam walk''. 
 
 
-Конвынёры витюпырата но нам, тебиквюэ мэнтётюм позтюлант ед про. Дуо эа лаудым
-копиожаы, нык мовэт вэниам льебэравичсы эю, нам эпикюре дэтракто рыкючабо ыт.
-Вэрйтюж аккюжамюз ты шэа, дэбетиз форынчйбюж жкряпшэрит ыт прё. Ан еюж тымпор
-рыфэррэнтур, ючю дольор котёдиэквюэ йн. Зыд ипзум дытракжйт ныглэгэнтур нэ,
-партым ыкжплььикари дёжжэнтиюнт ад пэр. Мэль ты кытэрож молыжтйаы, нам но ыррор
-жкрипта аппарэат.
+\subsection{Анализ стратегии используемой агентом при настройке интерферометра}
 
-\[ \frac{m_{t\vphantom{y}}^2}{L_t^2} = \frac{m_{x\vphantom{y}}^2}{L_x^2} +
-    \frac{m_y^2}{L_y^2} + \frac{m_{z\vphantom{y}}^2}{L_z^2} \]
+\begin{figure}[ht]
+\centerfloat{
+  \includegraphics[width=0.8\textwidth]{images/anal1_visib_step.pdf}
+}
+\caption{Изменение видности в одном эпизоде настройки интерферометра. Интерференционные изображения на снимках соответствуют 24, 25 и 26 шагам настройки интерферометра. 
+}
+\label{fig:anal_visib_step}
+\end{figure}
 
-Вэре льаборэж тебиквюэ хаж ут. Ан пауло торквюатоз хаж, нэ пробо фэугяат
-такематыш шэа. Мэльёуз пэртинакёа юлламкорпэр прё ад, но мыа рыквюы конкыптам.
-Хёз квюот пэртинакёа эи, ельлюд трактатоз пэр ад. Зыд ед анёмал льаборэж
-номинави, жят ад конгуы льабятюр. Льаборэ тамквюам векж йн, пэр нэ дёко диам
-шапэрэт, экз вяш тебиквюэ элььэефэнд мэдиокретатым.
+\begin{figure}[ht]
+\centerfloat{
+  \includegraphics[width=0.8\textwidth]{images/anal1_kx.pdf}
+}
+\caption{Траектория в фазовом пространстве соответствующая эпизоду настройки интерферометра показанному на рис.~\ref{fig:anal_visib_step}. Траектория в пространстве $(x, k_x)$ последовательно сходится к настроенному состоянию.}
+\label{fig:anal_kx}
+\end{figure}
 
-Нэ про натюм фюйзчыт квюальизквюэ, аэквюы жкаывола мэль ку. Ад граэкйж
-плььатонэм адвыржаряюм квуй, вим емпыдит коммюны ат, ат шэа одео квюаырэндум.
-Вёртюты ажжынтиор эффикеэнди эож нэ, доминг лаборамюз эи ыам. Чэнзэрет
-мныжаркхюм экз эож, ыльит тамквюам факильизиж нык эи. Квуй ан элыктрам
-тинкидюнт ентырпрытаряш. Йн янвыняры трактатоз зэнтынтиаэ зыд. Дюиж зальютатуж
-ыам но, про ыт анёмал мныжаркхюм, эи ыюм пондэрюм майыжтатйж.
+Interferobot needs to reach, in as few steps as possible, the maximum visibility point, which is located at the origin of the $(x_0,y_0,k_x,k_y)$ space as per Eq.~\eqref{eq:visib_rot}. The agent's actions modify $\alpha_{(1,2),(x,y)}$, and hence, according to Eq.~\eqref{eq:xykxky}, are non-orthogional in that space. This means that the optimal policy will not increase the visibility at every step. Rather, 
+%This point must be reached because our reward function penalizes every step. Because the actions available are non-  This means that the optimal policy does not increase the visibility on every step. The challenge comes, when $x_0, y_0$ and $k_x, k_y$ are not independent parameters: decreasing spatial misalignment can increase angular and visa versa. In these conditions, an optimal policy 
+it should work in a zig-zag fashion, repeatedly significantly misaligning mirror 1 and then compensating with BS 2 (or vice versa). This behavior, manifested in significant oscillations of the visibility during the alignment, is seen in Fig.~\ref{fig:eval_results}(c,d). Note the difference between these deliberate misalignment actions and those by the human expert mentioned above. While the human misaligns the interferometer in order to better observe the beam positions, Interferobot appears to purposefully make zig-zag steps in order to change $x_0$ or $y_0$ without modifying $k_x$ or $k_y$, respectively.
+
+While we do not know the true values of $x_0, y_0$, and $k_x, k_y$ in experimental evaluation, we can reconstruct them from the actions of the agent assuming that at the end, all of them equals zero. Plots of trajectory in ($y, k_y$) space (($x, k_x$) will look similar) and visibility are presented in 
+
+We observe this zig-zag movement in Fig.~\ref{fig:eval_results}(c) denoted by actions $\alpha_{1, y}, \alpha_{2, y}$. Note that this behaviour results in a significant decrease of visibility by the first action and consequent increase to the higher value by the second action. It was not hand-coded in the agent and learned through training.
+
+%The performance of the agent is shown in Fig.~\ref{fig:eval_results}. Fig.~\ref{fig:eval_results}a shows visibility during a single evaluation. It is seen that the agent is not constantly increasing visibility but performs a so-called 'walk' algorithm used by humans to tune MZIs. During this algorithm, a human from time to time decreases visibility (i.e., slightly misalign setup) to get out from local optimum, and this behavior is seen in Fig. \ref{fig:eval_results}a. This behavior was not hand-coded in the agent and was not expected to be observed.
+
+\subsection{Анализ эффективности шумов использованных при обучении}
+
+\begin{table}[ht]
+\caption{Ablation study}
+\centering
+\begin{tabular}{c|c|c}
+\toprule
+{} & visibility & return \\
+\midrule
+All randomizations  & $\textbf{0.96} \pm \textbf{0.02}$ & $\textbf{221} \pm \textbf{54}$ \\
+No radius randomization & $0.74 \pm 0.20$ & $85 \pm 69$ \\
+No brightness randomization& $0.91 \pm 0.04$ & $178 \pm 39$ \\
+No white noise & $0.82 \pm 0.07$ & $129 \pm 43$ \\
+No duty cycle and trigger time randomization  &  $0.89 \pm 0.07$ & $200 \pm 42$ \\
+
+
+\bottomrule
+\end{tabular}
+
+\label{tab:abl}
+\end{table}
+
+% \begin{table}[h]
+
+% \caption{Ablation study}
+% \centering
+
+% \begin{tabular}{c|c|c|c|c}
+% \toprule
+% {} &  mean visibility & $\sigma$ visib & mean reward & std reward \\
+% \midrule
+% Fully randomized & \textbf{0.95} & \textbf{0.01} & \textbf{321} & 53 \\
+% No  duty cycle, and trigger time randomization &  0.89 & 0.07 & 300 & 42\\
+% No radius randomization & 0.74 & 0.19 & 185 & 69\\
+% No brightness randomization & 0.91 & 0.04 & 278 & 40\\
+% No white noise & 0.82 & 0.07 & 230 & 44 \\
+
+% \bottomrule
+% \end{tabular}
+
+% \label{tab:abl}
+% \end{table}
+
+%To identify the importance of randomizations, we performed an ablation study. 
+We trained and evaluated four additional agents, in each of which one of the domain randomizations listed in Sec.~\ref{Sec:Method} has been removed. Every agent was evaluated on the physical setup for 100 episodes. The evaluation of each agent took around 6 hours and was fully automated. In table \ref{tab:abl}, we present the mean visibility in the last 20 steps and the mean return, averaged over all episodes. We observe that the most significant benefits are due to the radius randomization and white noise addition.
+
+
+\section{Настройка интерферометра Маха-Цендера с системой линз}
+
+\subsection{Оценка результатов работы агента на экспериментальной установке}
+
+
+\begin{figure}[ht]
+    \begin{subfigure}[t]{0.5\textwidth}
+        \includegraphics[width=\textwidth]{images/DQN_vs_TD3.pdf}
+        \caption{Mean visibility per step}
+        \label{fig:results_a}
+    \end{subfigure}
+    \begin{subfigure}[t]{0.5\textwidth}
+        \includegraphics[width=\textwidth]{images/DQN_vs_TD3_box.pdf}
+        \caption{Box plot of visibility}
+        \label{fig:results_b}
+    \end{subfigure}
+    \caption{Comparison of Interferobot and our agent, demonstrating the advantage of the latter in convergence speed and the final alignment quality. As evident from the box plot (b), the 25-75  interquartile range for our agent is significantly narrower  than that of Interferobot, indicating higher stability of the former. %a) Visibility as a function of step in an episode, averaged over 50 episodes. Fig. \ref{fig:results_b} shows that the interquartile range for the TD3 agent is significantly lower then for previous DQN agent indicating that it is more stable. 
+    All results are averaged over 50 episodes.}
+    \label{fig:results}
+\end{figure}
+
+For our experiments, we build an MZI according to the scheme shown in Fig.~\ref{fig:scheme}. We use a continuous HeNe laser with wavelength $\lambda = 632$ nm, Newport Picomotor mirror mounts, a Standa 8MT167-25LS linear translation stage, a CMOS camera with 16 fps acquisition rate, and a high-bandwidth photodetector to precisely measure the visibility. In addition to our agent, we also train and evaluate the original Interferobot \cite{sorokin2020interferobot} with the action space extended to include the lens movement. For each agent, we run $50$ episodes of evaluation with $100$ timesteps.  Figure \ref{fig:results} shows the evaluation results. Our agent significantly outperforms Interferobot in terms of the alignment time, final visibility (averaged over the last 40 steps of each episode) and its variance. 
+
+%As the original  demonstrated an advantage over human-expert in previous work, our new model can be considered superhuman.
+Additionally, our agent has been compared with a human expert, who  aligned the interferometer 10 times by manually turning the controls on the physical setup. As evidenced by Table \ref{table:human}, our agent surpasses the human both in the speed and quality of the alignment. 
+
+\begin{table}
+\centering
+    \begin{tabular}{lccc}\toprule
+        &V $\ge 0.92$ & V $\ge 0.95$ & V $\ge 0.98$\\\midrule
+        Human &  93.9 (\textbf{0\%})  & 103.6 (\textbf{0\%}) & 129.6 (10\%)\\
+        TD3 &  \textbf{56.16} (\textbf{0\%}) & \textbf{75.06} (\textbf{0\%}) & \textbf{120.1} (\textbf{4\%})\\
+        DQN &  98.7 (7.6\%) & 116.1 (7.6\%) & 156.4 (10.6\%)\\
+        \bottomrule
+    \end{tabular}
+    \vskip 0.05in
+    \caption{Comparison with a human expert and the original Interferobot. The time required to reach the visibility thresholds of 0.92, 0.95 and 0.98 are shown, together with the percentage of episodes the threshold has not been reached (in parentheses).}\label{Tab1}
+    \label{table:human}
+\end{table} 
+
+
+\begin{figure}[ht]
+    \begin{subfigure}[t]{0.5\textwidth}
+        \includegraphics[width=\textwidth]{images/parallel_actions_count_for_each_axis.pdf}
+        \caption{Percentage of parallel actions.}
+        \label{fig:parallel_actions}
+    \end{subfigure}
+    \quad
+    \begin{subfigure}[t]{0.5\textwidth}
+        \includegraphics[width=\textwidth]{images/action_norm_decrease.pdf}
+        \caption{Norm of actions.}
+        \label{fig:act_norm}
+    \end{subfigure}
+    \caption{Interpreting the agent's policy. a) Percentage of actions that change the distance between beams while conserving the directions increases with the step number. b) Mean norm of actions decreases with the step number.}
+     \label{fig:parallel_norm}
+\end{figure}
+    
+
+\subsection{Анализ стратегии используемой агентом при настройке интерферометра}
+
+%To align an interferometer our agent needs to precisely superpose two laser beams both in position and direction. This process is complicated by the fact that each of the two mirrors changes both position and direction of the beam. 
+A common trick used by human experts in aligning optics is to turn two mirrors steering the same beam by equal and opposite angles. This action moves the position of the beam without changing its direction. Fig.~\ref{fig:parallel_actions} shows that our agent learns this method and uses it extensively: by the end of the procedure, about 70\% of the actions contain such parallel movements. 
+%the two beams good strategy, in this case, would be to align both beams parallel at the first stage and move the second beam along the camera plane parallel to the first beam. This can be achieved when both mirrors are rotated at the same angle. It is seen that at the first 10 steps this percentage is relatively small but after it grows up to 80\% meaning that our agent has learned such actions by itself without any prior knowledge and special constraints and use them at the final steps for fine-tuning the interferometer. 
+Fig. \ref{fig:act_norm} shows the action norm as a function of the step number. The descending trend means that at the beginning our agent uses large actions to obtain rough alignment and decreases the action size to fine-tune the interferometer. 
+
+\subsection{Анализ эффективности шумов использованных при обучении}
+
+Table \ref{table:1} presents the results of an ablation study. A standard TD3 agent does not outperform the original Interferobot and achieves a mean visibility of $V = 0.83$. Action rescaling and phase noise randomizations significantly boost the performance of our agent, leading to a visibility of $V = 0.98$. It is notable that the phase noise randomization slightly decreases the mean visibility of the Interferobot but improves the standard deviation. This bias-variance trade-off can be due to the relative simplicity of the Interferobot model which cannot capture richer observations produced by this randomization.  
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{|l |c| c|} 
+ \hline
+ Model & mean visibility for last 40 step & standard deviation \\
+ \hline
+ TD3 + AR + PN & \textbf{0.98} & \textbf{0.03} \\
+\hline
+TD3 + AR & 0.95 & 0.06\\
+\hline
+DQN  & 0.92 & 0.12\\
+\hline
+DQN + PN & 0.90 & 0.08\\
+\hline
+TD3& 0.83 & 0.18\\
+\hline
+\end{tabular}
+\vskip 0.05in
+\caption{Comparative evaluation with ablated agents and the original Interferobot \cite{sorokin2020interferobot}. PN: phase noise; AR: action rescaling.}
+\label{table:1}
+\end{table}
 
 \section{Выводы}
+
+We have shown that an optical interferometer can be successfully aligned by a robotic RL agent
+without any prior knowledge of the system’s physics. When trained with the randomizations, the
+agent can be transferred from simulation to an experimental setup without any fine-tuning. The
+trained agent’s performance is comparable with that of a skilled specialist in terms of the achieved
+visibility, but significantly faster. Our approach can be easily extended to interferometers of various
+sizes, shapes, and with additional optical elements. In the future, such a method can be applied for
+fully automated alignment of complex optical setups, which can significantly decrease the amount of
+routine manual work needed for complex experiments.
+
+We demonstrated a novel RL algorithm for the automatic alignment of an optical interferometer, which contains a system of lenses in one of its optical paths. Such a setup results in richer observation and action spaces and constiututes a better approximation of a general problem of achieving mode matching between two arbitrary Gaussian beams.  Our reinforcement learning agent with a continuous action space solves the alignment problem successfully, surpassing both a previous solution and a human expert. Important innovations include exponential scaling of the action space, an additional domain randomization that helps the agent generalize to a real setup after training in simulation as well as a discrete reward structure that trains the agent to avoid unsafe actions. Our solution will work for any Mach-Zehnder interferometer with $2\times2$ degrees of freedom (mirror angles) controlling the  position and direction, and one additional degree of freedom (lens position) controlling the width and divergence of one of the beams. %We demonstrate a significant advantage of our agent over the previous discrete one in the experiments on the real interferometer.
+%We also investigated the impact of each improvement on the agent's performance and examined the agent's strategy against a known interferometer tuning algorithm.
+
+% which changed the divergence and radius of the beam; this significantly complicated the task, making the observed interference patterns less interpretable
+
+% We have shown that the existing approach to the alignment of Mach Zehnder Interferometer can be extended to a more complex optical system including lens and that it is possible to speed up the alignment of Mach Zehnder Interferometer, without quality loss. We proposed additional randomizations and the way to leverage actions with different orders of amplitudes, showing their fruit fullness. 
 
 \FloatBarrier

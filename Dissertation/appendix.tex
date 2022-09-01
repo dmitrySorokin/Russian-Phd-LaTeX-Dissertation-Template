@@ -191,6 +191,8 @@ void calcImage(
 \end{lstlisting}
 %\end{ListingEnv}
 
+\section{Листинг задания нейронной сети DQN агента}\label{app:A4}
+
 \begin{ListingEnv}[!h]
 \captiondelim{ }
 \caption{Нейронная сеть DQN агента}\label{lst:dqn}
@@ -200,7 +202,7 @@ void calcImage(
 class DuelDQNModel(nn.Module):
     def __init__(self, inpshape, n_actions):
         super(DuelDQNModel, self).__init__()
-
+        
         self.conv = nn.Sequential(
             nn.Conv2d(inpshape[0], 32, kernel_size=8, stride=4),
             nn.ReLU(),
@@ -209,7 +211,7 @@ class DuelDQNModel(nn.Module):
             nn.Conv2d(64, 64, kernel_size=3, stride=1),
             nn.ReLU()
         )
-        conv_out_size = self._get_conv_out(inpshape, self.conv)
+        conv_out_size = get_out(inpshape, self.conv)
 
         self.fc_adv = nn.Sequential(
             nn.Linear(conv_out_size, 512),
@@ -226,10 +228,6 @@ class DuelDQNModel(nn.Module):
             nn.Linear(512, 1)
         )
 
-    def _get_conv_out(self, shape, conv):
-        o = conv(torch.zeros(1, *shape))
-        return int(np.prod(o.shape))
-
     def forward(self, x, histo):
         x = x.float() / 255.0
         conv_out = self.conv(x).view(x.shape[0], -1)
@@ -239,6 +237,7 @@ class DuelDQNModel(nn.Module):
 \end{lstlisting}
 \end{ListingEnv}
 
+\section{Листинг задания нейронной сети TD3 агента}\label{app:A4}
 
 \begin{ListingEnv}[!h]
 \captiondelim{ }
@@ -272,19 +271,14 @@ class TD3Actor(nn.Module):
             nn.MaxPool2d(2, 2),
             nn.Flatten()
         )
-
         self.mlp = nn.Sequential(
-            nn.Linear(get_layer_out(self.vgg16, state_dim), hid_dim),
+            nn.Linear(get_out(self.vgg16, state_dim), hid_dim),
             nn.ReLU(),
             nn.Linear(hid_dim, hid_dim),
             nn.ReLU(),
             nn.Linear(hid_dim, action_dim),
             nn.Tanh()
         )
-
-    def forward(self, obs):
-        return self.mlp(self.vgg16(obs))
-        
 \end{lstlisting}
 \end{ListingEnv}    
 
@@ -427,7 +421,10 @@ $\nu = \dfrac{4}{(n^2 + 1)r^2} \dfrac{1}{c} exp\Big(- (x_{0}^2 + y_{0}^2 ) \Big(
 
 Хорошо видно, что видность квадратично убывает от отношения линз.
 
-%\clearpage
+\chapter{Изображения интерференционных картин}\label{app:C}
+
+
+\clearpage
 %\refstepcounter{chapter}
 %\addcontentsline{toc}{appendix}{\protect\chapternumberline{\thechapter}Чертёж детали}
 
