@@ -588,7 +588,7 @@ To calculate the instrumental error, we compared visibility calculated using ima
 Благодаря тому, интерфейс симулятора и экспериментальной установки стандартизирован, агент обученный на симуляторе может быть без изменений запущен на физической установке. 
 
 
-\section{Перенос из симуляции в реальность (Sim2Real transfer)}
+\section{Перенос из симуляции в реальность}\label{sec:ch2/sec6}
 
 Изображения интерференционной картины и динамика среды у симулятора и физической установки существенно отличаются. В эксперименте на изображениях присутствуют аберрации, паразитная интерференция, засветка сторонними источниками света, а также профиль светового пучка отличается от Гауссова. Механизированные подвижки движутся не точно и имеют значительный гистерезис. Поэтому для того, чтобы успешно перенести агента из симуляции на физическую установку  мы добавили в симуляцию шумы основанные на неопределенности в измерениях.
 
@@ -697,152 +697,131 @@ To calculate the instrumental error, we compared visibility calculated using ima
 \label{fig:anal_kx}
 \end{figure}
 
-Interferobot needs to reach, in as few steps as possible, the maximum visibility point, which is located at the origin of the $(x_0,y_0,k_x,k_y)$ space as per Eq.~\eqref{eq:visib_rot}. The agent's actions modify $\alpha_{(1,2),(x,y)}$, and hence, according to Eq.~\eqref{eq:xykxky}, are non-orthogional in that space. This means that the optimal policy will not increase the visibility at every step. Rather, 
-%This point must be reached because our reward function penalizes every step. Because the actions available are non-  This means that the optimal policy does not increase the visibility on every step. The challenge comes, when $x_0, y_0$ and $k_x, k_y$ are not independent parameters: decreasing spatial misalignment can increase angular and visa versa. In these conditions, an optimal policy 
-it should work in a zig-zag fashion, repeatedly significantly misaligning mirror 1 and then compensating with BS 2 (or vice versa). This behavior, manifested in significant oscillations of the visibility during the alignment, is seen in Fig.~\ref{fig:eval_results}(c,d). Note the difference between these deliberate misalignment actions and those by the human expert mentioned above. While the human misaligns the interferometer in order to better observe the beam positions, Interferobot appears to purposefully make zig-zag steps in order to change $x_0$ or $y_0$ without modifying $k_x$ or $k_y$, respectively.
+RL агент старается достичь состояния с максимальной видностью  $(x_0,y_0,k_x,k_y)$ согласно ур.~\eqref{eq:visib_rot} за наименьшее количество шагов. Так как действия агента изменяют одновременно положение центра $(x_0, y_0)$ и направление пучка $(k_x k_y)$ то они не являются ортогональными в этом пространстве (уменьшение пространственного расстояния между пучками может увеличить угловое и наоборот). Таким образом оптимальная стратегия не может увеличивать видность на каждом шаге настройки интерферометра. Оптимальный RL агент должен производить тонкую настройку интерферометра последовательно отклоняя одно зеркало и компенсируя это вторым зеркалом. Такое поведение будет приводить к существенному изменению видности в течении настройки, как видно на рис.~\ref{fig:anal_visib_step}, \ref{fig:anal_kx}. Важным отличием стратегии агента показанной на рис.~\ref{fig:anal_visib_step}, от эксперта является то, что человек расстраивает интерферометр для того, чтобы лучше определить положение пучков, а RL агент совершает последовательные повороты двух зеркал для того, чтобы подстроить положение центра пучка $x_0$ или $y_0$ без изменения его направления ($k_x$, $k_y$). Это поведение не было запрограммировано, а было выучено агентом полностью самостоятельно в симуляции.
 
-While we do not know the true values of $x_0, y_0$, and $k_x, k_y$ in experimental evaluation, we can reconstruct them from the actions of the agent assuming that at the end, all of them equals zero. Plots of trajectory in ($y, k_y$) space (($x, k_x$) will look similar) and visibility are presented in 
+Рис.~\ref{fig:anal_kx} показывает траекторию настройки интерферометра в фазовом пространстве соответствующую видности изображенной на рис.~\ref{fig:anal_visib_step}. Так как мы не знаем точных значений  $x_0, y_0$, и $k_x, k_y$ в эксперименте, мы их реконструируем исходя из того, что в конце настройки $(x_0, y_0) = (0, 0)$ и $(k_x, k_y) = (0, 0)$. На рис.~\ref{fig:anal_kx} видно, что в начале агент настраивает установку большими шагами, а затем зигзагообразно сдвигает пучки вместе.
 
-We observe this zig-zag movement in Fig.~\ref{fig:eval_results}(c) denoted by actions $\alpha_{1, y}, \alpha_{2, y}$. Note that this behaviour results in a significant decrease of visibility by the first action and consequent increase to the higher value by the second action. It was not hand-coded in the agent and learned through training.
+На рис.~\ref{fig:step_size} показан средний размер шага DQN.агента (в единицах $\alpha_{\max}$) в течении эпизода как функция номера шага. Видно, что в начале настройки агент совершает действия с большой амплитудой, затем в конце для точной настройки агент делает наименьшие действия. 
 
-%The performance of the agent is shown in Fig.~\ref{fig:eval_results}. Fig.~\ref{fig:eval_results}a shows visibility during a single evaluation. It is seen that the agent is not constantly increasing visibility but performs a so-called 'walk' algorithm used by humans to tune MZIs. During this algorithm, a human from time to time decreases visibility (i.e., slightly misalign setup) to get out from local optimum, and this behavior is seen in Fig. \ref{fig:eval_results}a. This behavior was not hand-coded in the agent and was not expected to be observed.
+\begin{figure}[ht]
+\centerfloat{
+  \includegraphics[width=0.75\textwidth]{images/agent_step_size.pdf}
+}
+\caption{Размер шага DQN агента усредненный по 100 эпизодам.}
+\label{fig:step_size}
+\end{figure}
 
 \subsection{Анализ эффективности шумов использованных при обучении}
 
-\begin{table}[ht]
-\caption{Ablation study}
-\centering
-\begin{tabular}{c|c|c}
-\toprule
-{} & visibility & return \\
-\midrule
-All randomizations  & $\textbf{0.96} \pm \textbf{0.02}$ & $\textbf{221} \pm \textbf{54}$ \\
-No radius randomization & $0.74 \pm 0.20$ & $85 \pm 69$ \\
-No brightness randomization& $0.91 \pm 0.04$ & $178 \pm 39$ \\
-No white noise & $0.82 \pm 0.07$ & $129 \pm 43$ \\
-No duty cycle and trigger time randomization  &  $0.89 \pm 0.07$ & $200 \pm 42$ \\
+Для того чтобы определить важность использования шумов при обучении DQN агента, мы обучили и протестировали четырех при обучении каждого из которых один из шумов перечисленных в разделе \ref{sec:ch2/sec6} был убран. Каждый агент был протестирован в $100$ эпизодах. Процесс тестирования каждого агента занимал порядка 6 часов и был полностью автоматизирован. В таблице \ref{tab:abl}, мы представили среднюю видность полученную агентом в течении последних 20 шагов настройки интерферометра (visibility) и среднюю суммарную дисконтированную награду, полученную агентом (return). Наибольший прирост производительности агента при настройке физической установки обеспечивают шумы в радиусе и белый шум. 
 
-
-\bottomrule
-\end{tabular}
-
-\label{tab:abl}
+\begin{table} [htbp]
+    \centering
+    \begin{threeparttable}
+        \caption{Анализ влияния шумов используемых при обучении агента на качество настройки физической установки}\label{tab:abl}
+        \begin{tabular}{| p{10cm} || p{3cm} || p{3cm} |}
+            \hline
+            \hline
+             & visibility & return \\
+            \hline
+            All randomizations  & $\textbf{0.96} \pm \textbf{0.02}$ & $\textbf{221} \pm \textbf{54}$ \\
+            No radius randomization & $0.74 \pm 0.20$ & $85 \pm 69$ \\
+            No exposure randomization& $0.91 \pm 0.04$ & $178 \pm 39$ \\
+            No image noise & $0.82 \pm 0.07$ & $129 \pm 43$ \\
+            No duty cycle and frame shift randomization  &  $0.89 \pm 0.07$ & $200 \pm 42$ \\
+            \hline
+            \hline
+        \end{tabular}
+    \end{threeparttable}
 \end{table}
-
-% \begin{table}[h]
-
-% \caption{Ablation study}
-% \centering
-
-% \begin{tabular}{c|c|c|c|c}
-% \toprule
-% {} &  mean visibility & $\sigma$ visib & mean reward & std reward \\
-% \midrule
-% Fully randomized & \textbf{0.95} & \textbf{0.01} & \textbf{321} & 53 \\
-% No  duty cycle, and trigger time randomization &  0.89 & 0.07 & 300 & 42\\
-% No radius randomization & 0.74 & 0.19 & 185 & 69\\
-% No brightness randomization & 0.91 & 0.04 & 278 & 40\\
-% No white noise & 0.82 & 0.07 & 230 & 44 \\
-
-% \bottomrule
-% \end{tabular}
-
-% \label{tab:abl}
-% \end{table}
-
-%To identify the importance of randomizations, we performed an ablation study. 
-We trained and evaluated four additional agents, in each of which one of the domain randomizations listed in Sec.~\ref{Sec:Method} has been removed. Every agent was evaluated on the physical setup for 100 episodes. The evaluation of each agent took around 6 hours and was fully automated. In table \ref{tab:abl}, we present the mean visibility in the last 20 steps and the mean return, averaged over all episodes. We observe that the most significant benefits are due to the radius randomization and white noise addition.
 
 
 \section{Настройка интерферометра Маха-Цендера с системой линз}
 
 \subsection{Оценка результатов работы агента на экспериментальной установке}
 
+Для тестирования работы TD3 и DQN агентов при настройке интерферометра Маха-Цендера с системой линз была построена экспериментальная установка соответствующая схеме изображенной на рис.~\ref{fig:MZI_expl_lenses}. Для определения видности интерференционной картины использовался фотодетектор с большим временным разрешением. Каждого агента мы тестировали на $50$ эпизодах длинной в $100$ шагов. Результаты тестирования представлены на рис.~\ref{fig:results_a}, \ref{fig:results_b}. TD3 использующий непрерывное пространство действия настраивает интерферометр существенно лучше, чем DQN агент оперирующий дискретными действиями. На рис.~\ref{fig:results_a} показана зависимость видности интерференционной картины от шага настройки интерферометра. Видно, что TD3 агент не только значительно быстрее достигает хорошей видности (так как он оперирует действиями произвольного размера) но и имеет меньший разброс и лучшее качество в конце настройки. На рис.~\ref{fig:results_b} показан межквантильный размах для видности усредненной по последним 40 шагам в каждом эпизоде. Видно, что также у TD3 агента размах сильно меньше чем у DQN агента.
 
 \begin{figure}[ht]
-    \begin{subfigure}[t]{0.5\textwidth}
-        \includegraphics[width=\textwidth]{images/DQN_vs_TD3.pdf}
-        \caption{Mean visibility per step}
-        \label{fig:results_a}
-    \end{subfigure}
-    \begin{subfigure}[t]{0.5\textwidth}
-        \includegraphics[width=\textwidth]{images/DQN_vs_TD3_box.pdf}
-        \caption{Box plot of visibility}
-        \label{fig:results_b}
-    \end{subfigure}
-    \caption{Comparison of Interferobot and our agent, demonstrating the advantage of the latter in convergence speed and the final alignment quality. As evident from the box plot (b), the 25-75  interquartile range for our agent is significantly narrower  than that of Interferobot, indicating higher stability of the former. %a) Visibility as a function of step in an episode, averaged over 50 episodes. Fig. \ref{fig:results_b} shows that the interquartile range for the TD3 agent is significantly lower then for previous DQN agent indicating that it is more stable. 
-    All results are averaged over 50 episodes.}
-    \label{fig:results}
+\centerfloat{
+    \includegraphics[width=0.75\textwidth]{images/DQN_vs_TD3.pdf}
+}
+    \caption{Видность в зависимости от шага настройки интерферометра усредненная по 50 эпизодам.  TD3 агент показан синим цветом, DQN --- оранжевым.}
+    \label{fig:results_a}
 \end{figure}
-
-For our experiments, we build an MZI according to the scheme shown in Fig.~\ref{fig:scheme}. We use a continuous HeNe laser with wavelength $\lambda = 632$ nm, Newport Picomotor mirror mounts, a Standa 8MT167-25LS linear translation stage, a CMOS camera with 16 fps acquisition rate, and a high-bandwidth photodetector to precisely measure the visibility. In addition to our agent, we also train and evaluate the original Interferobot \cite{sorokin2020interferobot} with the action space extended to include the lens movement. For each agent, we run $50$ episodes of evaluation with $100$ timesteps.  Figure \ref{fig:results} shows the evaluation results. Our agent significantly outperforms Interferobot in terms of the alignment time, final visibility (averaged over the last 40 steps of each episode) and its variance. 
-
-%As the original  demonstrated an advantage over human-expert in previous work, our new model can be considered superhuman.
-Additionally, our agent has been compared with a human expert, who  aligned the interferometer 10 times by manually turning the controls on the physical setup. As evidenced by Table \ref{table:human}, our agent surpasses the human both in the speed and quality of the alignment. 
-
-\begin{table}
-\centering
-    \begin{tabular}{lccc}\toprule
-        &V $\ge 0.92$ & V $\ge 0.95$ & V $\ge 0.98$\\\midrule
-        Human &  93.9 (\textbf{0\%})  & 103.6 (\textbf{0\%}) & 129.6 (10\%)\\
-        TD3 &  \textbf{56.16} (\textbf{0\%}) & \textbf{75.06} (\textbf{0\%}) & \textbf{120.1} (\textbf{4\%})\\
-        DQN &  98.7 (7.6\%) & 116.1 (7.6\%) & 156.4 (10.6\%)\\
-        \bottomrule
-    \end{tabular}
-    \vskip 0.05in
-    \caption{Comparison with a human expert and the original Interferobot. The time required to reach the visibility thresholds of 0.92, 0.95 and 0.98 are shown, together with the percentage of episodes the threshold has not been reached (in parentheses).}\label{Tab1}
-    \label{table:human}
-\end{table} 
-
 
 \begin{figure}[ht]
-    \begin{subfigure}[t]{0.5\textwidth}
-        \includegraphics[width=\textwidth]{images/parallel_actions_count_for_each_axis.pdf}
-        \caption{Percentage of parallel actions.}
-        \label{fig:parallel_actions}
-    \end{subfigure}
-    \quad
-    \begin{subfigure}[t]{0.5\textwidth}
-        \includegraphics[width=\textwidth]{images/action_norm_decrease.pdf}
-        \caption{Norm of actions.}
-        \label{fig:act_norm}
-    \end{subfigure}
-    \caption{Interpreting the agent's policy. a) Percentage of actions that change the distance between beams while conserving the directions increases with the step number. b) Mean norm of actions decreases with the step number.}
-     \label{fig:parallel_norm}
+\centerfloat{
+        \includegraphics[width=0.75\textwidth]{images/DQN_vs_TD3_box.pdf}
+}
+\caption{Межквантильный размах видности полученной в конце настройки интерферометра. Межквантильный размах определяется как разность между 25 и 75 перцентилями.}
+    \label{fig:results_b}
 \end{figure}
-    
+
+В таб.~\ref{tab:human} представлено сравнение качества настройки интерферометра с линзами RL агентами с экспертом. Эксперт настраивал интерферометр вручную $10$ раз используя управляющие элементы подвижек зеркал и линзы. Видно, что TD3 агент также превосходит эксперта как в скорости, так и в качестве настройки.
+
+\begin{table} [htbp]
+    \centering
+    \begin{threeparttable}
+        \caption{Сравнение качества настройки интерферометра экспертом, TD3 и DQN агентами. Показано время в секундах требуемое для достижения величины видности равной $0.92$, $0.95$ и $0.98$. В скобках указан процент эпизодов при в которых соответствующая видность не была достигнута.}\label{tab:human}
+        \begin{tabular}{| p{4cm} || p{4cm} || p{4cm} || p{4cm} |}
+            \hline
+            \hline
+            &V $\ge 0.92$ & V $\ge 0.95$ & V $\ge 0.98$ \\
+            \hline
+            Human &  93.9 (\textbf{0\%})  & 103.6 (\textbf{0\%}) & 129.6 (10\%)\\
+            TD3 &  \textbf{56.16} (\textbf{0\%}) & \textbf{75.06} (\textbf{0\%}) & \textbf{120.1} (\textbf{4\%})\\
+            DQN &  98.7 (7.6\%) & 116.1 (7.6\%) & 156.4 (10.6\%)\\
+            \hline
+            \hline
+        \end{tabular}
+    \end{threeparttable}
+\end{table}
 
 \subsection{Анализ стратегии используемой агентом при настройке интерферометра}
 
-%To align an interferometer our agent needs to precisely superpose two laser beams both in position and direction. This process is complicated by the fact that each of the two mirrors changes both position and direction of the beam. 
-A common trick used by human experts in aligning optics is to turn two mirrors steering the same beam by equal and opposite angles. This action moves the position of the beam without changing its direction. Fig.~\ref{fig:parallel_actions} shows that our agent learns this method and uses it extensively: by the end of the procedure, about 70\% of the actions contain such parallel movements. 
-%the two beams good strategy, in this case, would be to align both beams parallel at the first stage and move the second beam along the camera plane parallel to the first beam. This can be achieved when both mirrors are rotated at the same angle. It is seen that at the first 10 steps this percentage is relatively small but after it grows up to 80\% meaning that our agent has learned such actions by itself without any prior knowledge and special constraints and use them at the final steps for fine-tuning the interferometer. 
-Fig. \ref{fig:act_norm} shows the action norm as a function of the step number. The descending trend means that at the beginning our agent uses large actions to obtain rough alignment and decreases the action size to fine-tune the interferometer. 
+Для настройки интерферометра необходимо точно совместить два пучка как по положению на камере, так и по направлению. Сложность этого процесс состоит в том, что каждое из двух зеркал изменяет как положение центра пучка так, и его направление. Для того чтобы перемещать пучок по экрану сохраняя угол между двумя пучками, необходимо поворачивать два зеркала на один и тот же угол. На рис.~\ref{fig:anal2_parallel_actions} показано, что TD3 агент выучивает подобные действия и часто их использует: к концу процесса настройки интерферометра, около 70\% процентов всех действий составляют ``параллельные действия''. 
+
+\begin{figure}[ht]
+\centerfloat{
+  \includegraphics[width=0.75\textwidth]{images/parallel_actions_count_for_each_axis.pdf}
+}
+\caption{Процент ``параллельных действий'' --- действий, которые изменяют расстояние между лучами, не изменяя при этом угол между лучами в зависимости от номера шага.}
+\label{fig:anal2_parallel_actions}
+\end{figure}
+
+Рис. \ref{fig:anal2_act_norm} показывает усредненную зависимость амплитуды действий агента от номера шага настройки интерферометра. Амплитуда действий у TD3 (как и у DQN агента, рис.~\ref{fig:step_size}) убывает так как в начале агент использует действия большой амплитуды для грубой настройки интерферометра, а затем с помощью малых действий производит тонкую настройку. 
+
+\begin{figure}[ht]
+\centerfloat{
+  \includegraphics[width=0.75\textwidth]{images/action_norm_decrease.pdf}
+}
+\caption{Средняя амплитуда действий в зависимости от номера шага.}
+\label{fig:anal2_act_norm}
+\end{figure}
+
 
 \subsection{Анализ эффективности шумов использованных при обучении}
 
-Table \ref{table:1} presents the results of an ablation study. A standard TD3 agent does not outperform the original Interferobot and achieves a mean visibility of $V = 0.83$. Action rescaling and phase noise randomizations significantly boost the performance of our agent, leading to a visibility of $V = 0.98$. It is notable that the phase noise randomization slightly decreases the mean visibility of the Interferobot but improves the standard deviation. This bias-variance trade-off can be due to the relative simplicity of the Interferobot model which cannot capture richer observations produced by this randomization.  
+В таблице \ref{tab:abl_td3} представлены результаты сравнения работы TD3 агента обученного без использования фазового шума или масштабирования действий. Стандартный TD3 агент при настройке интерферометра показал качество хуже чем DQN агент и достиг видности равной $V = 0.83$. Масштабирование пространства действий и добавление фазового шума при обучении TD3 агента существенно улучшают качество его работы, приводя к видности $V = 0.98$. Также важно отметить, что фазовый шум слегка уменьшает среднюю видность достигаемую DQN агентом, но также уменьшает дисперсию. Такой компромисс между дисперсией и смещением (bias-variance tradeoff) может быть связан с достаточной простотой нейронной сети используемой в DQN агенте. 
 
-\begin{table}[ht]
-\centering
-\begin{tabular}{|l |c| c|} 
- \hline
- Model & mean visibility for last 40 step & standard deviation \\
- \hline
- TD3 + AR + PN & \textbf{0.98} & \textbf{0.03} \\
-\hline
-TD3 + AR & 0.95 & 0.06\\
-\hline
-DQN  & 0.92 & 0.12\\
-\hline
-DQN + PN & 0.90 & 0.08\\
-\hline
-TD3& 0.83 & 0.18\\
-\hline
-\end{tabular}
-\vskip 0.05in
-\caption{Comparative evaluation with ablated agents and the original Interferobot \cite{sorokin2020interferobot}. PN: phase noise; AR: action rescaling.}
-\label{table:1}
+\begin{table} [htbp]
+    \centering
+    \begin{threeparttable}
+        \caption{Анализ эффективности фазового шума и масштабирования действий. PN: фазовый шум; AR: масштабирование действий.}\label{tab:abl_td3}
+        \begin{tabular}{| p{4cm} || p{6cm} || p{6cm} |}
+            \hline
+            \hline
+            агент & средняя видность за последние 40 шагов & стандартное отклонение \\
+            \hline
+            TD3 + AR + PN & \textbf{0.98} & \textbf{0.03} \\
+            TD3 + AR & 0.95 & 0.06\\
+            DQN + PN & 0.90 & 0.08\\
+            TD3& 0.83 & 0.18\\
+            \hline
+            \hline
+        \end{tabular}
+    \end{threeparttable}
 \end{table}
 
 \section{Выводы}
