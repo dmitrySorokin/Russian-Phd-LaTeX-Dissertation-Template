@@ -237,7 +237,7 @@ class DuelDQNModel(nn.Module):
 \end{lstlisting}
 \end{ListingEnv}
 
-\section{Листинг задания нейронной сети TD3 агента}\label{app:A4}
+\section{Листинг задания нейронной сети TD3 агента}\label{app:A5}
 
 \begin{ListingEnv}[!h]
 \captiondelim{ }
@@ -326,51 +326,7 @@ I_{\mathrm{tot}}(t) = \pi r^2 \biggl[1 +  \exp\left(-\frac{(k_x^2 + k_y^2)r^2}{8
 
 \section{Вывод формулы видности для интерферометра Маха-Цендера с линзами (\ref{eq:visib_lense})}\label{app:B2}
 
-
-Понять, как изменяются параметры Гауссова пучка при нормальном падении на линзу, и как изменится ход обычного луча при наклонном падении на систему линз --- задачи идейно несложные. Понять же в точности, что происходит с Гауссовым пучком при наклонном падении на систему линз --- задача, как мне кажется, очень нетривиальная, да и возможно такая точность нам не нужна. В связи с чем, я рассчитывал координаты луча при прохождении системы линз, забывая о том, что мы работаем с Гауссовым пучком. А так же рассчитал, как меняются "Гауссовые" параметры пучка при нормальном падении на систему линз.
-
-Рассмотрим нормальное падение Гауссова пучка на систему линз. Имеем два гауссовых пучка
-
-
-$E_{1} = exp\Big(\dfrac{(x - x_{0})^2  + (y - y_{0})^2}{r^2}\Big) exp(ik_{x} x + ik_{y} y + ik_{z} z)$
-
-
-$E_{2} = exp\Big(\dfrac{x^2  + y^2}{r^2}\Big) exp(ik_{x} x + i\phi)$
-
-Введем волновой параметр $q$ как $\dfrac{1}{q} = \dfrac{1}{\rho} - \dfrac{i \lambda}{\pi r^2}$, где $\rho$ --- радиус кривизны пучка, $r$ --- радиус пучка.
-
-Известный факт, что при праксиальном прохождении через оптическую систему волновой параметр меняется как $q' = \dfrac{Aq + B}{Cq + D}$
-
-Параметры $A, B, C, D$ удобно представлять в виде матрицы \begin{equation*}
-M =
-\begin{pmatrix}
-A & B \\
-C & D \\
-\end{pmatrix}
-\end{equation*}
-
-Для распространения в среде длинной d ABCD матрица выглядит как 
- \begin{equation*}
-M_{free} =
-\begin{pmatrix}
-1 & d \\
-0 & 1 \\
-\end{pmatrix}
-\end{equation*}
-
-Для прохождения через тонкую линзу c фокусным расстоянием $F$
- \begin{equation*}
-M_{linz} =
-\begin{pmatrix}
-1 & 0 \\
--1/F & 1 \\
-\end{pmatrix}
-\end{equation*}
-
-Причем, при прохождении сред 1, 2, 3, соответственная матрица такой 'составной' среды $M_{total} = M_{3} M_{2} M_{1}$ (матрицы перемножаются в обратном порядке.)
-
-
-Матрица $M$ для среды линза $F_{1}$, вакуум длинной $F_{1} + F_{2} + \Delta$, линза $F_{2}$, вакуум длинной $d$ выглядит как
+Рассмотрим как изменяются параметры пучка при нормальном падении на систему линз. Первоначально пучок имеет плоский волновой фронт ($\rho \to \infty$). В соответствии с уравнениями \eqref{eq:abcd_free}, \eqref{eq:abcd_lens}, \eqref{eq:abcd_prod} матрица $M$ для системы из линзы с фокусным расстоянием $F_{1}$, вакуума длинной $F_{1} + F_{2} + \Delta$, линзы $F_{2}$ и вакуума длинной $d$ равна:
 
 \begin{equation*}
 M =
@@ -380,46 +336,43 @@ M =
 \end{pmatrix}
 \end{equation*}
 
-Изначально считаем, что $\rho = \infty$, тогда $ \dfrac{1}{q} = - \dfrac{i \lambda}{\pi r^2}$. В формуле для $q'$ Делим числитель и знаменатель на $q$, умножаем и числитель и знаменаель на $F_{1} F_{2}$, и получим
+Изначально считаем, что волна является плоской ($\rho \to \infty$), а значит параметр $q$ \eqref{eq:q_param} равен:
 
-$q' = \dfrac{(d\Delta - F_{2}^2 - \Delta F_{2}) - F_{1}(F_{1}F_{2} + F_{2}^2 + \Delta F_{2} - F_{1}d- \Delta d)\dfrac{i \lambda}{\pi r^2}}{\Delta + F_{1}(F_{1} + \Delta) \dfrac{i \lambda}{\pi r^2}} $
+\begin{equation*}
+    \dfrac{1}{q} = - \dfrac{i \lambda}{\pi r^2}
+\end{equation*}
 
-$\dfrac{1}{q'}
-=
-\dfrac{\Delta + F_{1}(F_{1} + \Delta)\dfrac{i \lambda}{\pi r^2}}{(d\Delta - F_{2}^2 -\Delta F_{2})^2 + \Big(F_{1}(F_{1}F_{2} + F_{2}^2 + \Delta F_{2} - F_{1}d- \Delta d)\dfrac{ \lambda}{\pi r^2}\Big)^2} \Big((d\Delta - F_{2}^2 - \Delta F_{2}) + F_{1}(F_{1}F_{2} + F_{2}^2 + \Delta F_{2} - F_{1}d- \Delta d)\dfrac{i \lambda}{\pi r^2}\Big) 
-\approx
-\dfrac{\Delta + F_{1}(F_{1} + \Delta)\dfrac{i \lambda}{\pi r^2}}{(d\Delta - F_{2}^2 -\Delta F_{2})^2} \Big((d\Delta - F_{2}^2 - \Delta F_{2}) + F_{1}(F_{1}F_{2} + F_{2}^2 + \Delta F_{2} - F_{1}d- \Delta d)\dfrac{i \lambda}{\pi r^2}\Big)
-=
-\dfrac{1}{(d\Delta - F_{2}^2 -\Delta F_{2})^2}\Big((d\Delta - F_{2}^2 - \Delta F_{2}) + F_{1}(F_{1}F_{2} + F_{2}^2 + \Delta F_{2} - F_{1}d- \Delta d)\dfrac{i \lambda}{\pi r^2}\Big)\Big(\Delta + F_{1}(F_{1} + \Delta)\dfrac{i \lambda}{\pi r^2}\Big) \approx$ 
+Из формулы \eqref{eq:q_prime} разделив числитель и знаменатель на $q$, затем умножив числитель и знаменатель на $F_{1} F_{2}$, и получим:
 
+\begin{equation*}
+    q' = \dfrac{(d\Delta - F_{2}^2 - \Delta F_{2}) - F_{1}(F_{1}F_{2} + F_{2}^2 + \Delta F_{2} - F_{1}d- \Delta d)\dfrac{i \lambda}{\pi r^2}}{\Delta + F_{1}(F_{1} + \Delta) \dfrac{i \lambda}{\pi r^2}} 
+\end{equation*}
 
+Соответственно:
 
+\begin{equation}
+    \dfrac{1}{q'}= \dfrac{1}{(d\Delta - F_{2}^2 -\Delta F_{2})^2} \Big((d\Delta - F_{2}^2 - \Delta F_{2})\Delta - F^{2}_{1}F^{2}_{2}\dfrac{i \lambda}{\pi r^2}\Big)
+\label{eq:inv_q_prime}
+\end{equation}
 
-Сравним $\Delta$ --- шаг микровинтового винта и $F^3 \dfrac{ \lambda^2}{\pi^2 r^4}$. Полагая $F = 0,1 \;м$, $r = 2 \; мм = 0,02 \; м$, $\lambda = 500 \cdot 10^{-9} \; м$, $\pi^2 = 10$
+Выражение \eqref{eq:inv_q_prime} получено в приближении  $\Delta \ll F^3 \dfrac{ \lambda^2}{\pi^2 r^4}$, где $\Delta$ --- шаг микрометрического винта. Из выражения \eqref{eq:inv_q_prime} получим уравнения для радиуса кривизны волнового фронта и радиуса пучка: 
 
+\begin{equation}
+    \rho ' =  \dfrac{d\Delta - F_{2}^2 - \Delta F_{2}}{\Delta}
+\end{equation}
 
+\begin{equation}
+    r' = \Big |\dfrac{d\Delta}{F_{1}F_{2}} - \dfrac{F_{2}}{F_{1}} - \dfrac{\Delta}{F_{1}}\Big|r
+\end{equation}
 
-$F^3 \dfrac{ \lambda^2}{\pi^2 r^4} \approx 10^{-10} \; м $, что много меньше шага любого винта. Тогда
+Далее видность рассчитывается в соответствии с уравнениями \eqref{eq:I_def}, \eqref{eq:visib}, где интенсивности пучков заданы уравнениями \eqref{eq:upper_beam}, \eqref{eq:lower_beam}. Итоговое выражение для видности интерференционной картины получается следующим:
 
-
-
-$\dfrac{1}{q'}= \dfrac{1}{(d\Delta - F_{2}^2 -\Delta F_{2})^2} \Big((d\Delta - F_{2}^2 - \Delta F_{2})\Delta - F^{2}_{1}F^{2}_{2}\dfrac{i \lambda}{\pi r^2}\Big)$
-
-
-
-Откуда $\rho ' =  \dfrac{d\Delta - F_{2}^2 - \Delta F_{2}}{\Delta}$, $r' = \Big |\dfrac{d\Delta}{F_{1}F_{2}} - \dfrac{F_{2}}{F_{1}} - \dfrac{\Delta}{F_{1}}\Big|r$
-
-
-
-
-Вводя $n = \dfrac{r'}{r}$ и $c^2 = \Big(\dfrac{n^2 + 1}{n^2r^2}\Big) ^2 + \Big(\dfrac{\pi}{\lambda \rho '}\Big) ^2$ можно посчитать, что видность интерференционной картины в таком случае равна 
-
-
-
-$\nu = \dfrac{4}{(n^2 + 1)r^2} \dfrac{1}{c} exp\Big(- (x_{0}^2 + y_{0}^2 ) \Big(\dfrac{1}{r^2n^2} - \dfrac{n^2 + 1}{n^6 r^6 c^2}\Big)\Big)  exp\Big( -\dfrac{n^2 + 1}{4 c^2 n^2 r^2}(k_{x}^2 + k_{y}^2\Big) \Big)exp\Big(  \dfrac{\dfrac{\pi}{\lambda \rho'}}{n^2 r^2 c^2}(x_{0}k_{x} + y_{0}k_{y}\Big)\Big)$
-
-
-Хорошо видно, что видность квадратично убывает от отношения линз.
+\begin{equation}
+\begin{split}
+    V =\frac{4}{\left(n^{2}+1\right) r^{2}} \frac{1}{c} \exp \left(-\left(x_{0}^{2}+y_{0}^{2}\right)\left(\frac{1}{r^{2} n^{2}}-\frac{n^{2}+1}{n^{6} r^{6} c^{2}}\right)\right) \times \\ \times \exp \left(-\frac{n^{2}+1}{4 c^{2} n^{2} r^{2}}\left(k_{x}^{2}+k_{y}^{2}\right)\right) \exp \left(\frac{\frac{\pi}{\lambda \rho^{\prime}}}{n^{2} r^{2} c^{2}}\left(x_{0} k_{x}+y_{0} k_{y}\right)\right),
+\end{split}
+\end{equation}
+где параметр $n=\dfrac{r^{\prime}}{r}$ и параметр $c^2 = (\dfrac{n^2 + 1}{n^2r^2})^2$.
 
 \chapter{Изображения интерференционных картин}\label{app:C}
 
