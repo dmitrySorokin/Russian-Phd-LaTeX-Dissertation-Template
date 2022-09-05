@@ -620,7 +620,7 @@ a^{\prime} =
 \section{Настройки интерферометра Маха-Цендера без линз}
 
 \subsection{Оценка результатов работы агента на экспериментальной установке}
-Экспериментальная установка показана на рис.~\ref{fig:MZI_exp}. Мы реализовали для нее gym интерфейс \cite{brockman2016openai} который позволяет запускать без изменения RL агента обученного в симуляции. В качестве наблюдений для RL агента мы использовали 16 последовательных изображений интерференционной картины получаемых с камеры за один период прохода пьезо зеркала. Видность интерференционной картины вычислялась средой напрямую из интерференционных изображений. Время требуемое для получения одного состояния на экспериментальной установке составило $2.7$. Таким образом экспериментальная установка медленнее симулятора более чем в $400$ раз. Агент был протестирован в автоматическом режиме без участия человека в течении $100$ эпизодов по $100$ шагов каждый. В начале каждого эпизода интерферометр был расстроен в случайное начальное положение. 
+Для экспериментальной оценки качества работы агента использовалась установка показанная на рис.~\ref{fig:MZI_exp}. Мы реализовали для нее gym интерфейс \cite{brockman2016openai} который позволяет запускать без изменения RL агента обученного в симуляции. В качестве наблюдений для RL агента мы использовали 16 последовательных изображений интерференционной картины получаемых с камеры за один период прохода пьезо зеркала. Видность интерференционной картины вычислялась средой напрямую из интерференционных изображений. Время требуемое для получения одного состояния на экспериментальной установке составило $2.7$ секунды. Таким образом экспериментальная установка медленнее симулятора более чем в $400$ раз. Агент был протестирован в автоматическом режиме без участия человека в течении $100$ эпизодов по $100$ шагов каждый. В начале каждого эпизода интерферометр был расстроен в случайное начальное положение. 
 
 \begin{figure}[ht]
 \centerfloat{
@@ -630,11 +630,11 @@ a^{\prime} =
 \label{fig:eval_visib_step}
 \end{figure}
 
-На рис.~\ref{fig:eval_visib_step}, \ref{fig:eval_visib_time} мы представили статистики работы DQN агента усредненные по 100 тестовым эпизодам настройки интерферометра и сравниваем качество работы агента с настройкой интерферометра опытным экспериментатором. Человек производил настройку интерферометра в двух постановках:  
+На рис.~\ref{fig:eval_visib_step}, \ref{fig:eval_visib_time} мы представили результаты работы DQN агента усредненные по 100 тестовым эпизодам настройки интерферометра и сравниваем качество работы агента с настройкой интерферометра опытным экспериментатором. Человек производил настройку интерферометра в двух постановках:  
 
 \begin{itemize}
     \item с использованием клавиатуры совершая действия такой же величины, как и RL агент. 
-    \item вращая зеркала с помощью ручек также, как и при проведении оптических экспериментов
+    \item вращая зеркала с помощью ручек также, как и при проведении оптических экспериментов.
 \end{itemize}
 
 Рис.~\ref{fig:eval_visib_step} соответствует первой постановке. В дополнение к DQN агенту настраивающему экспериментальную установку (изображен красным цветом), мы также показываем результаты агента в симуляции (синим цветом) для сравнения. Видно, что качество работы агента в симуляции слегка выше чем в эксперименте из-за отличий между симулированной средой и физической установкой. Несмотря на это, DQN агент превосходит человека использующего тот же набор действий как показано на рис.~\ref{fig:eval_visib_step}. В качестве дополнительной метрики рассмотрим наибольшее значение видности достигнутое в каждом эпизоде и затем усредненное по всем эпизодам представленную в таб.~\ref{tab:highest_visib_dqn}. Также следует заметить, что человек настраивает интерферометр с помощью клавиатуры сильно медленнее по времени чем DQN агент. 
@@ -816,20 +816,10 @@ RL агент старается достичь состояния с макси
 
 \section{Выводы}
 
-We have shown that an optical interferometer can be successfully aligned by a robotic RL agent
-without any prior knowledge of the system’s physics. When trained with the randomizations, the
-agent can be transferred from simulation to an experimental setup without any fine-tuning. The
-trained agent’s performance is comparable with that of a skilled specialist in terms of the achieved
-visibility, but significantly faster. Our approach can be easily extended to interferometers of various
-sizes, shapes, and with additional optical elements. In the future, such a method can be applied for
-fully automated alignment of complex optical setups, which can significantly decrease the amount of
-routine manual work needed for complex experiments.
+Мы показали что оптический интерферометр Маха-Цендера может быть успешно настроен RL агентом обученным без каких либо априорных знаний о физике системы. 
+Мы разработали программно-аппаратный комплекс Интерферобот который позволяет обучать RL агента полностью в симуляции и затем применять для настройки физического интерферометра. В рамках работы мы предложили набор шумов, которые позволяют перенести обученного агента из симуляции на физическую установку без дополнительного дообучения. Для обучения агента в симуляции мы предложили функцию награды которая позволяет агенту различать состояния с близкой видностью и достигать хорошего качества настройки интерферометра. 
+Мы рассмотрели и реализовали два подхода к дискретизации пространства действий дискретный (DQN агент) и непрерывный (TD3 агент). Качество настройки интерферометра с использованием дискретных действий находится на одном уровне с экспертом. Качество работы обученного агента с использованием непрерывного пространства действий превосходит качество настройки оптического интерферометра опытным экспертом как по скорости настройки, так и по получаемой в конце настройки видности интерференционной картины. 
+Разработанный программно-аппаратный комплекс может быть легко использован для настройки интерферометров других типов с использованием различных оптических элементов. Для демонстрации большого потенциала разработанного комплекса мы применили его для настройки интерферометра Маха-Цендера с использованием линз. Несмотря на то, что линзы приводят к существенно более сложной динамике наблюдений, при добавлении линз в симуляцию агент оказался способен научиться настраивать данную конфигурацию интерферометра без дополнительных изменений. В будущем данный метод может быть применен для полностью автоматизированной настройки сложных оптических установок что существенно уменьшит потребность в речном труде при проведении оптических экспериментов.  
 
-We demonstrated a novel RL algorithm for the automatic alignment of an optical interferometer, which contains a system of lenses in one of its optical paths. Such a setup results in richer observation and action spaces and constiututes a better approximation of a general problem of achieving mode matching between two arbitrary Gaussian beams.  Our reinforcement learning agent with a continuous action space solves the alignment problem successfully, surpassing both a previous solution and a human expert. Important innovations include exponential scaling of the action space, an additional domain randomization that helps the agent generalize to a real setup after training in simulation as well as a discrete reward structure that trains the agent to avoid unsafe actions. Our solution will work for any Mach-Zehnder interferometer with $2\times2$ degrees of freedom (mirror angles) controlling the  position and direction, and one additional degree of freedom (lens position) controlling the width and divergence of one of the beams. %We demonstrate a significant advantage of our agent over the previous discrete one in the experiments on the real interferometer.
-%We also investigated the impact of each improvement on the agent's performance and examined the agent's strategy against a known interferometer tuning algorithm.
-
-% which changed the divergence and radius of the beam; this significantly complicated the task, making the observed interference patterns less interpretable
-
-% We have shown that the existing approach to the alignment of Mach Zehnder Interferometer can be extended to a more complex optical system including lens and that it is possible to speed up the alignment of Mach Zehnder Interferometer, without quality loss. We proposed additional randomizations and the way to leverage actions with different orders of amplitudes, showing their fruit fullness. 
 
 \FloatBarrier
