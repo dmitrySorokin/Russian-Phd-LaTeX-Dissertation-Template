@@ -2,73 +2,63 @@
 
 \section{NetHack - одна из самых сложных игр для RL}
 
-Игра NetHack одна из старейших и наиболее популярных rouge-подобных игр. В начале игры, герой оказывается в подземелье в котором он должен найти амулет Вендора. Для этого герой должен пройти спуститься более чем на 50 процедурно генерируемых уровней. Многие компоненты игры являеются процедурно генерируемыми и имеют случайную динамику. Например,  For example,
-the overall structure of the dungeon is somewhat linear, but the exact location of places of interest (e.g.,
-the Oracle) and the structure of branching sub-dungeons (e.g., the Gnomish Mines) are determined
-randomly. The procedurally generated content of each level makes it highly unlikely that a player
-will ever experience the exact same situation more than once. This provides a fundamental challenge
-to learning systems and a degree of complexity that enables us to more effectively evaluate an
-agent’s ability to generalize. It also disqualifies current state-of-the-art exploration methods such as
-Go-Explore [22, 23] that are based on a goal-conditioned policy to navigate to previously visited states. Moreover, states in NetHack are composed of hundreds of possible symbols, resulting in an
-enormous combinatorial observation space.2
-It is an open question how to best project this symbolic
-space to a low-dimensional representation appropriate for methods like Go-Explore. For example,
-Ecoffet et al.’s heuristic of downsampling images of states to measure their similarity to be used as an
-exploration bonus will likely not work for large symbolic and procedurally generated environments.
-NetHack provides further variation by different hero roles (e.g., monk, valkyrie, wizard, tourist),
-races (human, elf, dwarf, gnome, orc) and random starting inventories (see Appendix A for details).
-Consequently, NetHack poses unique challenges to the research community and requires novel ways
-to determine state similarity and, likely, entirely new exploration frameworks.
+Игра NetHack одна из старейших и наиболее популярных rouge-подобных игр. Первая версия игры появилась в 1987 году, а последняя вышла в 2020. В начале игры, герой оказывается в подземелье в котором он должен найти амулет Вендора. Для этого герой должен пройти более чем 50 процедурно генерируемых уровней. Игра имеет текстовый интерфейс представленный на рис.~\ref{fig:nethack_map}. В центре с помощью ascii символов изображается подземелье, сверху появляется текстовое сообщение описывающее положение в игре, а снизу содержится информация о состоянии героя. 
 
-NetHack is an extremely long game. Successful expert episodes usually last tens of thousands of
-turns, while average successful runs can easily last hundreds of thousands of turns, spawning multiple
-days of play-time. Compared to testbeds with long episode horizons such as StarCraft and Dota 2,
-NetHack’s “episodes” are one or two orders of magnitude longer, and they wildly vary depending
-on the policy. Moreover, several official conducts exist in NetHack that make the game even more
-challenging, e.g., by not wearing any armor throughout the game (see Appendix A for more).
-Finally, in comparison to other classic roguelike games, NetHack’s popularity has attracted a larger
-number of contributors to its community. Consequently, there exists a comprehensive game wiki [50]
-and many so-called spoilers [25] that provide advice to players. Due to the randomized nature of
-NetHack, this advice is general in nature (e.g., explaining the behavior of various entities) and not
-a step-by-step guide. These texts could be used for language-assisted RL along the lines of [72].
-Lastly, there is also a large public repository of human replay data (over five million games) hosted
-on the NetHack Alt.org (NAO) servers, with hundreds of finished games per day on average [47].
-This extensive dataset could spur research advances in imitation learning, inverse RL, and learning
-from demonstrations [1, 3].
+\begin{figure}[ht]
+\centerfloat{
+        \includegraphics[width=0.85\textwidth]{images/nethack_map_view.pdf}
+}
+\caption{Интерфейс игры NetHack. (1) текстовое сообщение описывающее текущее событие, (2) статистика агента (здоровье, золото, сила, и др.) (3) окно центрированное возле текущего положения агента (@).}
+    \label{fig:nethack_map}
+\end{figure}
 
-The NetHack Learning Environment (NLE) is built on NetHack 3.6.6, the 36th public release of
-NetHack, which was released on March 8th, 2020 and is the latest available version of the game
-at the time of publication of this paper. NLE is designed to provide a common, turn-based (i.e.,
-synchronous) RL interface around the standard terminal interface of NetHack. We use the game as-is
-as the backend for our NLE environment, leaving the game dynamics unchanged. We added to the
-source code more control over the random number generator for seeding the environment, as well as
-various modifications to expose the game’s internal state to our Python frontend.
+Несмотря на простой интерфейс NetHack ставит перед игроком сложные задачи. Далее опишем основные сложности которые делают NetHack серьезным испытанием как для человека, так и для RL агента.
+
+\begin{itemize}
+    \item \textbf{Процедурная генерация среды.} Многие компоненты игры являются процедурно генерируемыми и имеют случайную динамику. Например, точное положение интересующих объектов таких как расположение предметов, монстров, еды и также структура подземелий генерируются случайным образом. Использование процедурной генерации уровней приводит к тому, что агент практически никогда не попадет в точно такую же ситуацию в которой он был в прошлом. При обучении RL агентов это приводит к фундаментальной проблеме с количеством данных необходимых для обучения и позволяет оценить способность агента обобщать свою текущую стратегию на новые задачи. Также в игре NetHack не работают методы исследования среды Go-Explore \cite{ecoffet2019, ecoffet2021} основанные на стратегии, умеющей возвращаться в ранее посещенные состояния которые в других задачах показывают наилучшие результаты. Кроме того, состояние в игре NetHack состоит из сотен возможных символов, что приводит к огромному количеству возможных состояний. Более того, в игре NetHack у героя могут быть различные роли (например, монах, валькирия, волшебник, турист), расы (человек, эльф, гном, орк) и различные начальный набор предметов. 
+    \item \textbf{NetHack -- очень длинная игра.} Эксперту для прохождения игры NetHack требуются десятки тысяч ходов. У среднего игрока прохождение игры может занять многие дни и более сотни тысяч ходов. По сравнению с другими тестовыми задачами для RL агентов такими как  StarCraft и Dota 2, эпизоды в NetHack на один или два порядка длиннее и сильно зависят от текущей стратегии агента. 
+    \item \textbf{Много модальные наблюдения.} Как показано на рис.~\ref{fig:nethack_map} в текущее состояние агента входит графическое изображение карты и его положение на ней; сообщение на естественном языке описывающее текущее событие; числовые признаки описывающие состояние агента; категориальные признаки описывающие имеющиеся в распоряжении у агента предметы и особенные свойства агента. 
+\end{itemize}
+
+Также сложность игры подчеркивает то, что для NetHack существует обширное описание \cite{nethack_wiki} возможных стратегий поведения созданное активными игроками которое может быть использовано для обучения RL агентов. Кроме того, существует репозиторий с большим количеством записей реальных игроков \cite{alt} который может быть использован для обучения агента имитировать их стратегии. Таким образом NetHack ставит уникальные задачи для исследований в области применения RL агентов. 
+
+\subsection{NLE - среда основанная на игре NetHack}
+В работе \cite{nethack} авторами для игры NetHack была разработана среда NLE для обучения RL агентов на основе версии NetHack 3.6.6. Среда NLE удовлетворяет gym интерфейсу \cite{brockman2016openai} и позволяет обучать RL агентов в игре NetHack. Важной особенностью NLE является то, что она практически не ограничивает возможностей агента в игре и он способен совершать такие же действия, как и человек использующий стандартный интерфйес. 
+
+\paragraph{Пространство состояний.}
 By default, the observation space consists of the elements glyphs, chars, colors, specials, blstats,
-message, inv_glyphs, inv_strs, inv_letters, as well as inv_oclasses. The elements glyphs, chars, colors,
+message, inv\_glyphs, inv\_strs, inv\_letters, as well as inv\_oclasses. The elements glyphs, chars, colors,
 and specials are tensors representing the (batched) 2D symbolic observation of the dungeon; blstats
 is a vector of agent coordinates and other character attributes (“bottom-line stats”, e.g., health points,
 strength, dexterity, hunger level; normally displayed in the bottom area of the GUI), message is a
 tensor representing the current message shown to the player (normally displayed in the top area of
-the GUI), and the inv_* elements are padded tensors representing the hero’s inventory items. More
+the GUI), and the inv\_* elements are padded tensors representing the hero’s inventory items. More
 details about the default observation space and possible extensions can be found in Appendix B.
-The environment has 93 available actions, corresponding to all the actions a human player can take in
+
+\paragraph{Пространство действий.} The environment has 93 available actions, corresponding to all the actions a human player can take in
 NetHack. More precisely, the action space is composed of 77 command actions and 16 movement
 actions. The movement actions are split into eight “one-step” compass directions (i.e., the agent
 moves a single step in a given direction) and eight “move far” compass directions (i.e., the agent
 moves in the specified direction until it runs into some entity). The 77 command actions include
 eating, opening, kicking, reading, praying as well as many others. We refer the reader to Appendix C
 as well as to the NetHack Guidebook [59] for the full table of actions and NetHack commands.
-NLE comes with a Gym interface [11] and includes multiple pre-defined tasks with different reward
-functions and action spaces (see next section and Appendix E for details). We designed the interface
-to be lightweight, achieving competitive speeds with Gym-based ALE (see Appendix D for a rough
-comparison). Finally, NLE also includes a dashboard to analyze NetHack runs recorded as terminal
-tty recordings. This allows NLE users to analyze replays of the agent’s behavior at an arbitrary speed
-and provides an interface to visualize action distributions and game events (see Appendix H for details).
-NLE is available under an open source license at https://github.com/facebookresearch/nle.
 
-\section{Декомпозиция игры на подзадачи}
+\paragraph{Награда.}
+
+\paragraph{Эпизод.}
+
+
+\section{Декомпозиция игры NetHack на подзадачи}
 
 //TODO describe subtasks we choose. 
+
+\begin{figure}[ht]
+\centerfloat{
+        \includegraphics[width=0.75\textwidth]{images/raph_wrapper.pdf}
+}
+\caption{Схема взаимодействия RAPH агента со средой NLE.}
+    \label{fig:raph_nle}
+\end{figure}
 
 
 \section{Обучение иерархического агента совмещающего обучение с подкреплением и алгоритмический подход}
@@ -120,4 +110,24 @@ $state, done \gets env.reset(), False$\;
   state, reward, done, info = env.step(action\_queue)\;
 }
 \end{algorithm}
+
+
+\begin{figure}[ht]
+\centerfloat{
+        \includegraphics[width=0.5\textwidth]{images/raph_arch.png}
+}
+\caption{NN architecture}
+    \label{fig:raph_arch}
+\end{figure}
+
+\begin{figure}[ht]
+\centerfloat{
+        \includegraphics[width=0.95\textwidth]{images/raph_train.pdf}
+}
+\caption{Exponentially moving average of reward during training}
+    \label{fig:raph_train}
+\end{figure}
+
+\section{Выводы}
+
 \clearpage
