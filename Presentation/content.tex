@@ -94,7 +94,8 @@
 
 \begin{columns}
 \column{0.4\linewidth}
-\includegraphics[width=1\linewidth]{itotal.pdf}
+\centering
+\includegraphics[width=1\linewidth]{piezo.pdf}
 
 \column{0.5\linewidth}
 \begin{align*}
@@ -236,8 +237,9 @@ $V = 0.98 \to R = 3.9$\\
 \end{columns}
 \vspace{10pt}
 \textbf{Пространство наблюдений} 16 кадров 64x64 пикселя\\
-\textbf{Пространство действий} \textcolor{red}{дискретное} (27/31) 
+\textbf{Пространство действий} \textcolor{red}{дискретное} (25/31) \\
 \textbf{Эпизод} 100 шагов, случайный reset $\pm \alpha_{\mathrm{max}}$, $\pm \Delta_{\mathrm{max}}$\\
+\textbf{Параметры} $\gamma = 0.99 \to  \Delta = \frac{1}{1 - \gamma} = \textcolor{red}{100}$, total steps $10^8$, buffer size $10^6$, batch size $32$\\
 
 \end{frame}
 
@@ -250,51 +252,195 @@ $V = 0.98 \to R = 3.9$\\
 \textbf{Награда}\\
 $R = V - \log(1-V)$\\
 \textbf{Масштабирование действий}\\
-%{\setlength{\mathindent}{0cm}
+\vspace{-15pt}
 \begin{equation*}
 a^{\prime} =
    \begin{cases}
-    {\mathrm{sign}}(a) \cdot 1000^{|a| - 1}  & \quad \text{если $|a_0| > 0.17$} 
+    {\mathrm{sign}}(a) \cdot 1000^{|a| - 1}, |a_0| > 0.17
     \\
-    0  & \quad \text{иначе}
+    0
   \end{cases}
-\end{equation*}%}
+\end{equation*}
 \textbf{Энкодер}\\
 VGG-16
 \end{columns}
 \vspace{10pt}
-\textbf{Пространство действий} \textcolor{red}{непрерывное} ($\mathcal{R}^4$/$\mathcal{R}^5$)
+\textbf{Пространство действий} \textcolor{red}{непрерывное} ($\mathcal{R}^4$/$\mathcal{R}^5$)\\
+\textbf{Параметры} $\gamma = 0.8 \to  \Delta = \frac{1}{1 - \gamma} = \textcolor{red}{5}$, total steps $10^6$, buffer size $10^5$, batch size $32$ \\
 
 \end{frame}
 
 \subsection{Программно-аппаратный комплекс Интерферобот}
 
-\begin{frame}
-    \frametitle{Программно-аппаратный комплекс Интерферобот}
-    some text 4
+\begin{frame}{Программно-аппаратный комплекс Интерферобот}
+\begin{columns}
+\column{0.35\linewidth}
+\centering
+\includegraphics[width=1\linewidth]{images/interferobot_complex.png}
+Схема взаимодействия модулей
+\column{0.65\linewidth}
+\centering
+\includegraphics[width=1\linewidth]{images/gui.png}
+Графический интерфейс пользователя
+\end{columns}
+\vspace{15pt}
+C++, Python3\\
+200 состояний среды (16x64х64) за одну секунду (16 потоков на intel core i7)
 \end{frame}
 
-\begin{frame}
-    \frametitle{Перенос из симуляции в реальность}
-    some text 5
+\begin{frame}{Перенос из симуляции в реальность}
+\begin{columns}
+\column{0.4\linewidth}
+\centering
+\includegraphics[width=1\linewidth]{beamsamples.png}
+\column{0.6\linewidth}
+\textbf{в начале каждого эпизода}
+\begin{itemize}
+    \item radius randomization $\pm 20\%$
+\end{itemize}
+\textbf{на каждом шаге}
+\begin{itemize}
+    \item exposure randomization $\pm 30\%$
+    \item image noise $20\%$
+    \item cycle frame shift
+    \item duty cycle randomization
+    \item phase noise $\phi \sim \mathcal{N}(\frac{2\pi k}{N}, 0.5)$
+\end{itemize}
+\end{columns}
 \end{frame}
 
-\begin{frame}
-    \frametitle{Настройки интерферометра Маха-Цендера без линз}
-    some text 6
+\begin{frame}[allowframebreaks]{Настройка интерферометра Маха-Цендера без линз}
+\begin{columns}
+\column{0.5\linewidth}
+\centering
+\includegraphics[width=1\linewidth]{images/eval1_visib_step.pdf}
+\column{0.5\linewidth}
+\includegraphics[width=1\linewidth]{images/eval1_visib_time.pdf}
+\end{columns}
+
+\begin{table} [htbp]
+    \centering
+    \begin{threeparttable}
+        \caption*{Средняя наибольшая видность достигнутая при настройке}
+        \begin{tabular}{| p{3cm} || p{3cm} || p{3cm} |}
+            \hline
+            \hline
+            DQN (sim) & DQN (exp) & Human \\
+            \hline
+            0.986 & 0.983 & 0.972 \\
+            \hline
+            \hline
+        \end{tabular}
+    \end{threeparttable}
+\end{table}
+\framebreak
+\begin{minipage}{\textwidth}
+\includegraphics[width=1\linewidth]{DQN_analysis.pdf}
+\end{minipage}
+\begin{minipage}{\textwidth}
+\includegraphics[width=0.5\linewidth]{images/agent_step_size.pdf}
+\end{minipage}
+
+\framebreak 
+
+\begin{table} [htbp]
+    \centering
+    \begin{threeparttable}
+        \caption*{Анализ влияния шумов используемых при обучении агента на качество настройки физической установки}
+        \begin{tabular}{| p{5cm} || p{2cm} || p{2cm} |}
+            \hline
+            \hline
+             & visibility & return \\
+            \hline
+            All randomizations  & $\textbf{0.96} \pm \textbf{0.02}$ & $\textbf{221} \pm \textbf{54}$ \\
+            No radius randomization & $0.74 \pm 0.20$ & $85 \pm 69$ \\
+            No exposure randomization& $0.91 \pm 0.04$ & $178 \pm 39$ \\
+            No image noise & $0.82 \pm 0.07$ & $129 \pm 43$ \\
+            No duty cycle and frame shift  &  $0.89 \pm 0.07$ & $200 \pm 42$ \\
+            \hline
+            \hline
+        \end{tabular}
+    \end{threeparttable}
+\end{table}
+\end{frame}
+
+\begin{frame}[allowframebreaks]{Настройка интерферометра Маха-Цендера с системой линз}
+\begin{columns}
+\column{0.5\linewidth}
+\centering
+\includegraphics[width=1\linewidth]{images/DQN_vs_TD3.pdf}
+\column{0.5\linewidth}
+\centering
+\includegraphics[width=1\linewidth]{images/parallel_actions_count_for_each_axis.pdf}
+\end{columns}
+\begin{table} [htbp]
+    \centering
+    \begin{threeparttable}
+        \begin{tabular}{| p{2cm} || p{2cm} || p{2cm} || p{3cm} |}
+            \hline
+            \hline
+            &V $\ge 0.92$ & V $\ge 0.95$ & V $\ge 0.98$ \\
+            \hline
+            Human &  93.9 (\textbf{0\%})  & 103.6 (\textbf{0\%}) & 129.6 (10\%)\\
+            TD3 &  \textbf{56.16} (\textbf{0\%}) & \textbf{75.06} (\textbf{0\%}) & \textbf{120.1} (\textbf{4\%})\\
+            DQN &  98.7 (7.6\%) & 116.1 (7.6\%) & 156.4 (10.6\%)\\
+            \hline
+            \hline
+        \end{tabular}
+    \end{threeparttable}
+\end{table}
+
+\framebreak 
+
+\begin{columns}
+\column{0.5\linewidth}
+\centering
+\includegraphics[width=1\linewidth]{images/DQN_vs_TD3_box.pdf}
+Межквантильный размах видности
+\column{0.5\linewidth}
+\centering
+\includegraphics[width=1\linewidth]{images/action_norm_decrease.pdf}
+Средняя амплитуда действий
+\end{columns}
+
+\framebreak
+
+\begin{table} [htbp]
+    \centering
+    \begin{threeparttable}
+        \caption*{Анализ эффективности фазового шума и масштабирования действий. PN: фазовый шум; AR: масштабирование действий.}
+        \begin{tabular}{| p{3cm} || p{3cm} || p{3cm} |}
+            \hline
+            \hline
+            агент & средняя видность за последние 40 шагов & стандартное отклонение \\
+            \hline
+            TD3 + AR + PN & \textbf{0.98} & \textbf{0.03} \\
+            TD3 + AR & 0.95 & 0.06\\
+            DQN + PN & 0.90 & 0.08\\
+            TD3& 0.83 & 0.18\\
+            \hline
+            \hline
+        \end{tabular}
+    \end{threeparttable}
+\end{table}
+
 \end{frame}
 
 
-\begin{frame}[allowframebreaks]
-    \frametitle{Настройка интерферометра Маха-Цендера с системой линз}
-    some text 7
-    \framebreak
-    some text mosdf
-\end{frame}
+\begin{frame}{Выводы}
+\begin{itemize}
+    \item Разработан симулятор интерферометра Маха-Цендера
+    \item Интерферометр может быть успешно настроен методами RL
+    \item Разработан программно-аппаратный комплекс Интерферобот
+    \item Предложен набор шумов и функция награды
+    \item Реализовано два подхода к представлению пространства действий дискретный (DQN агент) и непрерывный (TD3 агент)
+    \item  Качество работы TD3 агента превосходит качество настройки эксперта
 
-\begin{frame}
-    \frametitle{Выводы}
-    some text 7
+\end{itemize}
+    
+
+
+
 \end{frame}
 
 % \subsection{Не нумерованные}
@@ -317,35 +463,65 @@ VGG-16
     \item окно центрированное возле текущего положения агента (@).
 \end{enumerate}
 \end{columns} 
-\end{frame}
-
-
-\begin{frame}
-\frametitle{В чем ``challenge''?}
+\vspace{20pt}
+В чем ``challange''?
 \begin{itemize}
     \item Процедурная генерация среды
     \item NetHack – очень длинная игра
     \item Много модальные наблюдения
+    \item Сложное пространство действий
 \end{itemize}
+
+
 \end{frame}
 
 
-\begin{frame}
-\frametitle{Декомпозиция игры NetHack на подзадачи}
-    sometext
+\begin{frame}{Декомпозиция игры NetHack на подзадачи}
+\begin{columns}
+\column{0.5\linewidth}
+\centering
+\includegraphics[width=1\linewidth]{images/raph_arch.pdf}
+\column{0.5\linewidth}
+\textbf{Пространство действий}. 
+\begin{itemize}
+    \item шаг или ближняя атака (x8 направлений)
+    \item дальняя атака (x8 направлений)
+    \item пропуск хода
+    \item заклинание Elbereth
+    \item молитва
+\end{itemize}
+\textbf{Передача управления}. 
+$distance(agent, monster) < 5$
+\end{columns}
 \end{frame}
 
 \subsection{Объединение RL и алгоритмического подхода}
 
 \begin{frame}
 \frametitle{Обучение иерархического агента совмещающего обучение с подкреплением и алгоритмический подход}
-    sometext 2
+\begin{columns}
+\column{0.7\linewidth}
+\centering
+\includegraphics[width=1\linewidth]{images/raph_train.pdf}
+\column{0.5\linewidth}
+\begin{itemize}
+    \item ближняя атака 66\%
+    \item дальняя атака 21.6\%
+    \item пропуск хода 11\%
+    \item ``Elbereth'' 0.3\%
+    \item молитва 0.1\%
+\end{itemize}
+\end{columns}
 \end{frame}
 
 
-\begin{frame}
-\frametitle{Выводы}
-    sometext 3
+\begin{frame}{Выводы}
+\begin{itemize}
+    \item Разработан гибридный нейро-символьный агент для среды NetHack
+    \item RL агент решает одну из наиболее сложных задач возникающих в среде NetHack — сражение с монстрами.
+    \item В соревновании по игре NetHack (NeurIPS 2021 Competition Track) агент занял \textcolor{red}{первое место}
+\end{itemize}
+    
 \end{frame}
 
 %\begin{frame}
@@ -398,24 +574,77 @@ VGG-16
 
 \section{Метод управления линейной и угловой скоростью шагающего робота основанный на обучении с подкреплением}
 
-\begin{frame}
-\frametitle{Постановка задачи управления шагающим роботом}
-    sometext
+\begin{frame}{Постановка задачи управления шагающим роботом}
+\begin{columns}
+\column{0.5\linewidth}
+\centering
+\includegraphics[width=1\linewidth]{unitree_a1.png}
+\column{0.5\linewidth}
+\begin{itemize}
+    \item ``Движение вперед / назад''
+	\item ``Движение вперед с заданной скоростью''
+    \item ``Поворот по / против часовой стрелке''
+\end{itemize}
+\end{columns}
+\textbf{Пространство наблюдений} положение корпуса, суставов, линейные и угловые скорости ($\mathcal{R}^{50}$) 
+\\
+\textbf{Пространство действий} целевые положения суставов ($\mathcal{R}^{12}$ )
+
 \end{frame}
 
-\begin{frame}
-\frametitle{Метод управления линейной и угловой скоростью шагающего робота основанный на обучении с подкреплением}
-    sometext 2
+\begin{frame}{Метод управления линейной и угловой скоростью шагающего робота основанный на обучении с подкреплением}
+\begin{multline*}
+    r = k_{torso\ height} \cdot r_{torso\ height} +
+    k_{torque} \cdot r_{torque} +\\
+    k_{joint\ speed} \cdot r_{joint\ speed} +
+    k_{slip} \cdot r_{slip} +\\
+    k_{work} \cdot r_{work} + 
+    k_{ground\ impact} \cdot r_{ground\ impact} +\\
+    k_{z\ acceleration} \cdot r_{z\ acceleration} +  k_{velocity} \cdot r_{velocity} +\\
+    k_{transverse\ and\ rotation} \cdot r_{transverse\ and\ rotation}
+\label{eq:unitree_reward}
+\end{multline*}
+
+\begin{align*}
+& r_{velocity} = \mathrm{clip}(V_x \cdot D / \hat{V_x}, 0, 1) \hspace{18pt}\text{``Движение вперед / назад''}\\
+& r_{velocity} = \max(1 - |V_x / \hat{V_x} - 1|, 0) \hspace{1pt}\text{``Движение вперед с заданной скоростью''}\\
+& r_{velocity} = \mathrm{clip}(W_z \cdot D / \hat{W_z}, 0, 1) \hspace{13pt}\text{``Поворот по / против часовой стрелки''}
+\end{align*}
 \end{frame}
 
-\begin{frame}
-\frametitle{Оценка результатов работы в симуляции}
-    sometext 3
+\begin{frame}{Оценка результатов работы в симуляции}
+\begin{figure}[h]
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=1\textwidth]{images/vx}
+\end{subfigure}%
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=1\textwidth]{images/dx}
+\end{subfigure}%
+\end{figure}
+\begin{table} [htbp]
+    \centering
+    \begin{threeparttable}
+        \begin{tabular}{| p{1cm} || p{2cm} | p{2cm} | p{2cm} |p{2cm} |}
+            \hline
+            \hline
+            Задача & Вперед & Назад & По часовой & Против часовой \\
+            \hline
+            $R_{total}$ &	529 $\pm$ 124 &	508 $\pm$ 98 &	85 $\pm$ 219 &	165 $\pm$ 155 \\
+            $N_{steps}$ & 3263 $\pm$ 633 &	3136 $\pm$ 545 &	2057 $\pm$ 1208 &	2095 $\pm$ 1325 \\
+            \hline
+            \hline
+        \end{tabular}
+    \end{threeparttable}
+\end{table}
 \end{frame}
 
-\begin{frame}
-\frametitle{Выводы}
-    sometext 4
+\begin{frame}{Выводы}
+\begin{itemize}
+    \item Был разработан метод обучения робота Unitree A1 решать различные задачи перемещения
+    \item Разработанная функция награды побуждает агента следовать плавной и безопасной стратегии
+\end{itemize}
 \end{frame}
 
 %\begin{frame}
