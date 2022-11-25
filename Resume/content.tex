@@ -1,5 +1,5 @@
 \pdfbookmark{Общая характеристика работы}{characteristic}             % Закладка pdf
-\section*{Общая характеристика работы}
+\section*{\centering{ТЕМА ДИССЕРТАЦИИ}}
 
 \newcommand{\actuality}{\pdfbookmark[1]{Актуальность}{actuality}\underline{\textbf{\actualityTXT}}}
 \newcommand{\progress}{\pdfbookmark[1]{Разработанность темы}{progress}\underline{\textbf{\progressTXT}}}
@@ -17,15 +17,13 @@
 
 \input{common/characteristic} % Характеристика работы по структуре во введении и в автореферате не отличается (ГОСТ Р 7.0.11, пункты 5.3.1 и 9.2.1), потому её загружаем из одного и того же внешнего файла, предварительно задав форму выделения некоторым параметрам
 
-Диссертационная работа была выполнена при поддержке гранта УМНИК № 120ГУЦЭС8-D3/56352 от 21.12.2019. 
-
 %\underline{\textbf{Объем и структура работы.}} Диссертация состоит из~введения,
 %четырех глав, заключения и~приложения. Полный объем диссертации
 %\textbf{ХХХ}~страниц текста с~\textbf{ХХ}~рисунками и~5~таблицами. Список
 %литературы содержит \textbf{ХХX}~наименование.
 
 \pdfbookmark{Содержание работы}{description}                          % Закладка pdf
-\section*{Содержание работы}
+\section*{\centering{СОДЕРЖАНИЕ РАБОТЫ}}
 Во \underline{\textbf{введении}} обосновывается актуальность
 исследований, проводимых в~рамках данной диссертационной работы. Приводится обзор литературы показывающий большой потенциал методов машинного обучения с подкреплением в задачах связанных с принятием решений. Формулируется цель и ставятся задачи данной работы. Излагается научная новизна
 и практическая значимость научных результатов представляемой работы. 
@@ -333,7 +331,8 @@ $state, done \gets env.reset(), False$\;
 
 \FloatBarrier
 \pdfbookmark{Заключение}{conclusion}                                  % Закладка pdf
-В \underline{\textbf{заключении}} приведены основные результаты работы, которые заключаются в следующем:
+\section*{\centering{ВЫВОДЫ}}
+Основные результаты работы заключаются в следующем:
 \input{common/concl}
 
 \pdfbookmark{Литература}{bibliography}                                % Закладка pdf
@@ -341,81 +340,14 @@ $state, done \gets env.reset(), False$\;
 \ifdefmacro{\microtypesetup}{\microtypesetup{protrusion=false}}{} % не рекомендуется применять пакет микротипографики к автоматически генерируемому списку литературы
 \urlstyle{rm}                               % ссылки URL обычным шрифтом
 \ifnumequal{\value{bibliosel}}{0}{% Встроенная реализация с загрузкой файла через движок bibtex8
-    \renewcommand{\bibname}{\large \bibtitleauthor}
-    \nocite{*}
-    \insertbiblioauthor           % Подключаем Bib-базы
-    %\insertbiblioexternal   % !!! bibtex не умеет работать с несколькими библиографиями !!!
 }{% Реализация пакетом biblatex через движок biber
     % Цитирования.
     %  * Порядок перечисления определяет порядок в библиографии (только внутри подраздела, если `\insertbiblioauthorgrouped`).
     %  * Если не соблюдать порядок "как для \printbibliography", нумерация в `\insertbiblioauthor` будет кривой.
     %  * Если цитировать каждый источник отдельной командой --- найти некоторые ошибки будет проще.
     %
-    
-    \expandafter\def\csname blx@maxbibnames\endcsname{99}% sorokin set et.al max names
-    
-    %% authorvak
-    \nocite{vakbib1}%
-    \nocite{vakbib2}%
-    %
-    %% authorwos
-    \nocite{wosbib1}%
-    %
-    %% authorscopus
-    \nocite{scbib1}%
-    %
-    %% authorpathent
-    \nocite{patbib1}%
-    %
-    %% authorprogram
-    \nocite{progbib1}%
-    %
-    %% authorconf
-    \nocite{confbib1}%
-    \nocite{confbib2}%
-    \nocite{confbib3}%
-    \nocite{confbib4}%
-    %
-    %% authorother
-    \nocite{bib1}%
-    \nocite{bib2}%
 
-    \ifnumgreater{\value{usefootcite}}{0}{
-        \begin{refcontext}[labelprefix={}]
-            \ifnum \value{bibgrouped}>0
-                \insertbiblioauthorgrouped    % Вывод всех работ автора, сгруппированных по источникам
-            \else
-                \insertbiblioauthor      % Вывод всех работ автора
-            \fi
-        \end{refcontext}
-    }{
-        \ifnum \totvalue{citeexternal}>0
-            \begin{refcontext}[labelprefix=A]
-                \ifnum \value{bibgrouped}>0
-                    \insertbiblioauthorgrouped    % Вывод всех работ автора, сгруппированных по источникам
-                \else
-                    \insertbiblioauthor      % Вывод всех работ автора
-                \fi
-            \end{refcontext}
-        \else
-            \ifnum \value{bibgrouped}>0
-                \insertbiblioauthorgrouped    % Вывод всех работ автора, сгруппированных по источникам
-            \else
-                \insertbiblioauthor      % Вывод всех работ автора
-            \fi
-        \fi
-        %  \insertbiblioauthorimportant  % Вывод наиболее значимых работ автора (определяется в файле characteristic во второй section)
-        
-        \expandafter\def\csname blx@maxbibnames\endcsname{3}% sorokin reset et.al max names
-
-        \begin{refcontext}[labelprefix={}]
-            \insertbiblioexternal            % Вывод списка литературы, на которую ссылались в тексте автореферата
-        \end{refcontext}
-        % Невидимый библиографический список для подсчёта количества внешних публикаций
-        % Используется, чтобы убрать приставку "А" у работ автора, если в автореферате нет
-        % цитирований внешних источников.
-        \printbibliography[heading=nobibheading, section=0, env=countexternal, keyword=biblioexternal, resetnumbers=true]%
-    }
+    \insertbiblioexternal            % Вывод списка литературы, на которую ссылались в тексте автореферата
 }
 \ifdefmacro{\microtypesetup}{\microtypesetup{protrusion=true}}{}
 \urlstyle{tt}                               % возвращаем установки шрифта ссылок URL

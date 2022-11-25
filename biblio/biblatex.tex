@@ -293,6 +293,30 @@ sorting=none,% настройка сортировки списка литера
 }
 \fi
 
+\ifresume
+% dsorokin: print quantile of papers 
+\DeclareSourcemap{
+    \maps[datatype=bibtex]{
+      \map{
+        \step[fieldsource=quantile]
+        \step[fieldset=usera,origfieldval]
+    }
+  }
+}
+
+\DeclareFieldFormat{usera}{(\textbf{#1})}
+
+\AtEveryBibitem{%
+    \csappto{blx@bbx@\thefield{entrytype}}{% put at end of entry
+        \iffieldundef{usera}{%
+        }{%
+          \space\printfield{usera}
+        }
+    }
+}
+
+\fi
+
 \ifpresentation
 % удаляем лишние поля в списке литературы презентации
 % их названия можно узнать в файле presentation.bbl
