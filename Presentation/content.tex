@@ -219,10 +219,12 @@
 \end{columns}
 \end{frame}
 
-\subsection{Настройка с помощью DQN и TD3}
+\subsection{Метод способный оперировать
+действиями различного масштаба и устойчивый к оптическим
+шумам}
 
 
-\begin{frame}{Настройка интерферометра с помощью алгоритма DQN}
+\begin{frame}{Метод настройки основанный на алгоритме DQN}
 \begin{columns}
 \column{0.5\linewidth}
 \centering
@@ -243,7 +245,7 @@ $V = 0.98 \to R = 3.9$\\
 
 \end{frame}
 
-\begin{frame}{Настройка интерферометра с помощью алгоритма TD3}
+\begin{frame}{Метод настройки основанный на алгоритме TD3}
 \begin{columns}
 \column{0.5\linewidth}
 \centering
@@ -270,24 +272,6 @@ VGG-16
 
 \end{frame}
 
-\subsection{Программно-аппаратный комплекс Интерферобот}
-
-\begin{frame}{Программно-аппаратный комплекс Интерферобот}
-\begin{columns}
-\column{0.35\linewidth}
-\centering
-\includegraphics[width=1\linewidth]{images/interferobot_complex.png}
-Схема взаимодействия модулей
-\column{0.65\linewidth}
-\centering
-\includegraphics[width=1\linewidth]{images/gui.png}
-Графический интерфейс пользователя
-\end{columns}
-\vspace{15pt}
-C++, Python3\\
-200 состояний среды (16x64х64) за одну секунду (16 потоков на intel core i7)
-\end{frame}
-
 \begin{frame}{Перенос из симуляции в реальность}
 \begin{columns}
 \column{0.4\linewidth}
@@ -307,6 +291,24 @@ C++, Python3\\
     \item phase noise $\phi \sim \mathcal{N}(\frac{2\pi k}{N}, 0.5)$
 \end{itemize}
 \end{columns}
+\end{frame}
+
+\subsection{Программно-аппаратный комплекс Интерферобот}
+
+\begin{frame}{Программно-аппаратный комплекс Интерферобот}
+\begin{columns}
+\column{0.35\linewidth}
+\centering
+\includegraphics[width=1\linewidth]{images/interferobot_complex.png}
+Схема взаимодействия модулей
+\column{0.65\linewidth}
+\centering
+\includegraphics[width=1\linewidth]{images/gui.png}
+Графический интерфейс пользователя
+\end{columns}
+\vspace{15pt}
+C++, Python3\\
+200 состояний среды (16x64х64) за одну секунду (16 потоков на intel core i7)
 \end{frame}
 
 \begin{frame}[allowframebreaks]{Настройка интерферометра Маха-Цендера без линз}
