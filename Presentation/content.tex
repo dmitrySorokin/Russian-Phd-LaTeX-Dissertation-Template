@@ -447,6 +447,84 @@ C++, Python3\\
 
 % \subsection{Не нумерованные}
 
+
+\section{Метод управления линейной и угловой скоростью шагающего робота основанный на обучении с подкреплением}
+
+\begin{frame}{Постановка задачи управления шагающим роботом}
+\begin{columns}
+\column{0.5\linewidth}
+\centering
+\includegraphics[width=1\linewidth]{unitree_a1.png}
+\column{0.5\linewidth}
+\begin{itemize}
+    \item ``Движение вперед / назад''
+	\item ``Движение вперед с заданной скоростью''
+    \item ``Поворот по / против часовой стрелке''
+\end{itemize}
+\end{columns}
+\textbf{Пространство наблюдений} положение корпуса, суставов, линейные и угловые скорости ($\mathcal{R}^{50}$) 
+\\
+\textbf{Пространство действий} целевые положения суставов ($\mathcal{R}^{12}$ )
+
+\end{frame}
+
+\begin{frame}{Метод управления линейной и угловой скоростью шагающего робота основанный на обучении с подкреплением}
+\begin{multline*}
+    r = k_{torso\ height} \cdot r_{torso\ height} +
+    k_{torque} \cdot r_{torque} +\\
+    k_{joint\ speed} \cdot r_{joint\ speed} +
+    k_{slip} \cdot r_{slip} +\\
+    k_{work} \cdot r_{work} + 
+    k_{ground\ impact} \cdot r_{ground\ impact} +\\
+    k_{z\ acceleration} \cdot r_{z\ acceleration} +  k_{velocity} \cdot r_{velocity} +\\
+    k_{transverse\ and\ rotation} \cdot r_{transverse\ and\ rotation}
+\label{eq:unitree_reward}
+\end{multline*}
+
+\begin{align*}
+& r_{velocity} = \mathrm{clip}(V_x \cdot D / \hat{V_x}, 0, 1) \hspace{18pt}\text{``Движение вперед / назад''}\\
+& r_{velocity} = \max(1 - |V_x / \hat{V_x} - 1|, 0) \hspace{1pt}\text{``Движение вперед с заданной скоростью''}\\
+& r_{velocity} = \mathrm{clip}(W_z \cdot D / \hat{W_z}, 0, 1) \hspace{13pt}\text{``Поворот по / против часовой стрелки''}
+\end{align*}
+\end{frame}
+
+\begin{frame}{Оценка результатов работы в симуляции}
+\begin{figure}[h]
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=1\textwidth]{images/vx}
+\end{subfigure}%
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=1\textwidth]{images/dx}
+\end{subfigure}%
+\end{figure}
+\begin{table} [htbp]
+    \centering
+    \begin{threeparttable}
+        \begin{tabular}{| p{1cm} || p{2cm} | p{2cm} | p{2cm} |p{2cm} |}
+            \hline
+            \hline
+            Задача & Вперед & Назад & По часовой & Против часовой \\
+            \hline
+            $R_{total}$ &	529 $\pm$ 124 &	508 $\pm$ 98 &	85 $\pm$ 219 &	165 $\pm$ 155 \\
+            $N_{steps}$ & 3263 $\pm$ 633 &	3136 $\pm$ 545 &	2057 $\pm$ 1208 &	2095 $\pm$ 1325 \\
+            \hline
+            \hline
+        \end{tabular}
+    \end{threeparttable}
+\end{table}
+\end{frame}
+
+\begin{frame}{Выводы}
+\begin{itemize}
+    \item Был разработан метод обучения робота Unitree A1 решать различные задачи перемещения
+    \item Разработанная функция награды побуждает агента следовать плавной и безопасной стратегии
+\end{itemize}
+\end{frame}
+
+
+
 \section{Разработка алгоритма для игры NetHack с
 применением машинного обучения с подкреплением}
 
@@ -573,81 +651,6 @@ $distance(agent, monster) < 5$
 %        \center{\includegraphics[width=1\linewidth]{knuth2}}
 %    \end{minipage}
 %\end{frame}
-
-\section{Метод управления линейной и угловой скоростью шагающего робота основанный на обучении с подкреплением}
-
-\begin{frame}{Постановка задачи управления шагающим роботом}
-\begin{columns}
-\column{0.5\linewidth}
-\centering
-\includegraphics[width=1\linewidth]{unitree_a1.png}
-\column{0.5\linewidth}
-\begin{itemize}
-    \item ``Движение вперед / назад''
-	\item ``Движение вперед с заданной скоростью''
-    \item ``Поворот по / против часовой стрелке''
-\end{itemize}
-\end{columns}
-\textbf{Пространство наблюдений} положение корпуса, суставов, линейные и угловые скорости ($\mathcal{R}^{50}$) 
-\\
-\textbf{Пространство действий} целевые положения суставов ($\mathcal{R}^{12}$ )
-
-\end{frame}
-
-\begin{frame}{Метод управления линейной и угловой скоростью шагающего робота основанный на обучении с подкреплением}
-\begin{multline*}
-    r = k_{torso\ height} \cdot r_{torso\ height} +
-    k_{torque} \cdot r_{torque} +\\
-    k_{joint\ speed} \cdot r_{joint\ speed} +
-    k_{slip} \cdot r_{slip} +\\
-    k_{work} \cdot r_{work} + 
-    k_{ground\ impact} \cdot r_{ground\ impact} +\\
-    k_{z\ acceleration} \cdot r_{z\ acceleration} +  k_{velocity} \cdot r_{velocity} +\\
-    k_{transverse\ and\ rotation} \cdot r_{transverse\ and\ rotation}
-\label{eq:unitree_reward}
-\end{multline*}
-
-\begin{align*}
-& r_{velocity} = \mathrm{clip}(V_x \cdot D / \hat{V_x}, 0, 1) \hspace{18pt}\text{``Движение вперед / назад''}\\
-& r_{velocity} = \max(1 - |V_x / \hat{V_x} - 1|, 0) \hspace{1pt}\text{``Движение вперед с заданной скоростью''}\\
-& r_{velocity} = \mathrm{clip}(W_z \cdot D / \hat{W_z}, 0, 1) \hspace{13pt}\text{``Поворот по / против часовой стрелки''}
-\end{align*}
-\end{frame}
-
-\begin{frame}{Оценка результатов работы в симуляции}
-\begin{figure}[h]
-\begin{subfigure}{.5\textwidth}
-  \centering
-  \includegraphics[width=1\textwidth]{images/vx}
-\end{subfigure}%
-\begin{subfigure}{.5\textwidth}
-  \centering
-  \includegraphics[width=1\textwidth]{images/dx}
-\end{subfigure}%
-\end{figure}
-\begin{table} [htbp]
-    \centering
-    \begin{threeparttable}
-        \begin{tabular}{| p{1cm} || p{2cm} | p{2cm} | p{2cm} |p{2cm} |}
-            \hline
-            \hline
-            Задача & Вперед & Назад & По часовой & Против часовой \\
-            \hline
-            $R_{total}$ &	529 $\pm$ 124 &	508 $\pm$ 98 &	85 $\pm$ 219 &	165 $\pm$ 155 \\
-            $N_{steps}$ & 3263 $\pm$ 633 &	3136 $\pm$ 545 &	2057 $\pm$ 1208 &	2095 $\pm$ 1325 \\
-            \hline
-            \hline
-        \end{tabular}
-    \end{threeparttable}
-\end{table}
-\end{frame}
-
-\begin{frame}{Выводы}
-\begin{itemize}
-    \item Был разработан метод обучения робота Unitree A1 решать различные задачи перемещения
-    \item Разработанная функция награды побуждает агента следовать плавной и безопасной стратегии
-\end{itemize}
-\end{frame}
 
 %\begin{frame}
 %    \frametitle{Четыре изображения}

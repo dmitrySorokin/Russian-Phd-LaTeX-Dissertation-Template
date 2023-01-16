@@ -1,23 +1,107 @@
 \pdfbookmark{Общая характеристика работы}{characteristic}             % Закладка pdf
-\section*{Общая характеристика работы}
+\section*{\centering DISSERTATION TOPIC}
 
-\newcommand{\actuality}{\pdfbookmark[1]{Актуальность}{actuality}\underline{\textbf{\actualityTXT}}}
-\newcommand{\progress}{\pdfbookmark[1]{Разработанность темы}{progress}\underline{\textbf{\progressTXT}}}
-\newcommand{\aim}{\pdfbookmark[1]{Цели}{aim}\underline{{\textbf\aimTXT}}}
-\newcommand{\tasks}{\pdfbookmark[1]{Задачи}{tasks}\underline{\textbf{\tasksTXT}}}
-\newcommand{\aimtasks}{\pdfbookmark[1]{Цели и задачи}{aimtasks}\aimtasksTXT}
-\newcommand{\novelty}{\pdfbookmark[1]{Научная новизна}{novelty}\underline{\textbf{\noveltyTXT}}}
-\newcommand{\influence}{\pdfbookmark[1]{Практическая значимость}{influence}\underline{\textbf{\influenceTXT}}}
-\newcommand{\methods}{\pdfbookmark[1]{Методология и методы исследования}{methods}\underline{\textbf{\methodsTXT}}}
-\newcommand{\defpositions}{\pdfbookmark[1]{Положения, выносимые на защиту}{defpositions}\underline{\textbf{\defpositionsTXT}}}
-\newcommand{\reliability}{\pdfbookmark[1]{Достоверность}{reliability}\underline{\textbf{\reliabilityTXT}}}
-\newcommand{\probation}{\pdfbookmark[1]{Апробация}{probation}\underline{\textbf{\probationTXT}}}
-\newcommand{\contribution}{\pdfbookmark[1]{Личный вклад}{contribution}\underline{\textbf{\contributionTXT}}}
-\newcommand{\publications}{\pdfbookmark[1]{Публикации}{publications}\underline{\textbf{\publicationsTXT}}}
+\renewcommand{\figurename}{Figure}
+\renewcommand{\tablename}{Table}
+\renewcommand{\bibtitlefull}{References}
 
-\input{common/characteristic} % Характеристика работы по структуре во введении и в автореферате не отличается (ГОСТ Р 7.0.11, пункты 5.3.1 и 9.2.1), потому её загружаем из одного и того же внешнего файла, предварительно задав форму выделения некоторым параметрам
+Modern deep reinforcement learning methods (RL) can solve optimal control and planning tasks without a priori information about the problem. Learning is performed through trial and error as the agent interacts with the environment and learns to optimize its actions to maximize the expected reward. This formulation closely resembles how humans learn, and can be considered as one of the approaches to creating artificial general intelligence \cite{reward_is_enough}. Deep reinforcement learning was applied for the first time to control a virtual agent in an Atari 2600 game-based environment in 2013\cite{mnih2013atari}. It has been shown that RL can control the agent based on visual information at the human level. Since then, the topic of machine learning with reinforcement has received more and more attention. Reinforcement learning is effective in many complicated tasks such as playing chess~\cite{alphazero}, go~\cite{alphago}, and StarCraft II~\cite{alphastar}. These impressive results have become possible due to the development of both RL methods and computer technology, since successful training of deep RL agents requires a huge number of interactions with the environment. The research carried out in this work is mainly focused on the development of reinforcement learning methods applicable to the control of real robotic devices. The creation of algorithms capable of making decisions in the real world, self-learning, and not requiring large amounts of human-labeled data, can lead to explosive growth in collaborative robotics, self-driving cars, and the field of virtual assistants.
 
-Диссертационная работа была выполнена при поддержке гранта УМНИК № 120ГУЦЭС8-D3/56352 от 21.12.2019. 
+At present, the scope of application of RL methods is limited. The main limiting factor is the large amount of data needed to train the agent. To leverage this problem, the agent is often trained in a virtual environment --- a simulator, and then transferred to a physical installation. This setting leads to a second problem --- a difference between observations and the dynamics of the environment in the simulation and the reality, which results in a significant decrease in the performance of the agent in the real world. Another problem arises when an agent is trained directly on a physical robot --- the ability of the agent to perform actions that could break the robot should be limited during the learning process without a large restriction on the agent's ability to explore the environment. Moreover, many practical tasks can be viewed as a hierarchy of subtasks. While one part of the subtasks can be effectively solved by classical methods, the other part requires more complex learning methods. This leads to the need to combine neural networks and classical approaches within a single hierarchical agent.
+
+\underline{\textbf{Actuality.}}  One of the most promising applications for reinforcement learning methods is robotics. Modern robots are already replacing humans in strictly controlled environments such as manufacturing lines because it is possible to develop a program that takes into account all possible environment states. In contrast, in the everyday life, it is important to act in conditions of uncertainty. In such cases, the optimal behavior is difficult to program, but it can be learned through interaction with the environment. However, in order to apply reinforcement learning methods to control physical robots, one needs to solve a number of challenges such as reducing the number of examples needed for training; increasing the efficiency of transferring models trained in simulation to the real world; developing algorithms capable of solving problems in the absence or sparse reward function. 
+
+In the present dissertation, we developed methods with would mitigate limitations of reinforcement learning algorithms in a real world tasks. We evaluate the performance of our algorithms on a set of important practical applications and propose a novel application for reinforcement learning methods --- alignment of an optical interferometer. 
+For the first time, we developed a reinforcement learning method for the alignment of an optical Mach-Zehnder interferometer \cite{interferobot, v2}. To align an interferometer, the agent must be capable of sampling actions with different amplitudes --- large actions at the beginning and small, precise actions at the end of the alignment process. The size of the actions at the beginning of an episode can be more than 100 times bigger than at the end. This problem is not frequent in usual RL benchmarks but is important for practical applications. Also, the agent trained in the simulation must be robust to optical noises in the input images when deployed at the experimental setup. Interferometers are a common part of most setups in experimental optics. Alignment of the experimental setup is one of the most labor-intensive phases in experimental optics. Fine-tuning hundreds of optical elements such as lenses, mirrors, and attenuators require a lot of experimental experience and takes many hours even for an experienced specialist. Automation of the alignment process will greatly increase the performance of optical experiments. The developed method uses images from cameras and adapts to the parameters of a particular setup. The proposed method is significantly superior to a human in terms of quality and speed of interferometer alignment.
+
+A similar task of continuous control arises in quadruped robots. We considered the task of controlling the movement of a quadruped Unitree A1 robot\cite{rl_unitree}. For successful learning of RL algorithms, it is important to specify the reward function. With a carelessly given reward function, an agent can learn a suboptimal strategy. We propose a reward function with penalties for the non-optimality of the agent's strategy increasing according to the schedule. The proposed reward function was applied to train the RL agent to control the movement of the Unitree A1~\cite{unitree} robot with given parameters such as angular and linear velocities. The proposed reward function encourages the agent to learn safe and smooth movement at a given speed. In this case of a robot with many degrees of freedom, the use of reinforcement learning has significant advantages over classical algorithms, since the agent can independently learn the optimal strategy based only on the scalar reward function. The optimal strategy should filter out the noise in the observations well, not require an excessive amount of data for training, and not perform actions that could damage the robot. The results of testing the trained agent showed that it is able to perform well in the simulation.
+
+The next challenge in the application of reinforcement learning methods in the real life is to combine them with algorithmic approaches to solve complex problems. As part of this work, we propose a hierarchical algorithm that combines reinforcement learning, classical algorithms on graphs, and expert knowledge. The strategy is built from basic skills designed to solve specific problems, and the choice of skill is based on the current state. The developed algorithm was applied to control a virtual agent in the NetHack \cite{nethack} environment. This environment is one of the most difficult test environments for reinforcement learning algorithms. The average episode length in NetHack is 100,000 steps, which is 50 times longer than in StarCraft II. NetHack is also a procedurally generated environment, which means that an agent can rarely be in the same state more than once. The large space of actions and different states of the environment means that most of the methods used in reinforcement learning to explore the environment do not work in this setting. The developed method made it possible to effectively apply reinforcement learning to this problem and won first place in the competition held by Google DeepMind and Facebook AI Research as part of the NeurIPS Competition track 2021 conference. This approach can be used to design systems that combine machine learning and classical algorithms.
+
+\underline{\textbf{The aim}} of this work is the development of machine learning methods for the control of robots in real-world tasks.
+
+We formulate the following \underline{\textbf{goals of this research}}:
+\begin{enumerate}[beginpenalty=10000] % https://tex.stackexchange.com/a/476052/104425
+  \item Development of a simulator of Mach-Zehnder interferometer
+  \item Formulation of an optical interferometer alignment in terms of Markov decision process; selection of the a reward function; definition of action and observation spaces; selection of hyperparameters
+  \item Development of reinforcement learning algorithm capable of operate with actions of different magnitude and robust to optical noises
+  \item Development of software complex to align a physical a setup of optical interferometer
+  \item Development of a curriculum based method with penalties increasing according to a schedule and training an RL algorithm to control the speed of a quadruped robot
+  \item Development of a hierarchical method that combines algorithmic and neural approaches and its application to the NetHack environment
+\end{enumerate}
+
+
+\underline{\textbf{Scientific novelty:}}
+\begin{enumerate}[beginpenalty=10000] % https://tex.stackexchange.com/a/476052/104425
+  \item We proposed a reinforcement learning method which can operate actions of different magnitude and robust to optical noises. This method was for the first time applied to align the optical interferometer
+  \item For the first time, we created a hardware-software complex for tuning an optical interferometer based on images from a camera based on machine learning with reinforcement
+  \item We developed an original method for learning a strategy to control the movement of a quadruped robot with desired speed
+  \item We performed an original study on the applicability of a hierarchical algorithm combining neural and algorithmic policies for the Nethack game.
+\end{enumerate}
+
+\underline{\textbf{Theoretical and practical significance}} of the work is:
+\begin{enumerate}[beginpenalty=10000] % https://tex.stackexchange.com/a/476052/104425
+  \item The automated approach to the alignment of the optical interferometer proposed in the dissertation will significantly speed up the conduct of physical experiments and reduce the need for manual labor
+  \item The developed algorithms for controlling virtual agents can then be applied in robotics, self-driving cars and virtual assistants
+\end{enumerate}
+
+\underline{\textbf{Research methods.}} In the work we applied methods of machine learning, computer vision, deep reinforcement learning, software development, linear algebra, general physics and optics.
+
+\section*{\centering{KEY RESULTS}}
+
+\underline{\textbf{The main defense points:}}
+\begin{enumerate}[beginpenalty=10000] % https://tex.stackexchange.com/a/476052/104425
+  \item A reinforcement learning method capable of handling actions of various scales and resistant to optical noise. The developed method makes it possible to adjust the optical interferometer without human intervention, based solely on images of the interference pattern. The proposed method does not use a priori information and is able to independently learn for a specific installation.
+  \item Hardware-software complex for automatic tuning of an optical interferometer. The speed and accuracy of tuning using the developed method significantly exceeds manual tuning.
+  \item A reinforcement learning method for policy learning for controlling the movement of a quadruped robot with a given linear and angular velocity.
+  \item Hierarchical algorithm combining algorithmic and neural approaches. The algorithm was tested in the NetHack environment.
+\end{enumerate}
+
+\underline{\textbf{Author’s contribution to the study.}} The author personally developed a simulator of the optical interferometer; software and hardware complex for launching and testing a trained agent on the experimental setup; a method for tuning an interferometer with a reinforcement machine learning algorithm using a discrete action space. The author has been actively involved in the development of a machine learning method for alignment of the interferometer using a continuous action space. The author personally proposed and implemented a reward function that allows learning a strategy to control the movement of a walking robot at a given speed. The author personally proposed and implemented the idea of an algorithm for playing Nethack in the form of a hierarchical agent that combines machine learning with reinforcement and an algorithmic approach. 
+
+\section*{\centering{PUBLICATIONS AND APPROBATION OF RESEARCH}}
+
+\expandafter\def\csname blx@maxbibnames\endcsname{99}% sorokin set et.al max names
+\paragraph{First-tier publications} 
+\begin{refsection} 
+    \nocite{confbib1}
+    \printbibliography[heading=none]
+\end{refsection}
+
+\paragraph{Second-tier publications}
+\begin{refsection} 
+    \nocite{confbib4}
+    \printbibliography[heading=none]
+\end{refsection}
+
+\paragraph{Other publications}
+\begin{refsection} 
+    \nocite{confbib2}
+    \nocite{confbib3}
+    \nocite{progbib1}
+    \printbibliography[heading=none]
+\end{refsection}
+
+\expandafter\def\csname blx@maxbibnames\endcsname{3}% sorokin reset et.al max names
+
+\paragraph{Reports at conferences and seminars}
+\begin{enumerate}[labelindent=3pt, labelsep=10pt, topsep=10pt, itemsep=5pt]
+    \item 34-th annual international conference Neural Information Processing Systems (NeurIPS 2020) (\textbf{spotlight talk})
+    \item 29-th annual international conference on laser physics LPHYS 2021
+    \item 5-th international Conference on Robot Learning (CoRL) 2021
+    \item 35-th international conference Neural Information Processing Systems (NeurIPS 2021, Competition track)
+    \item International conference on quantum technology ICQT 2021
+    \item International conference on artificial neural networks Neuroinformatics 2022
+\end{enumerate}
+
+\paragraph{Participation in scientific projects}
+\begin{enumerate}[labelindent=3pt, labelsep=10pt, topsep=10pt, itemsep=5pt]
+    \item Grant UMNIK <<Development of an automatic alignment system for an optical interferometer based on machine learning>> № 120ГУЦЭС8-D3/56352 от 21.12.2019
+
+\end{enumerate}
+
+
+\underline{\textbf{The reliability}} of the results obtained is ensured by complex testing of the proposed method of automated tuning optical interferometer, carried out at RQC. According to the results competition held by Google DeepMind and Facebook AI Research, the developed method of managing an agent in the NetHack environment has surpassed the rest approaches using neural networks.
 
 %\underline{\textbf{Объем и структура работы.}} Диссертация состоит из~введения,
 %четырех глав, заключения и~приложения. Полный объем диссертации
@@ -25,67 +109,59 @@
 %литературы содержит \textbf{ХХX}~наименование.
 
 \pdfbookmark{Содержание работы}{description}                          % Закладка pdf
-\section*{Содержание работы}
-Во \underline{\textbf{введении}} обосновывается актуальность
-исследований, проводимых в~рамках данной диссертационной работы. Приводится обзор литературы показывающий большой потенциал методов машинного обучения с подкреплением в задачах связанных с принятием решений. Формулируется цель и ставятся задачи данной работы. Излагается научная новизна
-и практическая значимость научных результатов представляемой работы. 
-В~последующих главах сначала описывается общий принцип, работы методов машинного обучения с подкреплением. Затем рассматриваются современные методы машинного обучения с подкреплением позволяющие достигать наилучших результатов в тестовых задачах. Потом приводится описание задачи настройки оптического интерферометра в виде задачи машинного обучения с подкреплением. Приводятся результаты обучения модели в симуляции и последующего тестирования разработанной модели на экспериментальной установке. В следующей главе формулируется необходимость в сложных тестовых задачах для развития и тестирования обобщающей способности методов машинного обучения с подкреплением. Формулируются отличительные особенности позволяющие считать среду, основанную на игре Nethack одной из самых сложных тестовых сред для алгоритмов машинного обучения с подкреплением. Затем приводится разработанный алгоритм для этой задачи и анализируется качество его работы. В заключении суммируются основные результаты, полученные в рамках подготовки диссертационного исследования с указанием их новизны и практической значимости. 
+\section*{\centering CONTENTS}
+The \underline{\textbf{introduction}} substantiates the actuality of the research conducted in the present dissertation. We present an overview of the literature which shows the great potential of deep reinforcement learning methods in decision-making tasks. We formulate goals and tasks for the present work. We present the scientific novelty and practical significance of the results of the work. The following chapters first describe the general principles of reinforcement learning methods. Then we present modern reinforcement learning methods which achieve state-of-the-art results in various benchmarks. In the first chapter, we describe the task of alignment of an optical interferometer in terms of reinforcement learning. After, we present our methods to learn reinforcement learning agents to align the interferometer using discrete and continuous action spaces and the results of the evaluation of trained models on a physical interferometer setup. The second chapter introduces the task of control of a quadruped robot. We present the proposed method for learning a policy for locomotion with target speed. The third chapter formulates the need for complex test problems to develop and test the generalization ability of reinforcement learning methods. We formulate challenges, which makes the game of Nethack one of the most difficult test environments for reinforcement learning methods. Then we present the developed algorithm and evaluate its performance. In conclusion, the main results obtained during the preparation of the dissertation research are summarized, indicating their novelty and practical significance.
 
 
-\underline{\textbf{Первая глава}} посвящена обзору методов машинного обучения с подкреплением (RL) и применению их в роботике. В ней формулируется задача RL - максимизация математического ожидания суммарной дисконтированной награды при взаимодействии RL агента со средой. Схематически это взаимодействие изображено на рисунке \ref{fig:rl_setting}. На рисунке \ref{fig:rl_setting} агент взаимодействует со средой по средством действий (action) и получает от среды следующее состояние, награду и флаг завершения эпизода (state, reward, done).
+The \underline{\textbf{first chapter}} is devoted to an overview of reinforcement learning methods (RL) and their applications in robotics. It formulates the RL problem --- maximization of the expected total discounted reward obtained in interaction with the environment. Schematically, this interaction is shown in fig. \ref{fig:rl_setting}. In the fig.\ref{fig:rl_setting} an agent interacts with the environment through actions and receives from the environment tuple of next state, reward, and termination flag. 
 
 \begin{figure}[ht]
     \centerfloat{
         \includegraphics[width=0.6\linewidth]{images/rl_setting}
     }
-    \caption{Ваимодействие RL агента и среды}\label{fig:rl_setting}
+    \caption{Interaction of RL agent and environment.}\label{fig:rl_setting}
 \end{figure}
 
-Математическое ожидание суммарной дисконтированной награды вычисляется по траекториям при условии текущей стратегии агента по формуле: 
+Expectation of the total discounted reward is calculated along trajectories sampled from the current policy of the agent:
 
 \[
 E_{\tau \sim \pi(\theta)} [G(\tau)] = E_{\tau \sim \pi(\theta)} [R_0 + \gamma R_{1} + \gamma ^ 2 R_{2} + ...] = E_{\tau \sim \pi(\theta)} [\sum_{t=0}^{T - 1} \gamma ^t R_{t}]
 \]
 
-Взаимодействие агента и среды рассматривается в предположении Марковского процесса принятия решений. Свойство Марковости говорит о том, что следующее состояние среды и получаемая агентом награда зависят только от предыдущего состояния среды и действия совершенного агентом в этом состоянии. 
-С учетом этого предположения оптимальная стратегия агента зависит только от текущего состояния среды, что позволяет использовать уравнение оптимальности Беллмана, выражающее связь между оптимальной стратегией в двух последовательных состояниях среды $s$ и $s'$
+The interaction between the agent and the environment is considered under the assumption of a Markov decision process. The Markov property says that the next state of the environment and the reward received by the agent depend only on the previous state of the environment and the action taken by the agent in this state. Given this assumption, the optimal strategy of an agent depends only on the current state of the environment, which allows using the Bellman optimality equation. The Bellman optimality equation expresses the relationship between the optimal strategy in two successive states of the environment $s$ and $s'$
 
 \[
 	V^*(s) = \max_{a \in \mathcal{A}} E(r_{t + 1}(s, a, s') + \gamma V^*(s_{t + 1}))
 \]
-где $V^*(s)$ (V-функция) - математическое ожидание суммарной дисконтированной награды в состоянии $s$ при условии оптимальной стратегии, а $\gamma$ - коэффициент дисконтирования. Эквивалентно уравнение Беллмана можно записать следующим образом: 
+where $V^*(s)$ (V-function) - expectation of total discounted reward in state $s$ under the condition of optimal strategy, $\gamma$ is the discounting factor. Equivalently, the Bellman equation can be expressed as follows: 
 
 \[
 	Q^*(s, a) = E(r_{t + 1}(s, s', a) + \max_{a \in \mathcal{A}} \gamma Q^*(s_{t + 1}, a))
 \]
-где $Q^*(s, a)$ (Q-функция) - математическое ожидание суммарной дисконтированной награды в состоянии $s$ при условии действия $a$ и следовании оптимальной стратегии в следующем состоянии $s'$.
+where $Q^*(s, a)$ (Q-function) - expectation of total discounted reward in state $s$ under the condition of action $a$ and following the optimal strategy in the next state $s'$.
 
-Далее рассматриваются основные алгоритмы, применяемые в машинном обучении с подкреплением. Условно их можно разделить на два больших класса off-policy и on-policy методы. Off-policy методы основываются на идее аппроксимации Q-функции c использованием метода временных разностей. Такие методы могут использовать данные, полученные стратегией, сколь угодно сильно отличающейся от текущей стратегии. Благодаря этому off-policy методы обычно требуют меньше данных, но более подвержены численным нестабильностям при обучении. С другой стороны, для следующей итерации on-policy методам требуется опыт взаимодействия текущей стратегии со средой благодаря чему они численно более стабильны, но требуют существенно больше данных для обучения. 
+Next, we will consider the main reinforcement learning algorithms. Conventionally, they can be divided into two large classes of off-policy methods and on-policy methods. Off-policy methods are based on maximization of the Q-function using the time difference method. Such methods can use data obtained by an arbitrarily policy. Due to this, off-policy methods usually require less data, but may be unstable during training. On the other hand, on-policy methods which can use only data obtained by the current policy are more stable, but require significantly more training data. 
 
-%Затем рассматриваются сложности которые возникающие в обучении с подкреплением. Первая из них это \textbf{застревание в локальных оптимумах}. В качестве примера можно представить себе задачу в которой агенту нужно пройти из верхнего левого угла в правый нижний, при этом избегая столкновения со случайно движущимися препятствиями. При столкновении агент получает награду -1, при удачном прохождении +1, при стоянии на месте 0. С большой долей вероятности агент выучит субоптимальную стратегию, которая будет стоять на месте. Следующая сложность состоит в определении того, какие именно действия агента привели к получению награды. Эта проблема носит название \textbf{Credit assignment problem}. 
-Затем рассматриваются задачи с \textbf{разреженной наградой}. В таких задачах вероятность того, что агент со случайной стратегией найдет не нулевую награду и тем самым получит положительный сигнал для обучения пренебрежимо мала. В этом случае используются подходы, называемые внутренней мотивацией (intrinsic motivation). Общая идея данных подходов заключается в том, чтобы давать агенту награды за достижение состояний в которых он раньше не был, что позволит эффективно исследовать среду. 
-%Последней рассматривается \textbf{дилема исследования-использования} (exploration-exploitation trade-off). В ней идет речь о выборе баланса между исследованием среды и оптимизацией получаемой награды. 
-Далее рассматриваются алгоритмы \textbf{мета-обучения}. Обычно, методы обучения с подкреплением предназначены для
-решения конкретной задачи и не могут легко обобщаться на другие похожие задачи. Для того чтобы обучить агента решению другой задачи, его обучение
-приходится начинать заново. Мета-обучение позволяет агенту выучить такую стратегию, которая сможет адаптироваться к различным задачам. Последним из подходов, используемых в обучении с подкреплением, рассматривается \textbf{иерархическое обучение с подкреплением}. Основная идея иерархического обучения с подкреплением состоит в построении стратегии в виде иерархии навыков, в которой стратегии нижнего уровня решают подзадачи, используемые следующими стратегиями для решения более общих задач. Такое разделение может быть полезным во многих задачах, например в задаче управления шагающим роботом стратегия нижнего уровня отвечает за навык шагать в указанном направлении, а стратегия верхнего уровня использует этот навык для перемещения робота в заданную точку. 
+Then we consider tasks with \textbf{sparse reward}. In such environments, the probability that an agent following random policy will find a non-zero reward and thus receive a positive learning signal is negligible. In this case, approaches called intrinsic motivation are used. The general idea of these methods is to reward the agent for discovering new states, which would motivate it to efficiently explore the environment.
 
-В конце главы рассматривается применение методов глубокого машинного обучения с подкреплением в задачах управления робототехническими устройствами. В последнее время методы RL достигли выдающихся результатов, таких как сборка кубика рубика робо-рукой \cite{rubic} и даже управление термоядерным реактором \cite{tokomak}. По сравнению с методами основанными на классических алгоритмах управления таких как обратная кинематика, алгоритмы машинного обучения способны самостоятельно адаптироваться к параметрам робота и соответственно работать в условиях, когда эти параметры точно не известны или значения, получаемые при измерении этих параметров, имеют большой разброс. 
+The \textbf{meta-learning} algorithms are discussed next. Generally, reinforcement learning methods are designed to solve a concrete task and cannot be easily generalized to similar problems. In order to train an agent to solve a similar task, its training should be started from the beginning. Meta-learning algorithms allows to train an agent that can adapt to a distribution of tasks. 
 
-\underline{\textbf{Вторая глава}} посвящена разработке программно-аппаратного комплекса для настройки оптического интерферометра основанного на машинном обучении с подкреплением.
-В начале главы описываются физические принципы работы оптического интерферометра. Работа оптического интерферометра основана на принципе интерференции света - при наложении двух когерентных световых волн возникают осцилляции света различной амплитуды в различных точках пространства. В зависимости от того, происходит наложение волн в синфазно или в противофазе интерференция приводит к увеличению или к уменьшению суммарной амплитуды колебаний. В рамках данной работы рассматривалась интерференция двух световых пучков испущенных одним лазерным источником света. В этом случае интерференционная картина выгладит как череда ярких и темных полос различимых невооруженным взглядом. Схематически интерференционная картина получаемая при наложении двух световых пучков с направлениями заданными волновыми векторами $k1$ и $k2$ изображена на рисунке \ref{fig:two_beam_interf}.
+Next we discuss \textbf{hierarchical reinforcement learning}. The main idea of hierarchical reinforcement learning is to construct a policy as a hierarchy of skills, in which the lower-level policies solve sub-tasks that are used by the upper-level policy to solve more complex problems. Such a decomposition can be useful in wide range of problems. For example, in the task of controlling a walking robot, the lower level policy can be trained to walk in a target direction, while the upper level policy uses this skill to move the robot to a given point.
+
+At the end of the chapter, we discuss the application of reinforcement learning methods in the problems of controlling robots. Recently, RL methods have achieved outstanding results, such as solving a Rubik's Cube with a robotic arm \cite{rubic} and even controlling a fusion reactor \cite{tokomak}. Compared to methods based on classical control algorithms such as inverse kinematics, machine learning algorithms are able to adapt to the parameters of the robot and, consequently, work in conditions where these parameters are not precisely known.
+
+\underline{\textbf{Second chapter}} is devoted to the development of a software and hardware complex for aligning an optical interferometer based reinforcement learning. At the beginning of the chapter, we discuss the physical principles of an optical interferometer. The optical interferometer is based on the principle of light interference - when two coherent light waves are superimposed, light oscillations of different amplitudes occur at different points in space. Depending on whether the waves are superimposed in-phase or in anti-phase, the interference leads to an increase or decrease in the total amplitude of the oscillations. Within the framework of this work, the interference of two light beams emitted by one laser light source was considered. In this case, the interference pattern looks like a series of bright and dark fringes visible to the naked eye. Schematically, the interference pattern obtained by superimposing two light beams with directions given by the wave vectors $k1$ and $k2$ is shown in the fig. \ref{fig:two_beam_interf}.
 
 \begin{figure}[ht]
     \centerfloat{
         \includegraphics[width=0.5\linewidth]{images/two_beam_inreference.pdf}
     }
     \caption{
-     Одномерный срез интерференционной картины полученной при не полном перекрытии двух когерентных лазерных лучей с волновыми векторами ~k1 и ~k2. Фронт волны показан с помощью градиента серого; голубые линии показывают интенсивности каждого пучка (не в масштабе); черная линия показывает интенсивность интерференционной картины. Двумерные интерференционные картины соответствующие одномерному случаю изображены под внизу.}
+    One-dimensional slice of the interference pattern obtained with incomplete overlap of two coherent laser beams with wave vectors denoted by ~k1 and ~k2. The wavefront is shown using a gray gradient; blue lines show the intensities of each beam (not to scale); the black line shows the intensity of the interference pattern. The 2D interference patterns corresponding to the 1D case are shown below.}
 \label{fig:two_beam_interf}
 \end{figure}
 
-В интерферометре принцип интерференции используется для прецизионного измерения относительной разности фаз между двумя когерентными лазерными лучами. Интерферометр является одним из основных инструментов используемых при проведении оптических экспериментов. Например, интерферометр Фабри-Пьеро используется в спектроскопии \cite{fabry-perot1899}; современные детекторы гравитационных волн LIGO и VIRGO \cite{LIGO, VIRGO} используют интерферометр Майкельсона; интерферометр Саньяка используется в системах навигации \cite{Kandpal2000}; интерферометр Маха-Цендера является основным инструментом при проведении современных экспериментов в квантовой оптике \cite{Ourjoumtsev2006, Sychev2017}.
-
-Далее рассмотрим конфигурацию интерферометра Маха-Цендера изображенную на рисунке \ref{fig:interf_scheme_1}. 
+The interferometer uses the principle of interference to accurately measure the relative phase difference between two coherent laser beams. The interferometer is one of the essential instruments used in optical experiments. For instance, the Fabry-Pierrot interferometer is used in spectroscopy \cite{fabry-perot1899}; modern gravitational wave detectors LIGO and VIRGO \cite{LIGO, VIRGO} use a Michelson interferometer; Sagnac interferometer is used in navigation systems \cite{Kandpal2000}; The Mach-Zehnder interferometer is the main tool for conducting modern experiments in quantum optics \cite{Ourjoumtsev2006, Sychev2017}.
 
 \begin{figure}[ht]
     \centering
@@ -99,30 +175,30 @@ E_{\tau \sim \pi(\theta)} [G(\tau)] = E_{\tau \sim \pi(\theta)} [R_0 + \gamma R_
          \includegraphics[width=1\linewidth]{interf_real_1}
      \end{subfigure}
     \caption{
-     Принципиальная схема и экспериментальная установка интерферометра Маха-Цендера. }
+     Principal scheme and experimental setup of Mach-Zehnder interferometer.}
 \label{fig:interf_scheme_1}
 \end{figure}
 
-На схеме изображенной на рисунке \ref{fig:interf_scheme_1} лазерный луч делится на два первым светоделителем (BS 1). Затем два луча идут по двум плечам интерферометра и объединяются на втором светоделителе (BS 2). Результирующая интерференционная картина снимается с помощью цифровой камеры. Для управления зеркалом (mirror 1) и светоделителем (BS 2) и линзой (lens 2) используются оптомеханические подвижки. Подвижки зеркала и светоделителя могут поворачиваться в двух плоскостях, а подвижка зеркала движется вдоль прямой. Управление производится компьютером с помощью актуатора. Цель настройки интерферометра состоит в том, чтобы точно совместить два пучка после прохождения плеч интерферометра так, чтобы положения их центров, направления k-векторов и кривизна волнового фронта совпали. Настройка интерферометра производится на основе интерференционной картины наблюдаемой на камере. Важной частью наблюдений является временная динамика интерференционных полос наблюдаемая благодаря пьезо зеркалу (mirror 2) которое движется периодически с амплитудой порядка длины волны. В нашем эксперименте время прямого прохода пьезо зеркала больше чем время обратного прохода, что позволяет судить не только об абсолютной величине угла между k-векторами, но и о его знаке. 
+Next we consider Mach-Zenhder interferometer shown in fig. \ref{fig:interf_scheme_1}. In the scheme shown in the fig. \ref{fig:interf_scheme_1} the laser beam is divided into two by the first beam splitter (BS 1). Then the two beams propagate along the two arms of the interferometer and are combined at the second beam splitter (BS 2). The resulting interference pattern is observed by a digital camera. To control the mirror (mirror 1), beam splitter (BS 2) and lens (lens 2) we use optomechanical shifts. The mirror and the beam splitter shifts can rotate in two planes, while the lens shift moves linearly. The control is performed by a PC using an actuator. The goal of interferometer alignment is to precisely match the two beams after passing through the interferometer arms so that their center positions, k-vector directions, and wavefront curvatures match. The interferometer is aligned based on the interference pattern observed on the camera. An important part of the observations is the temporal dynamics of the interference fringes observed due to the piezo mirror (mirror 2) which moves periodically with an amplitude of the order of a wavelength. In our experiment, the time of the forward pass of the piezo mirror is longer than the time of the backward pass, which makes it possible to guess not only the absolute of the angle between the k-vectors, but also its sign.
 
-Несмотря на кажущуюся простоту, процесс настройки интерферометра довольно трудоемкий. Во-первых, это связано с тем, что каждое движение зеркала  (mirror 1) и светоделителя (BS 2) приводит к одновременному изменению как положения на камере, так и направления нижнего луча. Таким образом при сведении лучей нарушается их параллельность и наоборот. Во-вторых, интерференционная картина получаемая с помощью камеры может содержать шум, оптические аберрации и частицы пыли как показано на рисунке \ref{fig:noise}(a). В третьих оптомеханические подвижки управляющие положениями оптических элементов имеют существенный гистерезис и ограниченную чувствительность.
+Despite the apparent simplicity, the process of alignment of the interferometer is laborious. Firstly, this is due to the fact that each movement of the mirror (mirror 1) and beam splitter (BS 2) leads to a simultaneous change in both the position on the camera and the direction of the lower beam. Thus, when the beams are moved together, their parallelism is violated and vice versa. Secondly, the interference pattern observed by the camera may contain optical noise, aberrations and dust particles as shown in \ref{fig:noise}(a). In the third, optomechanical shifts that control the positions of optical elements have a significant hysteresis and limited sensitivity.
 
 \begin{figure}
 \centering
   \includegraphics[width=0.5\linewidth]{beamsamples}
 
-\caption{Лазерные лучи: (a) экспериментальный; (b) модель использующая Гауссовый профиль; (c) модель с шумом. На рисунке (a), полосы видны из-за переотражения света от стекла камеры.}
+\caption{Laser beams: (a) experimental; (b) simulation with Gaussian amplitude profile; (c) simulation with noise. In fig. (a), fringes are visible due to the resonator effect.}
 \label{fig:noise}
 \end{figure}
 
-Далее приводится построенная на основе этих принципов компьютерная модель позволяющая моделировать изображения, получаемые на камере оптического интерферометра при произвольном расположении оптических элементов - зеркал и линз интерферометра. В нашей модели лазерные лучи в поперечном сечении описываются функцией Гаусса. Вектор напряженности электрического поля в точке $(x,y,z)$ для луча идущего по верхнему плечу интерферометра задается выражением:
+After, we present a computer model of Mach-Zehnder interferometer constructed on the basis of interference principles, which can simulate images obtained on the camera of an optical interferometer with an arbitrary arrangement of optical elements - mirrors and lenses. In our model, laser beams in cross section are described by the Gaussian function. The vector of the electric field strength at the point $(x,y,z)$ for the beam propagating along the upper arm of the interferometer is given by the expression:
 
 \begin{equation}
     E_u={\textrm Re}\left[\exp \left(-\frac{x^{2}+y^{2}}{r_u^{2}(z)}\right) \exp \left(-i\left(k_{z} z+ k\frac{x^2+y^2}{2\rho^2_u(z)} + \phi_{\textrm piezo}(t)\right)\right)\right]
     \label{eq:upper_beam}
 \end{equation}
 
-Вектор напряженности электрического поля для луча идущего по нижнему плечу интерферометра:
+The vector of the electric field strength for the beam propagating along the lower arm of the interferometer is given by:
 
 \begin{multline}
     E_l={\textrm Re}\biggl[\exp \left(-\frac{\left(x-x_{0}\right)^{2}+\left(y-y_{0}\right)^{2}}{r_l^{2}(z)}\right)  \cdot \\
@@ -130,14 +206,12 @@ E_{\tau \sim \pi(\theta)} [G(\tau)] = E_{\tau \sim \pi(\theta)} [R_0 + \gamma R_
     \label{eq:lower_beam}
 \end{multline}
 
-где $(x_0, y_0)$ положение центра нижнего пучка [центр верхнего пучка предполагается в $(x,y)=(0,0)$], луч распространяется вдоль оси $z$ , %$\mathcal N$ the normalization factor, 
-$r(z)$ радиус луча, $\rho(z)$ радиус кривизны волнового фронта, $(k_x,k_y,k_z)$ волновой вектор с $k=\sqrt{k_x^2+k_y^2+k_z^2}=2\pi/\lambda$, и $\phi_{\textrm piezo}(t)$ фазовый сдвиг из-за периодического движения пьезо зеркала. В работе используется параксиальное приближение $k_z \gg k_x, k_y$. 
+where $(x_0, y_0)$ is the position of the center of the lower beam [the center of the upper beam is assumed to be $(x,y)=(0,0)$], the beam propagates along the $z$ axis, $r(z)$ beam radius, $\rho(z)$ wavefront curvature radius, $(k_x,k_y,k_z)$ wave vector with $k=\sqrt{k_x^2+k_y^2+k_z^2 }=2\pi/\lambda$, and $\phi_{\textrm piezo}(t)$ is the phase shift due to the periodic movement of the piezo mirror. We use the paraxial approximation $k_z \gg k_x, k_y$.
 
-До прохождения светоделителя (BS 1) два луча имеют идентичные параметры. Для вычисления параметров луча после прохождения системы линз используется широко применяемый в оптике формализм ABCD-матриц. В нем луч характеризуется комплексно значным параметром $\dfrac{1}{q} = \dfrac{1}{\rho} - \dfrac{i \lambda}{\pi r^2}$ и изменение параметров луча при прохождении через систему линз записывается следующим образом  $q'=\dfrac{A q+B}{C q+D}$, 
-где результирующая матрица системы $M_{total}$ вычисляется как произведение матриц  $M_{total} = M_{lens1} \cdot M_{fs} \cdot M_{lens 2}$
-соответствующих распространению луча в пустом пространстве на расстояние $d$, $M_{fs}=\begin{bmatrix} 1 & d \\ 0 & 1 \end{bmatrix}$ и тонкой линзы с фокальным расстоянием $f$  $M_{lens}=\begin{bmatrix} 1 & 0 \\ -1/f & 1 \end{bmatrix}$.
+Prior the beam splitter (BS 1), the two beams have identical parameters. To calculate the beam parameters after passing through the lens system we use the formalism of ABCD matrices. In the ABCD method the beam is characterized by the complex-valued parameter $\dfrac{1}{q} = \dfrac{1}{\rho} - \dfrac{i \lambda}{\pi r^2}$ and the change in the beam parameters when passing through the system lenses is written as follows $q'=\dfrac{A q+B}{C q+D}$,
+where the resulting system matrix $M_{total}$ is calculated as the product of the matrices $M_{total} = M_{lens1} \cdot M_{fs} \cdot M_{lens 2}$ corresponding to the propagation of a beam in empty space at a distance $d$, $M_{fs}=\begin{bmatrix} 1 & d \\ 0 & 1 \end{bmatrix}$ and a thin lens with focal length $f$ $M_{lens }=\begin{bmatrix} 1 & 0 \\ -1/f & 1 \end{bmatrix}$.
 
-Основной метрикой качества настройки интерферометра является видность интерференционной картины: 
+The main quality metric for interferometer alignment is visibility of the interference pattern:
 
 \begin{equation}
     V = \frac{\max_{t}(I_{\textrm tot}) - \min_t(I_{\textrm tot})
@@ -147,33 +221,34 @@ $r(z)$ радиус луча, $\rho(z)$ радиус кривизны волно
     \label{eq:visib}
 \end{equation}
 
-где $I_{\textrm tot}(t) = \iint_{-\infty}^{+\infty} I(x, y, t) {\textrm d}x{\textrm d}y$ суммарный световой поток падающий на камеру; максимум и минимум вычисляются за один проход пьезо зеркала. Видность по определению лежит в интервале от 0 до 1. Для полностью настроенного интерферометра [рисунок~\ref{fig:visib_expl}(a)], $\min_t(I_{\textrm tot})=0$, таким образом $V=1$, для полностью расстроенного интерферометра [рисунок~\ref{fig:visib_expl}(c)], $\min_t(I_{\textrm tot})\approx\max_t(I_{\textrm tot})$, таким образом $V\approx 0$.
+where $I_{\textrm tot}(t) = \iint_{-\infty}^{+\infty} I(x, y, t) {\textrm d}x{\textrm d}y$ total optical flux incident on the camera; the maximum and minimum are calculated in one pass of the piezo mirror. Visibility, by definition, lies between 0 and 1. For a fully aligned interferometer [figure~\ref{fig:visib_expl}(a)], $\min_t(I_{\textrm tot})=0$, thus $V= 1$, for a fully misaligned interferometer [figure~\ref{fig:visib_expl}(c)], $\min_t(I_{\textrm tot})\approx\max_t(I_{\textrm tot})$, thus $ V\approx 0$.
 
-Мы моделируем матрицу камеры в виде эквидистантной сетки $64\times64$ пикселя и вычисляем интенсивность света в каждом пикселе. Камера располагается в точке $(x,y)=(0,0)$, таким образом луч проходящий через верхнее плечо интерферометра попадает в центр камеры. На каждый проход пьезо зеркала мы моделируем 16 интерференционных картин соответствующих различным  $\phi_{\mathrm{piezo}}(t)$. Мы вычисляем видность интерференционной картины в соответствии с уравнением~\ref{eq:visib}. Так как для успешного обучения RL-агентов требуются миллионы взаимодействий со средой мы реализовали симулятор на C++, а вычисления интенсивности производим параллельно. Итоговая скорость работы симулятора на процессоре intel core i7 составила более 200 фреймов, состоящих из 16 изображений, в секунду. Для обучения агентов симулятор имеет стандартный gym интерфейс. 
+We model the camera matrix as an equidistant grid of $64\times64$ pixels and calculate the intensity of light in each grid cell. The camera is located at the point $(x,y)=(0,0)$, so the beam propagating through the upper arm of the interferometer is located the center of the camera. For each pass of the piezo mirror, we simulate 16 interference images corresponding to different $\phi_{\mathrm{piezo}}(t)$. We calculate the visibility of the interference pattern according to the equation~\ref{eq:visib}. Since successful training of RL agents requires millions of interactions with the environment, we implemented the simulator in C ++, and we perform intensity calculations in parallel. The final speed of the simulator on the intel core i7 processor was more than 200 frames, consisting of 16 images, per second. For training agents, the simulator has a standard gym interface.
 
-Примеры изображений полученных с помощью разработанной программы приведены на рисунке \ref{fig:visib_expl}. 
+Examples of interference images obtained using the developed program are shown in the fig. \ref{fig:visib_expl}.
 
 \begin{figure}[ht]
     \centerfloat{
         \includegraphics[width=0.8\linewidth]{images/visib_expl}
     }
     \caption{
-    Изображения интерференции для различных положения зеркал полученные с помощью симуляционной программы. (a) Идеально настроенный интерферометр, видность = 1; (b) Слабо расстроенный интерферометр, видность = 0.3; (c) Сильно расстроенный интерферометр, видность = 0.0026. Изображения слева на право соответствуют различным моментам времени.}
+    Interference images for various mirror positions obtained using a simulation program. (a) Perfectly aligned interferometer, visibility = 1; (b) Weakly misaligned interferometer, visibility = 0.3; (c) Highly misaligned interferometer, visibility = 0.0026. Images from left to right correspond to different points in time.}
 \label{fig:visib_expl}
 \end{figure}
 
-Геометрические размеры интерферометра использованные при моделировании и при проведении экспериментов приведены в таблице \ref{tab:interf_stat_params}. Фокусные расстояния линз lens1 и lens2 равны 50 мм. В настроенном состоянии интерферометра расстояние между линзами равно сумме фокусных расстояний. Линза lens 1 располагается на расстоянии 50 мм от светоделителя BS 1.  
+The geometric dimensions of the interferometer used in the simulation and in the experiments are given in the table \ref{tab:interf_stat_params}. The focal lengths of lenses lens1 and lens2 are 50 mm. In the tuned state of the interferometer, the distance between the lenses is equal to the sum of the focal lengths. Lens lens1 is located at a distance of 50 mm from the beam splitter BS1.
+
 
 \begin{table} [htbp]
     \centering
     \begin{threeparttable}% выравнивание подписи по границам таблицы
-        \caption{Параметры интерферометра, мм}
+        \caption{Parameters of the interferometer, mm}
         \begin{tabular}{|c|c|c|c|c|}
             \hline
             \hline
-            параметр   & длина & ширина & расстояние до камеры & радиус пучка \\
+            parameter   & length & width & distance to camera & beam radius \\
             \hline
-            значение & 200 & 300 & 100 & 0.71 \\
+            value & 200 & 300 & 100 & 0.71 \\
             \hline
             \hline
         \end{tabular}
@@ -181,18 +256,18 @@ $r(z)$ радиус луча, $\rho(z)$ радиус кривизны волно
     \end{threeparttable}
 \end{table}
 
-Максимальные смещения от настроенного положения для оптических элементов приведены в таблице \ref{tab:interf_dyn_params}. Значения подбирались так, чтобы наблюдать весь спектр интерференционных картин наблюдаемых в эксперименте.
+The maximum offsets from the aligned position for optical elements are given in the \ref{tab:interf_dyn_params} table. The values were chosen so as to reproduce the entire spectrum of interference patterns observed in the experiment.
 
 \begin{table} [htbp]
     \centering
     \begin{threeparttable}% выравнивание подписи по границам таблицы
-        \caption{Максимальное значение смещения каждого оптического элемента. Углы зеркал в радианах, положения линз в миллиметрах.}
+        \caption{The maximum offset value of each optical element. Mirror angles are in radians, lens positions are in millimeters.}
         \begin{tabular}{|c|c|c|c|c|c|}
             \hline
             \hline
-            параметр & mirror 2, x & mirror 2, y & BS 2, x & BS 2, y & lens 2 \\
+            parameter & mirror 2, x & mirror 2, y & BS 2, x & BS 2, y & lens 2 \\
             \hline
-            значение & $2.6 \cdot 10^{-3}$ & $1.8 \cdot 10^{-3}$ & $1.3 \cdot 10^{-3}$ & $0.9 \cdot 10^{-3}$ & $7.5$ \\
+            value & $2.6 \cdot 10^{-3}$ & $1.8 \cdot 10^{-3}$ & $1.3 \cdot 10^{-3}$ & $0.9 \cdot 10^{-3}$ & $7.5$ \\
             \hline
             \hline
         \end{tabular}
@@ -201,11 +276,10 @@ $r(z)$ радиус луча, $\rho(z)$ радиус кривизны волно
 \end{table}
 
 
-Далее формулируется задача настройки интерферометра в терминах машинного обучения с подкреплением, приводятся результаты обучения агентов использующих непрерывное и дискретное пространство действий и результаты тестирования обученных агентов на экспериментальной установке. 
+In the following sections we formulate the task of alignment of the interferometer in terms of reinforcement learning, present two agents trained with continuous and discrete action spaces, show evaluation results for the agents in the experimental setup. 
 
-Мы сводим процесс настройки интерферометра к Марковскому процессу принятия решений. Состоянием среды $s$ является последовательность из 16 интерференционных изображений полученных за 1 проход пьезо зеркала. Действия агента должны управлять положением оптических элементов линз и зеркал интерферометра. Для этого мы рассматриваем два способа задания пространства действий - дискретное и непрерывное. В случае дискретного пространства действий агент может оперировать заданным заранее набором длин шагов. В нашей реализации агент может менять положения оптических элементов независимо и только по одному направлению за раз. Это позволяет агенту с одинаковой уверенностью использовать шаги как большой, так и маленькой амплитуды. Для обучения агента использовался алгоритм DQN \cite{dqn}.  Однако такой способ требует ручного задания дискретизации и ограничивает количество оптических элементов которыми агент может оперировать одновременно. Настройки интерферометра с использованием непрерывного пространства действий позволяет решить эти проблемы. В этом случае агент может оперировать одновременно всеми оптическими элементами и изменять их положение на произвольную величину. Действие $a$ представляет собой N-мерный вектор $a \in (-1, 1)^{N}$. 
-В этом случае для обучения агента использовался алгоритм TD3 \cite{ddpg}.
-Так как в конце настройки интерферометра действия агента становятся на два порядка меньше чем в начале мы применяем ренормировку действий следующим образом: 
+We view the interferometer alignment as a Markov decision process. The state of the environment $s$ is a sequence of 16 interference images obtained in one pass of the piezo mirror. The agent's actions must control the position of the optical elements of the interferometer. We implement this in the two ways --- specifying the action space as discrete and continuous. In the case of the discrete action space, the agent samples actions from a predetermined set of steps with different sizes. This allows the agent to use both large and small amplitude steps with equal confidence. In our implementation, the agent can change the positions of the optical elements independently and only in one direction at a time.  The agent was trained using the DQN \cite{dqn} algorithm. 
+This method is simple but it limits the number of optical elements that the agent can operate simultaneously as well as speed of the interferometer alignment. To level this restrictions we  train second agent to align the interferometer using a continuous action space. In this case, the agent can operate simultaneously with all optical elements and change their position by an arbitrary value. The action of the agent $a$ is an N-dimensional vector $a \in (-1, 1)^{N}$. We use TD3 \cite{ddpg} algorithm to train the agent. Since at the end of the interferometer alignment the agent's actions become two orders of magnitude less than at the beginning, we need to rescale them:
 
 \begin{equation}
 a =
@@ -215,7 +289,7 @@ a =
     0  & \quad \text{if $|a| \leq 0.17$}
   \end{cases}
 \end{equation}
-Такая ренормировка приводит к действиям в интервале $|a|\in\{0\}\cup[2.5 \cdot 10^{-3}, 1]$.
+Such a renormalization leads to actions in the interval $|a|\in\{0\}\cup[2.5 \cdot 10^{-3}, 1]$.
 
 Далее обосновывается выбор функции награды. Видность интерференции $V$ не является хорошей наградой, так как она не позволяет агенту достоверно различать состояния с видностью вблизи 1, что важно при проведении экспериментов. Была выбрана функция награды $r = V - \log(1 - V)$, где V - видность интерференционной картины. С такой функцией награды агент получает награду не только в начале, но и в конце эпизода когда видность близка к 1. 
 
@@ -332,6 +406,7 @@ $state, done \gets env.reset(), False$\;
 
 
 \FloatBarrier
+\section*{\centering CONCLUSION}
 \pdfbookmark{Заключение}{conclusion}                                  % Закладка pdf
 В \underline{\textbf{заключении}} приведены основные результаты работы, которые заключаются в следующем:
 \input{common/concl}
@@ -341,81 +416,14 @@ $state, done \gets env.reset(), False$\;
 \ifdefmacro{\microtypesetup}{\microtypesetup{protrusion=false}}{} % не рекомендуется применять пакет микротипографики к автоматически генерируемому списку литературы
 \urlstyle{rm}                               % ссылки URL обычным шрифтом
 \ifnumequal{\value{bibliosel}}{0}{% Встроенная реализация с загрузкой файла через движок bibtex8
-    \renewcommand{\bibname}{\large \bibtitleauthor}
-    \nocite{*}
-    \insertbiblioauthor           % Подключаем Bib-базы
-    %\insertbiblioexternal   % !!! bibtex не умеет работать с несколькими библиографиями !!!
 }{% Реализация пакетом biblatex через движок biber
     % Цитирования.
     %  * Порядок перечисления определяет порядок в библиографии (только внутри подраздела, если `\insertbiblioauthorgrouped`).
     %  * Если не соблюдать порядок "как для \printbibliography", нумерация в `\insertbiblioauthor` будет кривой.
     %  * Если цитировать каждый источник отдельной командой --- найти некоторые ошибки будет проще.
     %
-    
-    \expandafter\def\csname blx@maxbibnames\endcsname{99}% sorokin set et.al max names
-    
-    %% authorvak
-    \nocite{vakbib1}%
-    \nocite{vakbib2}%
-    %
-    %% authorwos
-    \nocite{wosbib1}%
-    %
-    %% authorscopus
-    \nocite{scbib1}%
-    %
-    %% authorpathent
-    \nocite{patbib1}%
-    %
-    %% authorprogram
-    \nocite{progbib1}%
-    %
-    %% authorconf
-    \nocite{confbib1}%
-    \nocite{confbib2}%
-    \nocite{confbib3}%
-    \nocite{confbib4}%
-    %
-    %% authorother
-    \nocite{bib1}%
-    \nocite{bib2}%
 
-    \ifnumgreater{\value{usefootcite}}{0}{
-        \begin{refcontext}[labelprefix={}]
-            \ifnum \value{bibgrouped}>0
-                \insertbiblioauthorgrouped    % Вывод всех работ автора, сгруппированных по источникам
-            \else
-                \insertbiblioauthor      % Вывод всех работ автора
-            \fi
-        \end{refcontext}
-    }{
-        \ifnum \totvalue{citeexternal}>0
-            \begin{refcontext}[labelprefix=A]
-                \ifnum \value{bibgrouped}>0
-                    \insertbiblioauthorgrouped    % Вывод всех работ автора, сгруппированных по источникам
-                \else
-                    \insertbiblioauthor      % Вывод всех работ автора
-                \fi
-            \end{refcontext}
-        \else
-            \ifnum \value{bibgrouped}>0
-                \insertbiblioauthorgrouped    % Вывод всех работ автора, сгруппированных по источникам
-            \else
-                \insertbiblioauthor      % Вывод всех работ автора
-            \fi
-        \fi
-        %  \insertbiblioauthorimportant  % Вывод наиболее значимых работ автора (определяется в файле characteristic во второй section)
-        
-        \expandafter\def\csname blx@maxbibnames\endcsname{3}% sorokin reset et.al max names
-
-        \begin{refcontext}[labelprefix={}]
-            \insertbiblioexternal            % Вывод списка литературы, на которую ссылались в тексте автореферата
-        \end{refcontext}
-        % Невидимый библиографический список для подсчёта количества внешних публикаций
-        % Используется, чтобы убрать приставку "А" у работ автора, если в автореферате нет
-        % цитирований внешних источников.
-        \printbibliography[heading=nobibheading, section=0, env=countexternal, keyword=biblioexternal, resetnumbers=true]%
-    }
+    \insertbiblioexternal            % Вывод списка литературы, на которую ссылались в тексте автореферата
 }
 \ifdefmacro{\microtypesetup}{\microtypesetup{protrusion=true}}{}
 \urlstyle{tt}                               % возвращаем установки шрифта ссылок URL
