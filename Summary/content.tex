@@ -61,7 +61,6 @@ We formulate the following \underline{\textbf{goals of this research}}:
 
 \section*{\centering{PUBLICATIONS AND APPROBATION OF RESEARCH}}
 
-\expandafter\def\csname blx@maxbibnames\endcsname{99}% sorokin set et.al max names
 \paragraph{First-tier publications} 
 \begin{refsection} 
     \nocite{confbib1}
@@ -291,32 +290,32 @@ a =
 \end{equation}
 Such a renormalization leads to actions in the interval $|a|\in\{0\}\cup[2.5 \cdot 10^{-3}, 1]$.
 
-Далее обосновывается выбор функции награды. Видность интерференции $V$ не является хорошей наградой, так как она не позволяет агенту достоверно различать состояния с видностью вблизи 1, что важно при проведении экспериментов. Была выбрана функция награды $r = V - \log(1 - V)$, где V - видность интерференционной картины. С такой функцией награды агент получает награду не только в начале, но и в конце эпизода когда видность близка к 1. 
+Next, we substantiate the choice of the reward function. The visibility of the interference pattern $V$ is not a good reward, as it does not allow the agent to differentiate states with $V$ close to 1, which is important in experiments. We chose the reward function $r = V - \log(1 - V)$. This reward function allows the agent to distinguish between the states which are closed to the aligned position. 
 
-Для того чтобы обученного в симуляции агента можно было применять на экспериментальной установке при обучении использовались рандомизации среды основанные на неопределенности параметров установки. В начале каждого эпизода мы случайно изменяли радиус луча на ±20\%, так как этот параметр сложно точно измерить. Изменение радиуса также помогает бороться с отклонением профиля экспериментального луча от распределения Гаусса. Следующие рандомизации использовались на каждом шаге. Во-первых, мы случайно изменяли яркость интерференционной картины на ±30\%, что моделирует различное время выдержки камеры. Во вторых мы добавили 20\% белого шума в каждый пиксел изображения, что можно рассматривать как шум камеры, так и как наличие пыли на камере \ref{fig:noise}. В третьих мы добавили циклический сдвиг интерференционных изображений полученных за один проход пьезо зеркала и рандомизировали соотношение времен прямого и обратного проходов пьезо зеркала. Отношение числа изображений полученных во время прямого прохода было больше чем 50\%. 
+In order to transfer the trained agent on the experimental setup without substantial performance loss we trained it in simulation with environment randomizations based on the uncertainty of the setup parameters. At the beginning of each episode, we varied the beam radius by ±20\%, since this parameter is difficult to accurately measure. Changing the radius also helps to overcome the deviation of the experimental beam profile from the Gaussian distribution. The following randomizations were used at each step. First, we varied the brightness of the interference pattern by ±30\%, which simulates different camera exposure times. Second, we've added 20\% white noise to each pixel of the image, which can be seen as camera noise or dust on the camera \ref{fig:noise}. Thirdly, we added a cyclic shift of the interference images obtained in one pass of the piezo mirror and randomized the ratio of the times of forward and backward passes of the piezo mirror. The ratio of the number of images obtained during the forward pass was always greater than 50\%.
 
 \begin{figure}[ht]
     \centerfloat{
         \includegraphics[width=0.8\linewidth]{images/dqn_vs_td3}
     }
-    \caption{Тестирование агентов на экспериментальной установке}\label{fig:interf_test}
+    \caption{Evaluation of the agents on experimental setup.}\label{fig:interf_test}
 \end{figure}
 
-В заключении главы описываются основные характеристики программно-аппаратного комплекса предназначенного для тестирования обученного агента на экспериментальной установке; приводятся результаты тестирования агентов на экспериментальной установке; приводится сравнение качества настройки интерферометра с человеком и анализ стратегии, используемой агентами при настройке интерферометра. Результаты тестирования приведены на рисунке \ref{fig:interf_test}. По оси абсцисс отложен номер шага настройки, по оси ординат отложена достигнутая видность. Результаты усреднены по 100 эпизодам. Из рисунка \ref{fig:interf_test} видно, что оба метода достигают хорошего значения видности интерференционной картины, но агент TD3 использующий непрерывное пространство действий работает быстрее и достигает лучшей видности чем DQN агент использующий дискретное пространство действий. 
+After, we describe the main characteristics of the developed hardware-software complex and present the results of evaluation of the agents on the experimental setup. We compare the quality of the interferometer alignment of the developed agents with an expert and an analyse the strategy used by agents when aligning the interferometer. The evaluation results are shown in the figure \ref{fig:interf_test}. The number of steps of the agent is plotted along the abscissa axis, the achieved visibility is plotted along the ordinate axis. Results are averaged over 100 episodes. From the figure \ref{fig:interf_test} it can be seen that both methods achieve a good value for the visibility of the interference pattern, but the TD3 agent which uses the continuous action space is faster and achieves better visibility than the DQN agent which operates in the discrete action space.
 
-Результаты сравнения качества настройки интерферометра разработанным методом с экспертом приведены в таблице \ref{tab:human}. Из нее видно, что агент использующий дискретное пространство действий работает на уровне человека как по качеству настройки, так и по скорости. TD3-агент использующий непрерывное пространство действий настраивает интерферометр существенно лучше, чем человек. 
+The evaluation results of the interferometer alignment by the developed methods are presented in the table \ref{tab:human}. It can be seen that the agent using the discrete action space works at the human level both in terms of the quality of the setting and in terms of speed. TD3 agent using a continuous action space aligns the interferometer much better than a human.
 
 \begin{table} [htbp]
     \centering
     \begin{threeparttable}
-        \caption{Сравнение разработанных методов с экспертом. В таблице приведено время требуемое для достижения видности интерференции 0.92, 0.95 и 0.98. Также в скобках приведен процент эпизодов когда эта видность не достигнута.}
+        \caption{Comparison of the developed methods with an expert. The table shows the time required to achieve interference visibility of 0.92, 0.95 and 0.98. Percentage of episodes where this visibility was not achieved is shown in brackets.}
         \label{tab:human}
         \begin{tabular}{| p{2.5cm} || p{2.5cm} | p{2.5cm} | p{2.5cm} |}
             \hline
             \hline
             &V $\ge 0.92$ & V $\ge 0.95$ & V $\ge 0.98$\\
             \hline
-            Эксперт &  93.9 (\textbf{0\%})  & 103.6 (\textbf{0\%}) & 129.6 (10\%)\\
+            Expert &  93.9 (\textbf{0\%})  & 103.6 (\textbf{0\%}) & 129.6 (10\%)\\
             TD3 &  \textbf{56.16} (\textbf{0\%}) & \textbf{75.06} (\textbf{0\%}) & \textbf{120.1} (\textbf{4\%})\\
             DQN &  98.7 (7.6\%) & 116.1 (7.6\%) & 156.4 (10.6\%)\\
             \hline
@@ -325,9 +324,47 @@ Such a renormalization leads to actions in the interval $|a|\in\{0\}\cup[2.5 \cd
     \end{threeparttable}
 \end{table}
 
-Результаты работы опубликованы в статьях \cite{confbib1, confbib2} на ведущих научных конференциях <<Neural information processing systems (NeurIPS)>> и <<Conference on Robot Learning (CoRL)>> также на программу автоматической настройки интерферометра по изображениям с камеры с использованием машинного обучения получен РИД \cite{progbib1}.
+The results of the work were published in the articles \cite{confbib1, confbib2} at the leading scientific conferences <<Neural information processing systems (NeurIPS)>> and <<Conference on Robot Learning (CoRL)>> also the developed program was patented \cite{progbib1}.
 
-\underline{\textbf{Третья глава}} посвящена исследованию методов машинного обучения с подкреплением для использования в среде Nethack. Среда Nethack основана на одноименной игре и предложена в качестве теста для алгоритмов машинного обучения в 2020 году \cite{nethack}. В этой игре агент путешествует по процедурно генерируемому подземелью. Игра имеет ascii интерфейс изображенный на рисунке \ref{fig:nethack}.
+\underline{\textbf{Chapter three}} is devoted to the development of a reinforcement learning method for motion control of the Unitree A1~\cite{unitree} robot. We developed a reward function that encourages the agent to learn safe and smooth movement strategy at a target speed. The agent was trained and tested in a simulation using the Raisim \cite{raisim} simulator. The agent was trained using the PPO~\cite{Schulman2017ProximalPO} algorithm as a backbone. We added a noise to the observations and applied a force to the torso of the robot in a random direction to force the agent to learn a stable moving policy during training. The observation space consists of the information about the orientation, speed of the robot, and the position and speed of its joints. The action space was continuous and each action corresponded to the desired position of the robot joints. Evaluation results are shown in tab.~\ref{tab:unitree_eval} and in fig.~ \ref{fig:unitree_eval_forward}. 
+
+The table \ref{tab:unitree_eval} presents the evaluation results for the tasks ``Move forward'', ``Move backward'', ``Turn clockwise'' and ``Rotate counterclockwise''. It can be seen that for the tasks ``Move forward'', ``Move backward'' the learned policy is more stable and the number of steps is close to the maximum length of the episode. In the ``Turn Clockwise'' and ``Turn Counterclockwise'' tasks, the learned policy is less stable, resulting in lower overall rewards and lower average number of steps. The reason for this may be that the random force which was applied both during training and during testing  destabilizes a turning agent more than a one moving straight.
+
+\begin{figure}[h]
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=1\textwidth]{images/vx}
+\end{subfigure}%
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=1\textwidth]{images/dx}
+\end{subfigure}%
+\caption{Evaluation of the task ``Move forward at a given speed''. (a) Speed of the agent $V_x$ as a function of target speed $V_{target}$. (b) Distance traveled by the agent by the end of episode $d_x$ as a function of the target speed $V_{target}$.}
+\label{fig:unitree_eval_forward}
+\end{figure}
+
+Figure~\ref{fig:unitree_eval_forward} shows the results of evaluation of the trained policy in the ``Move forward at a given speed'' task. It can be seen from fig.~\ref{fig:unitree_eval_forward}a that the trained agent is able to move at different speeds and the speed is close to the target speed. The distance traveled by the agent along the $x$ axis is shown in fig.~\ref{fig:unitree_eval_forward}b. At the target speed $V_{target} \in$ (0, 0.6) m/s, the distance traveled by the end of the episode increases. When the target speed is greater than 0.6 m/s, the distance traveled is almost constant and equal to the distance from the agent to the edge of the environment.
+
+\begin{table} [htbp]
+    \centering
+    \begin{threeparttable}
+        \caption{Evaluation results for the Unitree A1 robot in simulation}\label{tab:unitree_eval}
+        \begin{tabular}{| p{2cm} || p{2cm} | p{2cm} | p{2cm} |p{2.5cm} |}
+            \hline
+            \hline
+            Task & Move forward & Move backward & Turn clockwise & Turn counterclockwise \\
+            \hline
+            Return &	529 $\pm$ 124 &	508 $\pm$ 98 &	85 $\pm$ 219 &	165 $\pm$ 155 \\
+            Number of steps & 3263 $\pm$ 633 &	3136 $\pm$ 545 &	2057 $\pm$ 1208 &	2095 $\pm$ 1325 \\
+            \hline
+            \hline
+        \end{tabular}
+    \end{threeparttable}
+\end{table}
+
+The obtained results show that the linear and angular speed of the Unitree A1 robot can be controlled by the proposed reinforcement learning method with a good quality.
+
+\underline{\textbf{Четвертая глава}} посвящена исследованию методов машинного обучения с подкреплением для использования в среде Nethack. Среда Nethack основана на одноименной игре и предложена в качестве теста для алгоритмов машинного обучения в 2020 году \cite{nethack}. В этой игре агент путешествует по процедурно генерируемому подземелью. Игра имеет ascii интерфейс изображенный на рисунке \ref{fig:nethack}.
 
 \begin{figure}[ht]
     \centerfloat{
@@ -363,46 +400,6 @@ $state, done \gets env.reset(), False$\;
   state, reward, done, info = env.step(action\_queue)\;
 }
 \end{algorithm}
-
-\underline{\textbf{Четвертая глава}} посвящена разработке метода основанного на обучении с подкреплением для управления движением
-робота Unitree A1~\cite{unitree}. Для обучения стратегии была разработана функция награды
-которая побуждает агента выучивать безопасное и плавное движение с заданной скоростью. Обучение и тестирование агента производилось в симуляции с использованием симулятора Raisim \cite{raisim}. Обучение агента производилось с помощью алгоритма PPO~\cite{Schulman2017ProximalPO}. Для того чтобы агент выучил устойчивую стратегию во время
-обучения в наблюдения добавлялись шумы и на робота воздействовала сила в случайном направлении. Пространство состояний включало в себя информацию об ориентации, скорости робота, а также положения и скорости его суставов. Пространство действий было непрерывным и каждое действие соответствовало желаемому положению составов робота. Результаты тестирования приведены в таб.~\ref{tab:unitree_eval} и на рис.~ \ref{fig:unitree_eval_forward}. В таблице \ref{tab:unitree_eval} приведены результаты тестирования обученного агента для задач ``Движение вперед'', ``Движение назад'', ``Поворот по часовой стрелке'' и ``Поворот против часовой стрелки''. Видно, что для задач ``Движение вперед'', ``Движение назад'' стратегия более стабильна и число шагов близко к максимальной длине эпизода. В задачах ``Поворот по часовой стрелке'' и ``Поворот против часовой стрелки'' выученная стратегия менее стабильна, что приводит к меньшей суммарной награде и меньшему среднему числу шагов. Причиной этому может служить то, что случайная сила прикладываемая во время обучения и во время тестирования для обучения устойчивой стратегии дестабилизирует поворачивающегося агента больше чем движущегося прямо.
-
-\begin{figure}[h]
-\begin{subfigure}{.5\textwidth}
-  \centering
-  \includegraphics[width=1\textwidth]{images/vx}
-\end{subfigure}%
-\begin{subfigure}{.5\textwidth}
-  \centering
-  \includegraphics[width=1\textwidth]{images/dx}
-\end{subfigure}%
-\caption{Тестирование задачи ``Движение вперед с заданной скоростью''. (a) Скорость робота $V_x$ как функция целевой скорости $V_{target}$. (b) Расстояние пройденное роботом к концу эпизода $d_x$ как функция целевой скорости $V_{target}$.}
-\label{fig:unitree_eval_forward}
-\end{figure}
-
-На рис.~\ref{fig:unitree_eval_forward} представлены результаты тестирования обученной стратегии в задаче ``Движение вперед с заданной скоростью''. Из рис.~\ref{fig:unitree_eval_forward}a видно, что обученный агент способен двигаться с различной скоростью и его скорость близка к целевой скорости. Расстояние пройденное агентом вдоль оси $x$ показано на рис.~\ref{fig:unitree_eval_forward}b. При целевой скорости $V_{target} \in$ (0, 0.6) м/с расстояние пройденное к концу эпизода растет. При целевой скорости больше 0.6 м/с пройденное расстояние практически постоянно и равно расстоянию от агента до края среды.
-
-\begin{table} [htbp]
-    \centering
-    \begin{threeparttable}
-        \caption{Результаты тестирования обученного агента в симуляции}\label{tab:unitree_eval}
-        \begin{tabular}{| p{2cm} || p{2cm} | p{2cm} | p{2cm} |p{2cm} |}
-            \hline
-            \hline
-            Задача & Движение вперед & Движение назад & Поворот по часовой стрелке & Поворот против часовой стрелки \\
-            \hline
-            Суммарная награда &	529 $\pm$ 124 &	508 $\pm$ 98 &	85 $\pm$ 219 &	165 $\pm$ 155 \\
-            Число шагов & 3263 $\pm$ 633 &	3136 $\pm$ 545 &	2057 $\pm$ 1208 &	2095 $\pm$ 1325 \\
-            \hline
-            \hline
-        \end{tabular}
-    \end{threeparttable}
-\end{table}
-
-Полученные результаты показывают, что линейной и угловой скоростью робота Unitree A1 с хорошим качеством можно управлять с помощью обучения с подкреплением. 
-
 
 
 \FloatBarrier
