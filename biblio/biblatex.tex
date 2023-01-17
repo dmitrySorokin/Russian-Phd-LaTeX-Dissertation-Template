@@ -12,7 +12,7 @@ style=gost-numeric,% стиль цитирования и библиографи
 language=autobib,% получение языка из babel/polyglossia, default: autobib % если ставить autocite или auto, то цитаты в тексте с указанием страницы, получат указание страницы на языке оригинала
 autolang=other,% многоязычная библиография
 clearlang=true,% внутренний сброс поля language, если он совпадает с языком из babel/polyglossia
-defernumbers=true,% нумерация проставляется после двух компиляций, зато позволяет выцеплять библиографию по ключевым словам и нумеровать не из большего списка
+defernumbers=false,% dsorokin (was true) нумерация проставляется после двух компиляций, зато позволяет выцеплять библиографию по ключевым словам и нумеровать не из большего списка
 sortcites=true,% сортировать номера затекстовых ссылок при цитировании (если в квадратных скобках несколько ссылок, то отображаться будут отсортированно, а не абы как)
 doi=false,% Показывать или нет ссылки на DOI
 isbn=false,% Показывать или нет ISBN, ISSN, ISRN
@@ -281,18 +281,6 @@ sorting=none,% настройка сортировки списка литера
     }
 }{}
 
-\ifsynopsis
-\else
-\DeclareSourcemap{ %модификация bib файла перед тем, как им займётся biblatex
-    \maps{
-        \map[overwrite]{% стираем значения всех полей addendum
-            \perdatasource{biblio/author.bib}
-            \step[fieldset=addendum, null] %чтобы избавиться от информации об объёме авторских статей, в отличие от автореферата
-        }
-    }
-}
-\fi
-
 %\ifresume
 % dsorokin: print quantile of papers 
 \DeclareSourcemap{
@@ -317,43 +305,6 @@ sorting=none,% настройка сортировки списка литера
 
 %\fi
 
-\ifpresentation
-% удаляем лишние поля в списке литературы презентации
-% их названия можно узнать в файле presentation.bbl
-\DeclareSourcemap{
-    \maps{
-    \map[overwrite,foreach={%
-        % {{{ Список лишних полей в презентации
-        address,%
-        chapter,%
-        edition,%
-        editor,%
-        eid,%
-        howpublished,%
-        institution,%
-        key,%
-        month,%
-        note,%
-        number,%
-        organization,%
-        pages,%
-        publisher,%
-        school,%
-        series,%
-        type,%
-        media,%
-        url,%
-        doi,%
-        location,%
-        volume,%
-        % Список лишних полей в презентации }}}
-    }]{
-        \perdatasource{biblio/author.bib}
-        \step[fieldset=$MAPLOOP,null]
-    }
-    }
-}
-\fi
 
 \defbibfilter{vakscopuswos}{%
     keyword=biblioauthorvak or keyword=biblioauthorscopus or keyword=biblioauthorwos
