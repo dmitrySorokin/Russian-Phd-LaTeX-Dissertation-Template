@@ -13,6 +13,8 @@
 
 
 \begin{align*}
+& s_{t+1} \sim p(s, a) \\
+& r_{t+1} = \mathcal{R}(s, a, s_{t+1}) \\
 & \ex_{\tau \sim \pi_{\theta}} [J(\tau)] = \ex_{\tau \sim \pi_{\theta}} \left[r_0 + \gamma r_{1} + \gamma ^ 2 r_{2} + ...\right] \\
 & V(s_t) = \ex\left[\sum \gamma ^t r_{t}\right] \\
 & Q(s_t, a_t) = \ex\left[r_t + \sum \gamma ^{t + 1} r_{t + 1}\right] \\
@@ -23,6 +25,22 @@
 \section{Разработка метода, способного оперировать действиями различного масштаба, устойчивого к оптическим шумам, и его применение для настройки оптического интерферометра}
 
 \subsection{Постановка задачи}
+
+\begin{frame}{Постановка задачи оптимизации}
+
+$$Q(s_t,a) = \ex_{r_{t+1},s_{t+1}}\left[r_{t+1} + \gamma \max_{a^{\prime} \in \mathcal{A}}Q(s_{t+1},a^{\prime})\right]$$
+$$\pi = \argmax_{a \in \mathcal{A}}Q(s,a)$$
+
+Особенности:
+\begin{enumerate}
+    \item Произвольное начальное состояние $s_0 \in \mathcal{S}$.
+    \item Оптимальная стратегия должна оперировать действиями различного масштаба $a \sim \pi^*(s): \min(a) \ll \max(a)$.
+    \item Высокая размерность пространства состояний $s \in \mathcal{R}^N$
+    \item Перенос из симуляции на физическую установку.\\
+    Train: $s_{t+1} \sim p_{\mathrm{sim}}(s, a)$.
+    Test: $s_{t+1} \sim p_{\mathrm{exp}}(s, a + \zeta)$.
+\end{enumerate}
+\end{frame}
 
 \begin{frame}
 \frametitle{Физические принципы работы и модель оптического интерферометра}
@@ -450,6 +468,19 @@ C++, Python3\\
 
 \section{Метод управления линейной и угловой скоростью шагающего робота основанный на обучении с подкреплением}
 
+\begin{frame}{Постановка задачи оптимизации}
+
+$$V(s) = \max_{a \in \mathcal{A}}\ex_{r_{t+1},s_{t+1}}\left[r_{t+1} + \gamma V(s_{t+1})\right]$$
+$$\pi(s) = \argmax_{a \in \mathcal{A}}\ex_{r_{t+1},s_{t+1}}\left[r_{t+1} + \gamma V(s_{t+1})\right]$$
+
+Особенности:
+\begin{enumerate}
+    \item Многозадачность $s = (o, t)$, $t$ - текущая задача.
+    \item Изменение функции награды по расписанию для избегания локальных оптимумов. 
+    \item Высокая размерность пространства состояний $s \in \mathcal{R}^N$.
+\end{enumerate}
+\end{frame}
+
 \begin{frame}{Постановка задачи управления шагающим роботом}
 \begin{columns}
 \column{0.5\linewidth}
@@ -530,6 +561,20 @@ C++, Python3\\
 нейросетевой подходы и его применение для управления агентом в среде NetHack}
 
 \subsection{Декомпозиция игры NetHack на подзадачи}
+
+\begin{frame}{Постановка задачи оптимизации}
+
+$$V(s) = \max_{a \in \mathcal{A}}\ex_{r_{t+1},s_{t+1}}\left[r_{t+1} + \gamma V(s_{t+1})\right]$$
+$$\pi(s) = \argmax_{a \in \mathcal{A}}\ex_{r_{t+1},s_{t+1}}\left[r_{t+1} + \gamma V(s_{t+1})\right]$$
+
+Особенности:
+\begin{enumerate}
+    \item Процедурная генерация среды.
+    \item Разреженная функция награды $|s| \ll |\mathcal{S}|$ для $s: r(s,a,s') \neq 0$.
+    \item Необходимость следования различным стратегиям в зависимости от текущего состояния. 
+    \item Многомодальные наблюдения $s = (s_{\mathrm{text}}, s_{\mathrm{img}}, s_{\mathrm{num}})$.
+\end{enumerate}
+\end{frame}
 
 \begin{frame}
 \frametitle{NetHack challenge}
