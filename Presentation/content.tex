@@ -13,8 +13,8 @@
 
 
 \begin{align*}
-& s_{t+1} \sim p(s, a) \\
-& r_{t+1} = \mathcal{R}(s, a, s_{t+1}) \\
+& s_{t+1} \sim p(s_t, a) \\
+& r_{t+1} = \mathcal{R}(s_t, a, s_{t+1}) \\
 & \ex_{\tau \sim \pi_{\theta}} [J(\tau)] = \ex_{\tau \sim \pi_{\theta}} \left[r_0 + \gamma r_{1} + \gamma ^ 2 r_{2} + ...\right] \\
 & V(s_t) = \ex\left[\sum \gamma ^t r_{t}\right] \\
 & Q(s_t, a_t) = \ex\left[r_t + \sum \gamma ^{t + 1} r_{t + 1}\right] \\
@@ -34,7 +34,7 @@ $$\pi = \argmax_{a \in \mathcal{A}}Q(s,a)$$
 Особенности:
 \begin{enumerate}
     \item Произвольное начальное состояние $s_0 \in \mathcal{S}$.
-    \item Оптимальная стратегия должна оперировать действиями различного масштаба $a \sim \pi^*(s): \min(a) \ll \max(a)$.
+    \item Оптимальная стратегия должна оперировать действиями различного масштаба $a \sim \pi^*(s): \min(|a|) \ll \max(|a|)$.
     \item Высокая размерность пространства состояний $s \in \mathcal{R}^N$
     \item Перенос из симуляции на физическую установку.\\
     Train: $s_{t+1} \sim p_{\mathrm{sim}}(s, a)$.
@@ -470,13 +470,13 @@ C++, Python3\\
 
 \begin{frame}{Постановка задачи оптимизации}
 
-$$V(s) = \max_{a \in \mathcal{A}}\ex_{r_{t+1},s_{t+1}}\left[r_{t+1} + \gamma V(s_{t+1})\right]$$
-$$\pi(s) = \argmax_{a \in \mathcal{A}}\ex_{r_{t+1},s_{t+1}}\left[r_{t+1} + \gamma V(s_{t+1})\right]$$
+$$V(s_t) = \max_{a \in \mathcal{A}}\ex_{r_{t+1},s_{t+1}}\left[r_{t+1} + \gamma V(s_{t+1})\right]$$
+$$\pi(s_t) = \argmax_{a \in \mathcal{A}}\ex_{r_{t+1},s_{t+1}}\left[r_{t+1} + \gamma V(s_{t+1})\right]$$
 
 Особенности:
 \begin{enumerate}
     \item Многозадачность $s = (o, t)$, $t$ - текущая задача.
-    \item Изменение функции награды по расписанию для избегания локальных оптимумов. 
+    \item Изменение функции награды по расписанию для избегания сходимости к суб-оптимальной стратегии. 
     \item Высокая размерность пространства состояний $s \in \mathcal{R}^N$.
 \end{enumerate}
 \end{frame}
@@ -564,13 +564,13 @@ $$\pi(s) = \argmax_{a \in \mathcal{A}}\ex_{r_{t+1},s_{t+1}}\left[r_{t+1} + \gamm
 
 \begin{frame}{Постановка задачи оптимизации}
 
-$$V(s) = \max_{a \in \mathcal{A}}\ex_{r_{t+1},s_{t+1}}\left[r_{t+1} + \gamma V(s_{t+1})\right]$$
-$$\pi(s) = \argmax_{a \in \mathcal{A}}\ex_{r_{t+1},s_{t+1}}\left[r_{t+1} + \gamma V(s_{t+1})\right]$$
+$$V(s_t) = \max_{a \in \mathcal{A}}\ex_{r_{t+1},s_{t+1}}\left[r_{t+1} + \gamma V(s_{t+1})\right]$$
+$$\pi(s_t) = \argmax_{a \in \mathcal{A}}\ex_{r_{t+1},s_{t+1}}\left[r_{t+1} + \gamma V(s_{t+1})\right]$$
 
 Особенности:
 \begin{enumerate}
     \item Процедурная генерация среды.
-    \item Разреженная функция награды $|s| \ll |\mathcal{S}|$ для $s: r(s,a,s') \neq 0$.
+    \item Разреженная функция награды $|s| \ll |\mathcal{S}|: r(s,a,s') \neq 0$.
     \item Необходимость следования различным стратегиям в зависимости от текущего состояния. 
     \item Многомодальные наблюдения $s = (s_{\mathrm{text}}, s_{\mathrm{img}}, s_{\mathrm{num}})$.
 \end{enumerate}
