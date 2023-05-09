@@ -1,46 +1,143 @@
+\metroset{sectionpage=none}
+\section{Глава 2. Разработка метода, способного оперировать действиями различного масштаба, устойчивого к шумам, и его применение для настройки оптического интерферометра 
+}
+
 \begin{frame}
-\frametitle{Обучение с подкреплением}
-\begin{columns}
-\column{0.4\linewidth}
-  \centering
-  \includegraphics[width=1\linewidth]{images/rl_setting.pdf}
-  
-  \begin{equation*}
-    <\mathcal{S, A, R, P}, \gamma>
-  \end{equation*}
-
-\column{0.6\linewidth}
-
-
-\begin{align*}
-& s_{t+1} \sim p(s_t, a) \\
-& r_{t+1} = \mathcal{R}(s_t, a, s_{t+1}) \\
-& \ex_{\tau \sim \pi_{\theta}} [J(\tau)] = \ex_{\tau \sim \pi_{\theta}} \left[r_0 + \gamma r_{1} + \gamma ^ 2 r_{2} + ...\right] \\
-& V(s_t) = \ex\left[\sum \gamma ^t r_{t}\right] \\
-& Q(s_t, a_t) = \ex\left[r_t + \sum \gamma ^{t + 1} r_{t + 1}\right] \\
-\end{align*}
-\end{columns} 
+    \frametitle{Структура диссертационной работы}
+    \begin{itemize}
+        \item \underline{Глава 1.} Обзор методов обучения с подкреплением и их применения в роботике. 
+        {\color{orange}\item \underline{Глава 2.} Разработка метода, способного оперировать действиями различного масштаба, устойчивого к шумам, и его применение для настройки оптического интерферометра (вызов 1,2).}
+        \item \underline{Глава 3.} Метод, который позволяет достичь сходимости к хорошему оптимутму для многозадачного агента и его применение  для управления движением шагающего робота (вызов 3).
+        \item \underline{Глава 4.} Иерархический алгоритм, комбинирующий алгоритмический и нейросетевой подходы и его применение для управления агентом в среде NetHack (вызов 4).
+    \end{itemize}
 \end{frame}
 
-\section{Разработка метода, способного оперировать действиями различного масштаба, устойчивого к оптическим шумам, и его применение для настройки оптического интерферометра}
-
-\subsection{Постановка задачи}
 
 \begin{frame}{Постановка задачи оптимизации}
 
-$$Q(s_t,a) = \ex_{r_{t+1},s_{t+1}}\left[r_{t+1} + \gamma \max_{a^{\prime} \in \mathcal{A}}Q(s_{t+1},a^{\prime})\right]$$
+$$Q(s_t,a_t) = \ex_{r_{t+1},s_{t+1}}\left[r_{t+1} + \gamma \max_{a^{\prime} \in \mathcal{A}}Q(s_{t+1},a^{\prime})\right]$$
 $$\pi = \argmax_{a \in \mathcal{A}}Q(s,a)$$
 
 Особенности:
 \begin{enumerate}
     \item Произвольное начальное состояние $s_0 \in \mathcal{S}$.
-    \item Оптимальная стратегия должна оперировать действиями различного масштаба $a \sim \pi^*(s): \min(|a|) \ll \max(|a|)$.
+    \item Оптимальная стратегия должна оперировать действиями различного масштаба $a \sim \pi^*(s): \color{red}{\min(|a|) \ll \max(|a|)}$.
     \item Высокая размерность пространства состояний $s \in \mathcal{R}^N$
     \item Перенос из симуляции на физическую установку.\\
-    Train: $s_{t+1} \sim p_{\mathrm{sim}}(s, a)$.
-    Test: $s_{t+1} \sim p_{\mathrm{exp}}(s, a + \zeta)$.
+    Обучение: \hspace{12pt}$s_{t+1} \sim p_{\mathrm{sim}}(s_t, a_t)$.\\
+    Применение: $s_{t+1} \sim {\color{red}p_{\mathrm{exp}}}(s_t, a_t + {\color{red}\zeta})$.
 \end{enumerate}
 \end{frame}
+
+\begin{frame}{Алгоритм 1: Подбор параметров симулятора и их рандомизация \footnotemark \footnotemark}
+
+\vspace{-10pt}
+\begin{minipage}{\linewidth}
+
+\begin{columns}
+\column{0.5\linewidth}
+Train: $s_{t+1} \sim p_{\mathrm{sim}}(s_t, a_t, \theta_1, ..., \theta_n)$
+Test: $s_{t+1} \sim {\color{red}p_{\mathrm{exp}}}(s_t, a_t + {\color{red}\zeta})$
+\vspace{10pt}
+\begin{enumerate}
+    \item Подбирем средние значения параметров $\theta_1, ..., \theta_n$: $<s_{\mathrm{sim}}>$ $\sim$ $<s_{\exp}>$
+
+    \item Зашумляем $\theta \gets [\theta_{\min}, \theta_{\max}]$ для устойчивости к шумам
+\end{enumerate}
+
+\column{0.5\linewidth}
+\begin{algorithm}[H]
+\KwData{
+$<s_{\exp}> \sim p_{\exp}(s_t, a_t)$\\
+$<s_{\mathrm{sim}}> \sim p_{\mathrm{sim}}(s_t, a_t, \theta)$
+}
+\KwResult{$\theta_1, ..., \theta_n$} 
+$\varepsilon \gets f(<s_{sim}>, <s_{\exp}>)$\;
+\While{$\varepsilon > \varepsilon_{\min}$}{
+  $\theta$ = optimizer.step()\;
+  $<s_{\mathrm{sim}}> \sim p_{\mathrm{sim}}(s_t, a_t, \theta)$\;
+  $\varepsilon \gets f(<s_{sim}>, <s_{\exp}>)$\;
+}
+\end{algorithm}
+Подбор значений параметров $\theta$. 
+\end{columns}
+\end{minipage}
+
+%\vspace{10pt}
+\begin{minipage}{\linewidth}
+\fontsize{8pt}{10pt}\selectfont
+    \emph{Замечание}: Если агент устойчив к шуму в наблюдениях, то шум в действиях $a_t + \zeta$ не будет влиять на стратегию агента, если он является несмещенным $\ex a_t + \zeta = a_t$
+\end{minipage}
+
+\setcounter{footnote}{0} 
+\footnotetext[1]{Peng, X. B., Andrychowicz, M., Zaremba, W., Abbeel, P. Sim-to-Real Transfer of Robotic Control with Dynamics Randomization. ICRA (2018).}
+\footnotetext[2]{Rao, K., Harris, C., Irpan, A., Levine, S., Ibarz, J., and Khansari, M. RL-CycleGAN: Reinforcement Learning Aware Simulation-to-Real. CVPR (2020).}
+
+\end{frame}
+
+\begin{frame}{Алгоритм 2: Масштабирование действий}
+
+\begin{minipage}{\linewidth}
+\begin{columns}
+\column{0.5\linewidth}
+\begin{align*}
+& a \in \mathcal{R}^n: a_i \in [-1, 1] \\
+& a_i^{\prime} =
+   \begin{cases}
+    {\mathrm{sign}}(a_i) \cdot b^{|a_i| - 1}, |a_i| > a_{\min}, b \gg 1
+    \\
+    0
+  \end{cases}
+\end{align*}
+
+\column{0.5\linewidth}
+\begin{figure}
+    \centering
+    \includegraphics[width=1\linewidth]{images/rescale.pdf}
+\end{figure}
+
+\end{columns}
+
+\end{minipage}
+\begin{minipage}{\linewidth}
+\begin{columns}
+\column{0.5\linewidth}
+    Пример: CartPole Continous
+    \begin{tabular}{c|c|c}
+         & return & center \\ 
+         \hline
+         rescaled &  2756 $\pm$ 842 & -0.04 $\pm$ 0.09\\
+         raw & 1692 $\pm$ 932 & 0.03 $\pm$ 0.22 
+    \end{tabular}
+
+\column{0.4\linewidth}
+\begin{figure}
+    \centering
+    \includegraphics[width=1\linewidth]{Presentation/images/cartpole.png}
+\end{figure}
+\end{columns}
+\end{minipage}
+
+
+    
+\end{frame}
+
+
+
+\begin{frame}{Практическая задача: Настройка оптического интерферометра}
+\vspace{-30pt}
+\begin{figure}
+  \centering
+  \includegraphics[width=1\linewidth]{Presentation/images/labinterf.jpg}
+\end{figure}
+\vspace{-10pt}
+
+\setcounter{footnote}{0} 
+Смежные задачи рассматривались в работах\footnote{Degrave, J., Felici, F., Buchli, J. et al. Magnetic control of tokamak plasmas through deep reinforcement learning. Nature 602, 414–419 (2022).}
+\footnote{Chen, IJ., Aapro, M., Kipnis, A. et al. Precise atom manipulation through deep reinforcement learning. Nat Commun 13, 7499 (2022).}
+\end{frame}
+
+\subsection{Постановка задачи}
 
 \begin{frame}
 \frametitle{Физические принципы работы и модель оптического интерферометра}
@@ -198,7 +295,7 @@ $$\pi = \argmax_{a \in \mathcal{A}}Q(s,a)$$
 \end{align*}
 \column{0.7\linewidth}
 \begin{align*}
-& \begin{bmatrix} A & B \\ C & D \end{bmatrix}=\begin{bmatrix} 1 & d \\ 0 & 1 \end{bmatrix} \hspace{25pt}\text{вакуум пространства длинны $d$}\\
+& \begin{bmatrix} A & B \\ C & D \end{bmatrix}=\begin{bmatrix} 1 & d \\ 0 & 1 \end{bmatrix} \hspace{25pt}\text{вакуум длины $d$}\\
 & \begin{bmatrix} A & B \\ C & D \end{bmatrix}=\begin{bmatrix} 1 & 0 \\ -1/f & 1 \end{bmatrix} \hspace{5pt}\text{линза с фокусным расстоянием $f$} \\
 & M = M_3^{ABCD} \times M_2^{ABCD} \times M_1^{ABCD}
 \end{align*}
@@ -276,7 +373,7 @@ $R = V - \log(1-V)$\\
 \begin{equation*}
 a^{\prime} =
    \begin{cases}
-    {\mathrm{sign}}(a) \cdot 1000^{|a| - 1}, |a_0| > 0.17
+    {\mathrm{sign}}(a) \cdot 1000^{|a| - 1}, |a| > 0.17
     \\
     0
   \end{cases}
@@ -338,6 +435,8 @@ C++, Python3\\
 \includegraphics[width=1\linewidth]{images/eval1_visib_time.pdf}
 \end{columns}
 
+\vspace{-10pt}
+
 \begin{table} [htbp]
     \centering
     \begin{threeparttable}
@@ -353,6 +452,9 @@ C++, Python3\\
         \end{tabular}
     \end{threeparttable}
 \end{table}
+
+\centering {\color{orange}Вывод:} дискретный агент работает на уровне опытного специалиста.
+
 \framebreak
 \begin{minipage}{\textwidth}
 \includegraphics[width=1\linewidth]{DQN_analysis.pdf}
@@ -366,7 +468,7 @@ C++, Python3\\
 \begin{table} [htbp]
     \centering
     \begin{threeparttable}
-        \caption*{Анализ влияния шумов, используемых при обучении агента, на качество настройки физической установки}
+        \caption*{{\color{orange} Проверка идеи 1:} Анализ влияния шумов, используемых при обучении агента, на качество настройки физической установки}
         \begin{tabular}{| p{5cm} || p{2cm} || p{2cm} |}
             \hline
             \hline
@@ -388,10 +490,10 @@ C++, Python3\\
 \begin{columns}
 \column{0.5\linewidth}
 \centering
-\includegraphics[width=1\linewidth]{images/DQN_vs_TD3.pdf}
+\includegraphics[width=1\linewidth]{Presentation/images/DQN_vs_TD3.png}
 \column{0.5\linewidth}
 \centering
-\includegraphics[width=1\linewidth]{images/parallel_actions_count_for_each_axis.pdf}
+\includegraphics[width=1\linewidth]{Presentation/images/parallel_actions.png}
 \end{columns}
 \begin{table} [htbp]
     \centering
@@ -419,16 +521,19 @@ C++, Python3\\
 Межквантильный размах видности
 \column{0.5\linewidth}
 \centering
-\includegraphics[width=1\linewidth]{images/action_norm_decrease.pdf}
+\includegraphics[width=1\linewidth]{Presentation/images/action_norm_decrease.png}
 Средняя амплитуда действий
 \end{columns}
+
+\vspace{10pt}
+\centering {\color{orange}Вывод:} непрерывный агент работает на уровень выше опытного специалиста.
 
 \framebreak
 
 \begin{table} [htbp]
     \centering
     \begin{threeparttable}
-        \caption*{Анализ эффективности фазового шума и масштабирования действий. PN: фазовый шум, AR: масштабирование действий.}
+        \caption*{{\color{orange}Проверка идеи 2:} Анализ эффективности фазового шума и масштабирования действий. PN: фазовый шум, AR: масштабирование действий.}
         \begin{tabular}{| p{3cm} || p{3cm} || p{3cm} |}
             \hline
             \hline
@@ -449,13 +554,16 @@ C++, Python3\\
 
 \begin{frame}{Выводы}
 \begin{itemize}
-    \item Разработан симулятор интерферометра Маха-Цендера.
-    \item Интерферометр может быть успешно настроен методами RL.
-    \item Разработан программно-аппаратный комплекс Интерферобот.
-    \item Предложен набор шумов и функция награды.
-    \item Разработано два метода с использованием  дискретного и непрерывного пространства действий.
-    \item  Качество работы разработанного метода превосходит качество настройки эксперта.
-
+    \item[\textcolor{ForestGreen}{\checkmark}] Разработаны алгоритмы, подбора параметров симуляции и масштабирования пространства действий. 
+    \item[\textcolor{ForestGreen}{\checkmark}] На основе предложенных алгоритмов реализованы методы настройки оптического интерферометра основанные на обучении с подкреплением.
+    \begin{itemize}
+        \item[--] Разработан симулятор интерферометра Маха-Цендера.
+        \item[--] Разработан программно-аппаратный комплекс Интерферобот.
+        \item[--] Предложен набор шумов и функция награды.
+        \item[--] Качество настройки с использованием разработанного метода превосходит качество настройки эксперта.
+    \end{itemize}
+    
+    
 \end{itemize}
     
 
@@ -466,7 +574,17 @@ C++, Python3\\
 % \subsection{Не нумерованные}
 
 
-\section{Метод управления линейной и угловой скоростью шагающего робота основанный на обучении с подкреплением}
+\section{Глава 3. Метод управления линейной и угловой скоростью шагающего робота основанный на обучении с подкреплением}
+
+\begin{frame}
+    \frametitle{Структура диссертационной работы}
+    \begin{itemize}
+        \item \underline{Глава 1.} Обзор методов обучения с подкреплением и их применения в роботике. 
+        \item \underline{Глава 2.} Разработка метода, способного оперировать действиями различного масштаба, устойчивого к шумам, и его применение для настройки оптического интерферометра (вызов 1,2).
+        {\color{orange}\item \underline{Глава 3.} Метод, который позволяет достичь сходимости к хорошему оптимутму для многозадачного агента и его применение  для управления движением шагающего робота (вызов 3).}
+        \item \underline{Глава 4.} Иерархический алгоритм, комбинирующий алгоритмический и нейросетевой подходы и его применение для управления агентом в среде NetHack (вызов 4).
+    \end{itemize}
+\end{frame}
 
 \begin{frame}{Постановка задачи оптимизации}
 
@@ -475,13 +593,55 @@ $$\pi(s_t) = \argmax_{a \in \mathcal{A}}\ex_{r_{t+1},s_{t+1}}\left[r_{t+1} + \ga
 
 Особенности:
 \begin{enumerate}
-    \item Многозадачность $s = (o, t)$, $t$ - текущая задача.
-    \item Изменение функции награды по расписанию для избегания сходимости к суб-оптимальной стратегии. 
+    \item Многозадачность - хотим решать несколько задач с помощю единого агента.
+    \item Сложная функция награды - сходимость к суб-оптимальной стратегии. 
     \item Высокая размерность пространства состояний $s \in \mathcal{R}^N$.
 \end{enumerate}
 \end{frame}
 
-\begin{frame}{Постановка задачи управления шагающим роботом}
+\begin{frame}{Алгоритм: обучение по расписанию для многозадачного агента}
+
+\begin{minipage}{\linewidth}
+
+\begin{columns}
+\column{0.5\linewidth}
+\begin{enumerate}
+    \item Для многозадачности будем рассматривать каждую задачу как часть состояния агента $s = (o, t)$, $t$ - текущая задача. 
+    \item Будем увеличивать штрафные коэффициенты в функции награды линейно по мере обучения агента:
+    \vspace{-10pt}
+    \begin{equation*}
+        r = r_{task} - \frac{n}{N} \cdot \sum_i r_{\mathrm{penalty}_i}  
+    \end{equation*}
+\end{enumerate}
+
+\column{0.5\linewidth}
+\begin{algorithm}[H]
+\KwData{
+распределение задач $T$
+}
+\KwResult{параметры агента $\theta$} 
+episode $\gets 0$
+\While{episode < $N$}{
+  $t \sim T$\;
+  env.set\_task(t)\;
+  batch = rollaut(agent, env)\;
+  agent.train(batch)\;
+  env.update\_reward(episode)\;
+}
+\end{algorithm}
+\end{columns}
+\end{minipage}
+\begin{minipage}{\linewidth}
+
+\vspace{5pt}
+\setcounter{footnote}{0} 
+Связанные работы (нет многозадачности)\footnote[frame]{Hwangbo, J. Lee, et. all, “Learning agile and dynamic motor skills for legged robots,” Science Robotics, vol. 4, Jan. 2019.}\footnote[frame]{J. Lee, et. all “Learning quadrupedal locomotion over challenging terrain,” Science Robotics, vol. 5, no. 47, 2020.}
+\end{minipage}
+
+    
+\end{frame}
+
+\begin{frame}{Практическая задача: управление шагающим роботом}
 \begin{columns}
 \column{0.5\linewidth}
 \centering
@@ -550,17 +710,26 @@ $$\pi(s_t) = \argmax_{a \in \mathcal{A}}\ex_{r_{t+1},s_{t+1}}\left[r_{t+1} + \ga
 
 \begin{frame}{Выводы}
 \begin{itemize}
-    \item Был разработан метод обучения робота Unitree A1 решать различные задачи перемещения.
-    \item Разработанная функция награды побуждает агента следовать плавной и безопасной стратегии.
+    \item[\textcolor{ForestGreen}{\checkmark}] Был разработан метод обучения робота Unitree A1 решать различные задачи перемещения.
+    \item[\textcolor{ForestGreen}{\checkmark}] Разработанная функция награды побуждает агента следовать плавной и безопасной стратегии.
 \end{itemize}
 \end{frame}
 
 
 
-\section{Иерархический алгоритм, комбинирующий алгоритмический и
+\section{Глава 4. Иерархический алгоритм, комбинирующий алгоритмический и
 нейросетевой подходы и его применение для управления агентом в среде NetHack}
 
-\subsection{Декомпозиция игры NetHack на подзадачи}
+
+\begin{frame}
+    \frametitle{Структура диссертационной работы}
+    \begin{itemize}
+        \item \underline{Глава 1.} Обзор методов обучения с подкреплением и их применения в роботике. 
+        \item \underline{Глава 2.} Разработка метода, способного оперировать действиями различного масштаба, устойчивого к шумам, и его применение для настройки оптического интерферометра (вызов 1,2).
+        \item \underline{Глава 3.} Метод, который позволяет достичь сходимости к хорошему оптимутму для многозадачного агента и его применение  для управления движением шагающего робота (вызов 3).
+        {\color{orange}\item \underline{Глава 4.} Иерархический алгоритм, комбинирующий алгоритмический и нейросетевой подходы и его применение для управления агентом в среде NetHack (вызов 4).}
+    \end{itemize}
+\end{frame}
 
 \begin{frame}{Постановка задачи оптимизации}
 
@@ -576,8 +745,44 @@ $$\pi(s_t) = \argmax_{a \in \mathcal{A}}\ex_{r_{t+1},s_{t+1}}\left[r_{t+1} + \ga
 \end{enumerate}
 \end{frame}
 
+\begin{frame}{Алгоритм: объединение обучаемых и алгоритмических стратегий в иерархического агента}
+
+\begin{minipage}{\linewidth}
+\begin{columns}
+\column{0.5\linewidth}
+\begin{enumerate}
+    \item Декомпозиция на отдельные стратегии может существенно помочь в задачах, где нужно уметь переключаться между различными навыками.
+    \item Переключение между обучаемыми и алгоритмическими стратегиями в зависимости от состояния среды. 
+\end{enumerate}
+
+\column{0.5\linewidth}
+\begin{algorithm}[H]
+\SetKwComment{Comment}{/* }{ */}
+\SetKw{Continue}{continue}
+\KwData{condition, agent, <skills>}
+s $\gets$ env.reset()\;
+\While{not done}{
+  \eIf{condition(s)}{
+    a = agent.act(s)\;
+  }{
+    a = best\_fit(skills, s)
+  }
+  s, r, done, info = env.step(a)\;
+}
+\end{algorithm}
+\end{columns}
+\end{minipage}
+
+\begin{minipage}{\linewidth}
+
+\setcounter{footnote}{0} 
+Литература\footnote[frame]{Sutton, R., et.all. Between MDPs and semi-MDPs: A framework for temporal abstraction in reinforcement learning. Artificial Intelligence (1999)}\footnote[frame]{Gao J, et.all. Deep Reinforcement Learning for Indoor Mobile Robot Path Planning. Sensors (Basel). 2020}
+\end{minipage}
+    
+\end{frame}
+
 \begin{frame}
-\frametitle{NetHack challenge}
+\frametitle{Задача: NetHack challenge}
 \begin{columns}
 \column{0.6\linewidth}
   \centering
@@ -601,6 +806,7 @@ $$\pi(s_t) = \argmax_{a \in \mathcal{A}}\ex_{r_{t+1},s_{t+1}}\left[r_{t+1} + \ga
 
 \end{frame}
 
+\subsection{Декомпозиция игры NetHack на подзадачи}
 
 \begin{frame}{Декомпозиция игры NetHack на подзадачи}
 \begin{columns}
@@ -643,9 +849,9 @@ $distance(agent, monster) < 5$
 
 \begin{frame}{Выводы}
 \begin{itemize}
-    \item Предложен метод объединения обучаемого и алгоритмического подходов в рамках одного агента. С использованием предложенного метода реализован гибридный нейро-символьный агент для среды NetHack.
-    \item В реализованном методе RL агент решает одну из наиболее сложных задач возникающих в среде NetHack — сражение с монстрами.
-    \item В соревновании по игре NetHack (NeurIPS 2021 Competition Track) агент занял \textcolor{red}{первое место}.
+    \item[\textcolor{ForestGreen}{\checkmark}] Предложен метод объединения обучаемого и алгоритмического подходов в рамках одного агента. С использованием предложенного метода реализован гибридный нейро-символьный агент для среды NetHack.
+    \item[\textcolor{ForestGreen}{\checkmark}] В реализованном методе RL агент решает одну из наиболее сложных задач возникающих в среде NetHack — сражение с монстрами.
+    \item[\textcolor{ForestGreen}{\checkmark}] В соревновании по игре NetHack (NeurIPS 2021 Competition Track) агент занял \textcolor{red}{первое место} среди 37 команд из 19 стран мира.
 \end{itemize}
     
 \end{frame}

@@ -1,3 +1,4 @@
+\iffalse
 \setbeamertemplate{title page}
 {
     \ifnumequal{\value{logotitle}}{1}{
@@ -30,6 +31,7 @@
     \vfill
     \usebeamerfont{date}\insertdate\par
 }
+\fi
 
 %\title{\small{Название презентации}}
 \title{\thesisTitle}
@@ -40,13 +42,8 @@
         %
     }{\thesisAuthor}%
 }
-\date{\texorpdfstring{\thesisCity, \thesisYear}{}}
-\institute{\texorpdfstring{\thesisOrganization}{}}
-\IfFileExists{images/logo.pdf}{
-    \titlegraphic{\includegraphics[width=\textwidth]{images/logo}}
-    \ifnumequal{\value{logoother}}{1}{
-        \logo{\includegraphics[width=0.15\textwidth]{images/logo}}
-    }{}
-}{}
+
 \subtitle{Представление на соискание учёной степени \thesisDegree\ }
 %по специальности \thesisSpecialtyNumber\ \thesisSpecialtyTitle}
+
+\date{\vspace{60pt} \centering \texorpdfstring{\thesisCity, \thesisYear}{}}
