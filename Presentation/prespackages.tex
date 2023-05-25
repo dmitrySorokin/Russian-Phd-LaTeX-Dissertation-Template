@@ -10,6 +10,7 @@
 \usepackage{media9} % dsorokin
 \usepackage{algorithm2e} %dsorokin
 %\usepackage{enumitem} %dsorokin
+\usepackage{algpseudocode} %dsorokin
 
 \graphicspath{{images/}{Presentation/images/}} % папки с графикой
 
@@ -20,3 +21,6 @@
 \makeatother
 
 \newcommand{\itemi}{\item[\checkmark]}
+
+\algnewcommand\algorithmicforeach{\textbf{for each}}
+\algdef{S}[FOR]{ForEach}[1]{\algorithmicforeach\ #1\ \algorithmicdo}

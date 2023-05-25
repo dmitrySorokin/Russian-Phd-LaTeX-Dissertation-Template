@@ -70,8 +70,8 @@ $\varepsilon \gets f(<s_{sim}>, <s_{\exp}>)$\;
 \end{minipage}
 
 \setcounter{footnote}{0} 
-\footnotetext[1]{Peng, X. B., Andrychowicz, M., Zaremba, W., Abbeel, P. Sim-to-Real Transfer of Robotic Control with Dynamics Randomization. ICRA (2018).}
-\footnotetext[2]{Rao, K., Harris, C., Irpan, A., Levine, S., Ibarz, J., and Khansari, M. RL-CycleGAN: Reinforcement Learning Aware Simulation-to-Real. CVPR (2020).}
+\footnotetext[1]{Peng, X. B., Andrychowicz, M., Zaremba, W., Abbeel, P. Sim-to-Real Transfer of Robotic Control with Dynamics Randomization. ICRA, 2018.}
+\footnotetext[2]{Rao, K., Harris, C., Irpan, A., Levine, S., Ibarz, J., and Khansari, M. RL-CycleGAN: Reinforcement Learning Aware Simulation-to-Real. CVPR, 2020.}
 
 \end{frame}
 
@@ -126,7 +126,7 @@ $\varepsilon \gets f(<s_{sim}>, <s_{\exp}>)$\;
 \end{columns}
 \end{minipage}
 
-\footnotetext[1]{Dadashi, R., Hussenot, L., Vincent, D., Girgin, S., Raichuk, A., Geist, M., Pietquin, O. Continuous Control with Action Quantization from Demonstrations (ICML 2022)}
+\footnotetext[1]{Dadashi, R., Hussenot, L., Vincent, D., Girgin, S., Raichuk, A., Geist, M., Pietquin, O. Continuous Control with Action Quantization from Demonstrations, ICML, 2022}
 
 \end{frame}
 
@@ -141,8 +141,8 @@ $\varepsilon \gets f(<s_{sim}>, <s_{\exp}>)$\;
 \vspace{-10pt}
 
 \setcounter{footnote}{0} 
-Смежные задачи рассматривались в работах\footnote{Degrave, J., Felici, F., Buchli, J. et al. Magnetic control of tokamak plasmas through deep reinforcement learning. Nature 602, 414–419 (2022).}
-\footnote{Chen, IJ., Aapro, M., Kipnis, A. et al. Precise atom manipulation through deep reinforcement learning. Nat Commun 13, 7499 (2022).}
+Смежные задачи рассматривались в работах\footnote{Degrave, J., Felici, F., Buchli, J. et al. Magnetic control of tokamak plasmas through deep reinforcement learning. Nature, 2022.}
+\footnote{Chen, IJ., Aapro, M., Kipnis, A. et al. Precise atom manipulation through deep reinforcement learning. Nat Commun, 2022.}
 \end{frame}
 
 \subsection{Постановка задачи}
@@ -523,7 +523,7 @@ $$\pi(s_t) = \argmax_{a \in \mathcal{A}}\ex_{r_{t+1},s_{t+1}}\left[r_{t+1} + \ga
 
 Особенности:
 \begin{enumerate}
-    \item Многозадачность - хотим решать несколько задач с помощю единого агента.
+    \item Многозадачность - хотим решать несколько задач с помощью единого агента.
     \item Сложная функция награды - сходимость к суб-оптимальной стратегии. 
     \item Высокая размерность пространства состояний $s \in \mathcal{R}^N$.
 \end{enumerate}
@@ -540,7 +540,7 @@ $$\pi(s_t) = \argmax_{a \in \mathcal{A}}\ex_{r_{t+1},s_{t+1}}\left[r_{t+1} + \ga
     \item Будем увеличивать штрафные коэффициенты в функции награды линейно по мере обучения агента:
     \vspace{-10pt}
     \begin{equation*}
-        r = r_{task} - \frac{n}{N} \cdot \sum_i r_{\mathrm{penalty}_i}  
+        r = r_{task} - \frac{n}{N} \cdot \sum_i r_{\mathrm{penalty}_i}
     \end{equation*}
 \end{enumerate}
 
@@ -550,13 +550,13 @@ $$\pi(s_t) = \argmax_{a \in \mathcal{A}}\ex_{r_{t+1},s_{t+1}}\left[r_{t+1} + \ga
 распределение задач $T$
 }
 \KwResult{параметры агента $\theta$} 
-episode $\gets 0$\;
-\While{episode < $N$}{
-  выбираем задачу $t \sim T$\;
-  env.set\_task(t)\;
-  batch = rollaut(agent, env)\;
-  agent.train(batch)\;
-  env.update\_reward(episode)\;
+\While{n < $N$}{
+  выбираем задачи $t_i \sim T$\;
+  \ForEach {$t_i$} {
+    генерируем траекторию $\tau \sim \pi_{\theta}(\cdot |t_i)$\;
+  }
+  обновляем параметры
+  $\theta \gets \theta - \alpha \nabla \mathcal{L}(\theta)$\;
 }
 \end{algorithm}
 \end{columns}
@@ -565,7 +565,7 @@ episode $\gets 0$\;
 
 \vspace{5pt}
 \setcounter{footnote}{0} 
-Связанные работы (нет многозадачности)\footnote[frame]{Hwangbo, J. et. all, “Learning agile and dynamic motor skills for legged robots”, Science Robotics, vol. 4, Jan. 2019.}\footnote[frame]{Lee, J. et. all “Learning quadrupedal locomotion over challenging terrain,” Science Robotics, vol. 5, no. 47, 2020.}
+Связанные работы (нет многозадачности)\footnote[frame]{Hwangbo, J. et al., Learning agile and dynamic motor skills for legged robots, Science Robotics, 2019.}\footnote[frame]{Lee, J. et al. Learning quadrupedal locomotion over challenging terrain, Science Robotics, 2020.}
 \end{minipage}
 
     
@@ -675,27 +675,29 @@ $$\pi(s_t) = \argmax_{a \in \mathcal{A}}\ex_{r_{t+1},s_{t+1}}\left[r_{t+1} + \ga
 \end{enumerate}
 \end{frame}
 
-\begin{frame}{Алгоритм: объединение обучаемых и алгоритмических стратегий в иерархического агента}
+\setcounter{footnote}{0} 
+\begin{frame}{Алгоритм: объединение обучаемых и алгоритмических стратегий в иерархического агента\footnotemark\footnotemark}
 
 \begin{minipage}{\linewidth}
 \begin{columns}
 \column{0.5\linewidth}
 \begin{enumerate}
     \item Декомпозиция на отдельные стратегии может существенно помочь в задачах, где нужно уметь переключаться между различными навыками.
-    \item Переключение между обучаемыми и алгоритмическими стратегиями в зависимости от состояния среды. 
+    \item Переключение между обучаемыми и алгоритмическими стратегиями происходит в зависимости от состояния среды. 
 \end{enumerate}
 
 \column{0.5\linewidth}
 \begin{algorithm}[H]
 \SetKwComment{Comment}{/* }{ */}
 \SetKw{Continue}{continue}
-\KwData{condition, agent, <skills>}
+\KwData{condition, $\pi_{\theta}$, $<\pi_{\mathrm{alg}}>$}
 s $\gets$ env.reset()\;
 \While{not done}{
   \eIf{condition(s)}{
-    a = agent.act(s)\;
+    $a \sim \pi_{\theta}(s)$\;
   }{
-    a = best\_fit(skills, s)
+    $\pi = \mathrm{rank}(\pi_{\mathrm{alg}}, s)$
+    $a \sim \pi(s)$
   }
   s, r, done, info = env.step(a)\;
 }
@@ -705,9 +707,10 @@ s $\gets$ env.reset()\;
 
 \begin{minipage}{\linewidth}
 
-\setcounter{footnote}{0} 
-Литература\footnote[frame]{Sutton, R., et.all. Between MDPs and semi-MDPs: A framework for temporal abstraction in reinforcement learning. Artificial Intelligence (1999)}\footnote[frame]{Gao J, et.all. Deep Reinforcement Learning for Indoor Mobile Robot Path Planning. Sensors (Basel). 2020}
+%\footnote[frame]{Sutton, R., et.all. Between MDPs and semi-MDPs: A framework for temporal abstraction in reinforcement learning. Artificial Intelligence (1999)}
 \end{minipage}
+\footnotetext[1]{Barreto, A., et al., The Option Keyboard: Combining Skills in Reinforcement Learning, NeurIPS, 2019.}
+\footnotetext[2]{Gao, J., et al., Deep Reinforcement Learning for Indoor Mobile Robot Path Planning, Sensors (Basel), 2020.}
     
 \end{frame}
 
@@ -781,7 +784,7 @@ $distance(agent, monster) < 5$
 \begin{itemize}
     \item[\textcolor{ForestGreen}{\checkmark}] Предложен метод объединения обучаемого и алгоритмического подходов в рамках одного агента. С использованием предложенного метода реализован гибридный нейро-символьный агент для среды NetHack.
     \item[\textcolor{ForestGreen}{\checkmark}] В реализованном методе RL агент решает одну из наиболее сложных задач возникающих в среде NetHack — сражение с монстрами.
-    \item[\textcolor{ForestGreen}{\checkmark}] В соревновании по игре NetHack (NeurIPS 2021 Competition Track) агент занял \textcolor{red}{первое место} среди 37 команд из 19 стран мира.
+    \item[\textcolor{ForestGreen}{\checkmark}] В соревновании по игре NetHack (NeurIPS 2021 Competition Track) агент занял \textcolor{orange}{первое место} среди 37 команд из 19 стран мира.
 \end{itemize}
     
 \end{frame}
