@@ -7,7 +7,7 @@
     \begin{itemize}
         \item \underline{Глава 1.} Обзор методов обучения с подкреплением и их применения в роботике. 
         {\color{orange}\item \underline{Глава 2.} Разработка метода, способного оперировать действиями различного масштаба, устойчивого к шумам, и его применение для настройки оптического интерферометра (вызов 1,2).}
-        \item \underline{Глава 3.} Метод, который позволяет достичь сходимости к хорошему оптимутму для многозадачного агента и его применение  для управления движением шагающего робота (вызов 3).
+        \item \underline{Глава 3.} Метод, который позволяет достичь сходимости к хорошему оптимуму для многозадачного агента и его применение  для управления движением шагающего робота (вызов 3).
         \item \underline{Глава 4.} Иерархический алгоритм, комбинирующий алгоритмический и нейросетевой подходы и его применение для управления агентом в среде NetHack (вызов 4).
     \end{itemize}
 \end{frame}
@@ -66,7 +66,7 @@ $\varepsilon \gets f(<s_{sim}>, <s_{\exp}>)$\;
 %\vspace{10pt}
 \begin{minipage}{\linewidth}
 \fontsize{8pt}{10pt}\selectfont
-    \emph{Замечание}: Если агент устойчив к шуму в наблюдениях, то шум в действиях $a_t + \zeta$ не будет влиять на стратегию агента, если он является несмещенным $\ex a_t + \zeta = a_t$
+    \emph{Замечание}: Если агент устойчив к шуму в наблюдениях, то шум в действиях $a_t + \zeta$ не будет влиять на стратегию агента, если он является несмещенным $\ex (a_t + \zeta) = a_t$
 \end{minipage}
 
 \setcounter{footnote}{0} 
@@ -75,16 +75,19 @@ $\varepsilon \gets f(<s_{sim}>, <s_{\exp}>)$\;
 
 \end{frame}
 
-\begin{frame}{Алгоритм 2: Масштабирование действий}
+\setcounter{footnote}{0} 
+\begin{frame}{Алгоритм 2: Масштабирование действий\footnotemark}
 
+\vspace{-20pt}
 \begin{minipage}{\linewidth}
 \begin{columns}
 \column{0.5\linewidth}
 \begin{align*}
 & a \in \mathcal{R}^n: a_i \in [-1, 1] \\
+& \text{параметр } b \gg 1\\ 
 & a_i^{\prime} =
    \begin{cases}
-    {\mathrm{sign}}(a_i) \cdot b^{|a_i| - 1}, |a_i| > a_{\min}, b \gg 1
+    {\mathrm{sign}}(a_i) \cdot b^{|a_i| - 1}, |a_i| > a_{\min}
     \\
     0
   \end{cases}
@@ -97,29 +100,34 @@ $\varepsilon \gets f(<s_{sim}>, <s_{\exp}>)$\;
 \end{figure}
 
 \end{columns}
-
 \end{minipage}
+
+\vspace{-10pt}
 \begin{minipage}{\linewidth}
 \begin{columns}
 \column{0.5\linewidth}
-    Пример: CartPole Continous
+\centering Пример: CartPole Continous
+\vspace{5pt}
     \begin{tabular}{c|c|c}
-         & return & center \\ 
+         & return & position \\ 
          \hline
          rescaled &  2756 $\pm$ 842 & -0.04 $\pm$ 0.09\\
          raw & 1692 $\pm$ 932 & 0.03 $\pm$ 0.22 
     \end{tabular}
 
-\column{0.4\linewidth}
+\vspace{10pt}\hspace{-5pt} $r = -\log(|x| + 10^{-5})$  
+
+
+\column{0.5\linewidth}
 \begin{figure}
     \centering
-    \includegraphics[width=1\linewidth]{Presentation/images/cartpole.png}
+    \includegraphics[width=0.8\linewidth]{Presentation/images/cartpole.png}
 \end{figure}
 \end{columns}
 \end{minipage}
 
+\footnotetext[1]{Dadashi, R., Hussenot, L., Vincent, D., Girgin, S., Raichuk, A., Geist, M., Pietquin, O. Continuous Control with Action Quantization from Demonstrations (ICML 2022)}
 
-    
 \end{frame}
 
 
@@ -168,146 +176,36 @@ $\varepsilon \gets f(<s_{sim}>, <s_{\exp}>)$\;
 
 \begin{frame}
 \frametitle{Математическая модель интерферометра Маха-Цендера}
+\begin{minipage}{\textwidth}
 \begin{columns}
 \column{0.6\linewidth}
   \centering
   \includegraphics[width=1\linewidth]{images/MZI_matmodel.pdf}
-  \begin{itemize}
+  
+\column{0.5\linewidth}
+\begin{itemize}
     \item управление положением луча на камере $(x_0, y_0)$
     \item управление направлением $\vec{k}$
   \end{itemize}
-
-\column{0.5\linewidth}
-\begin{table} [htbp]
-    \centering
-    \begin{threeparttable}
-        \begin{tabular}{| p{2.5cm} || p{2cm} |}
-            \hline
-            \hline
-            параметр & значение \\
-            \hline
-            Mirror 2 $\to$ BS 2 & 200 mm\\
-            BS 1 $\to$ Mirror 2 & 300 mm\\
-            BS 2 $\to$ Camera & 100 mm\\
-            radius & 0.95\\
-            $\alpha_{{\mathrm{max}}(x,1)}$ & $5.2 \cdot 10^{-3}$ rad\\
-            $\alpha_{{\mathrm{max}}(y,1)}$ & $3.7 \cdot 10^{-3}$ rad\\
-            $\alpha_{{\mathrm{max}}(x,2)}$ & $2.6 \cdot 10^{-3}$ rad\\
-            $\alpha_{{\mathrm{max}}(y,2)}$ & $1.8 \cdot 10^{-3}$ rad\\
-            \hline
-            \hline
-        \end{tabular}
-    \end{threeparttable}
-\end{table}
-
-\end{columns} 
-\end{frame}
-
-
-\begin{frame}
-\frametitle{Видность интерференционной картины}
-
-\begin{columns}
-\column{0.4\linewidth}
-\centering
-\includegraphics[width=1\linewidth]{piezo.pdf}
-
-\column{0.5\linewidth}
-\begin{align*}
-& I(x,y,t)=|E_1(x,y,0)+E_2(x,y,0)e^{i\phi_{\mathrm{piezo}}(t)}|^2 \\
-& I_{\mathrm{tot}}(t) = \iint_{-\infty}^{+\infty} I(x, y, t) {\mathrm{d}}x{\mathrm{d}}y \\
-& V = \frac{            
-        \max_{t}(I_{\mathrm{tot}}) - \min_t(I_{\mathrm{tot}})}
-        {\max_{t}(I_{\mathrm{tot}}) + \min_t(I_{\mathrm{tot}})} \\
-& V = \exp\left(- \frac{x_0^2 + y_0^2}{2 r^2}\right)  \exp\left[- \frac{(k_x^2 + k_y^2) r^2}{8}\right] \\
-\end{align*}
-
 \end{columns}
-\end{frame}
+\end{minipage}
 
-\begin{frame}
-\frametitle{Примеры интерференционных картин полученные в симуляции}
-\begin{columns}
-\column{0.7\linewidth}
-  \centering
-   \includegraphics[scale=0.4]{images/visib_expl.png}
+\vspace{20pt}
 
-\column{0.5\linewidth}
-\begin{description}
-    \item V = 1
-    \vspace{30pt}
-    \item V = 0.3
-    \vspace{30pt}
-    \item V = 0.0026
-\end{description}
-
-\end{columns} 
-\end{frame}
-
-
-\begin{frame}
-\frametitle{Математическая модель интерферометра Маха-Цендера с линзами}
+\begin{minipage}{\textwidth}
 \begin{columns}
 \column{0.6\linewidth}
   \centering
-   \includegraphics[width=1\linewidth]{images/MZI_expl_lenses.pdf}
-  \begin{itemize}
-    \item управление положением луча на камере $(x_0, y_0)$
-    \item управление направлением $\vec{k}$
+  \includegraphics[width=1\linewidth]{images/MZI_expl_lenses.pdf}
+  
+\column{0.5\linewidth}
+\begin{itemize}
     \item \textcolor{red}{управление волновым фронтом}
   \end{itemize}
-
-\column{0.5\linewidth}
-\begin{table} [htbp]
-    \centering
-    \begin{threeparttable}
-        \begin{tabular}{| p{2.5cm} || p{2cm} |}
-            \hline
-            \hline
-            параметр & значение \\
-            \hline
-            BS 1 $\to$ Lens 1 & 50 mm\\
-            $f_{\mathrm{lens 1}}$ = $f_{\mathrm{lens 2}}$ & 50 mm\\
-            radius & 0.71 mm\\
-            $\Delta_{\mathrm{max}}$ & 4.2 mm\\
-            \hline
-            \hline
-        \end{tabular}
-    \end{threeparttable}
-\end{table}
-
-\end{columns} 
-\end{frame}
-
-\begin{frame}
-    \frametitle{Примеры интерференционных картин полученные на интерферометре Маха-Цендера с линзами}
-    \centering
-    \includegraphics[width=0.8\linewidth]{images/Env_patterns.pdf}
-\end{frame}
-
-\begin{frame}
-\frametitle{Видность интерференционной картины в интерферометре Маха-Цендера с линзами}
-\begin{columns}
-\column{0.3\linewidth}
-\begin{align*}
-& \dfrac{1}{q} = \dfrac{1}{\rho} - \dfrac{i \lambda}{\pi r^2} \\
-& q^{\prime}=\dfrac{A q+B}{C q+D}\\
-\end{align*}
-\column{0.7\linewidth}
-\begin{align*}
-& \begin{bmatrix} A & B \\ C & D \end{bmatrix}=\begin{bmatrix} 1 & d \\ 0 & 1 \end{bmatrix} \hspace{25pt}\text{вакуум длины $d$}\\
-& \begin{bmatrix} A & B \\ C & D \end{bmatrix}=\begin{bmatrix} 1 & 0 \\ -1/f & 1 \end{bmatrix} \hspace{5pt}\text{линза с фокусным расстоянием $f$} \\
-& M = M_3^{ABCD} \times M_2^{ABCD} \times M_1^{ABCD}
-\end{align*}
 \end{columns}
-
-\begin{equation*}
-\begin{split}
-    V =\frac{4}{\left(n^{2}+1\right) r_{\mathrm{u}}^{2}} \frac{1}{c} \exp \left(-\left(x_{0}^{2}+y_{0}^{2}\right)\left(\frac{1}{r_{\mathrm{u}}^{2} n^{2}}-\frac{n^{2}+1}{n^{6} r_{\mathrm{u}}^{6} c^{2}}\right)\right) \times \\ \times \exp \left(-\frac{n^{2}+1}{4 c^{2} n^{2} r_{\mathrm{u}}^{2}}\left(k_{x}^{2}+k_{y}^{2}\right)\right) \exp \left(\frac{\frac{\pi}{\lambda \rho^{\prime}}}{n^{2} r_{\mathrm{u}}^{2} c^{2}}\left(x_{0} k_{x}+y_{0} k_{y}\right)\right),
-\end{split}
-\end{equation*}
-параметр $n=\dfrac{r_{\mathrm{l}}}{r_{\mathrm{u}}}$, $c^2 = (\dfrac{n^2 + 1}{n^2r^2_{\mathrm{u}}})^2$
+\end{minipage}
 \end{frame}
+
 
 \begin{frame}{Численная модель интерферометра Маха-Цендера}
 \begin{columns}
@@ -333,6 +231,45 @@ $\varepsilon \gets f(<s_{sim}>, <s_{\exp}>)$\;
 
 \end{columns}
 \end{frame}
+
+
+
+\begin{frame}
+\frametitle{Интерференционная картина, полученная в эксперименте}
+\begin{minipage}{\textwidth}
+
+\begin{equation*}
+\hspace{1000pt minus 1fil}
+\text{Видность интерференционной картины }
+    V = \frac{            
+        \max_{t}(I_{\mathrm{tot}}) - \min_t(I_{\mathrm{tot}})}
+        {\max_{t}(I_{\mathrm{tot}}) + \min_t(I_{\mathrm{tot}})}
+\hfilneg
+\end{equation*}
+\end{minipage}
+
+\begin{minipage}{\textwidth}
+\begin{columns}
+\column{0.7\linewidth}
+\centering
+    \includegraphics[width=1\linewidth]{images/Env_patterns.pdf}
+\column{0.5\linewidth}
+\begin{itemize}
+    \item[] $V \approx 1$
+    \vspace{30pt}
+    \item[] $V \approx 0$
+    \vspace{30pt}
+    \item[] $V \approx 0.1$
+    \vspace{30pt}
+    \item[] $V \approx 0$
+\end{itemize}
+\end{columns}
+\end{minipage}
+    
+\end{frame}
+
+
+
 
 \subsection{Метод способный оперировать
 действиями различного масштаба и устойчивый к оптическим
@@ -455,14 +392,6 @@ C++, Python3\\
 
 \centering {\color{orange}Вывод:} дискретный агент работает на уровне опытного специалиста.
 
-\framebreak
-\begin{minipage}{\textwidth}
-\includegraphics[width=1\linewidth]{DQN_analysis.pdf}
-\end{minipage}
-\begin{minipage}{\textwidth}
-\includegraphics[width=0.5\linewidth]{images/agent_step_size.pdf}
-\end{minipage}
-
 \framebreak 
 
 \begin{table} [htbp]
@@ -493,8 +422,10 @@ C++, Python3\\
 \includegraphics[width=1\linewidth]{Presentation/images/DQN_vs_TD3.png}
 \column{0.5\linewidth}
 \centering
-\includegraphics[width=1\linewidth]{Presentation/images/parallel_actions.png}
+\includegraphics[width=1\linewidth]{images/DQN_vs_TD3_box.pdf}
 \end{columns}
+
+\vspace{-10pt}
 \begin{table} [htbp]
     \centering
     \begin{threeparttable}
@@ -512,21 +443,7 @@ C++, Python3\\
     \end{threeparttable}
 \end{table}
 
-\framebreak 
-
-\begin{columns}
-\column{0.5\linewidth}
-\centering
-\includegraphics[width=1\linewidth]{images/DQN_vs_TD3_box.pdf}
-Межквантильный размах видности
-\column{0.5\linewidth}
-\centering
-\includegraphics[width=1\linewidth]{Presentation/images/action_norm_decrease.png}
-Средняя амплитуда действий
-\end{columns}
-
-\vspace{10pt}
-\centering {\color{orange}Вывод:} непрерывный агент работает на уровень выше опытного специалиста.
+\centering {\color{orange}Вывод:} непрерывный агент работает лучше опытного специалиста.
 
 \framebreak
 
@@ -549,6 +466,19 @@ C++, Python3\\
     \end{threeparttable}
 \end{table}
 
+\end{frame}
+
+\begin{frame}{Пример настройки}
+\begin{columns}
+\column{0.5\linewidth}
+    \centering
+    \includegraphics[width=1\linewidth]{Presentation/images/dqn_1.png}
+    Дискретный DQN агент
+\column{0.5\linewidth}
+    \centering
+    \includegraphics[width=1\linewidth]{Presentation/images/td3_1.png}
+    Непрерывный TD3 агент
+\end{columns}
 \end{frame}
 
 
@@ -581,7 +511,7 @@ C++, Python3\\
     \begin{itemize}
         \item \underline{Глава 1.} Обзор методов обучения с подкреплением и их применения в роботике. 
         \item \underline{Глава 2.} Разработка метода, способного оперировать действиями различного масштаба, устойчивого к шумам, и его применение для настройки оптического интерферометра (вызов 1,2).
-        {\color{orange}\item \underline{Глава 3.} Метод, который позволяет достичь сходимости к хорошему оптимутму для многозадачного агента и его применение  для управления движением шагающего робота (вызов 3).}
+        {\color{orange}\item \underline{Глава 3.} Метод, который позволяет достичь сходимости к хорошему оптимуму для многозадачного агента и его применение  для управления движением шагающего робота (вызов 3).}
         \item \underline{Глава 4.} Иерархический алгоритм, комбинирующий алгоритмический и нейросетевой подходы и его применение для управления агентом в среде NetHack (вызов 4).
     \end{itemize}
 \end{frame}
@@ -620,9 +550,9 @@ $$\pi(s_t) = \argmax_{a \in \mathcal{A}}\ex_{r_{t+1},s_{t+1}}\left[r_{t+1} + \ga
 распределение задач $T$
 }
 \KwResult{параметры агента $\theta$} 
-episode $\gets 0$
+episode $\gets 0$\;
 \While{episode < $N$}{
-  $t \sim T$\;
+  выбираем задачу $t \sim T$\;
   env.set\_task(t)\;
   batch = rollaut(agent, env)\;
   agent.train(batch)\;
@@ -635,7 +565,7 @@ episode $\gets 0$
 
 \vspace{5pt}
 \setcounter{footnote}{0} 
-Связанные работы (нет многозадачности)\footnote[frame]{Hwangbo, J. Lee, et. all, “Learning agile and dynamic motor skills for legged robots,” Science Robotics, vol. 4, Jan. 2019.}\footnote[frame]{J. Lee, et. all “Learning quadrupedal locomotion over challenging terrain,” Science Robotics, vol. 5, no. 47, 2020.}
+Связанные работы (нет многозадачности)\footnote[frame]{Hwangbo, J. et. all, “Learning agile and dynamic motor skills for legged robots”, Science Robotics, vol. 4, Jan. 2019.}\footnote[frame]{Lee, J. et. all “Learning quadrupedal locomotion over challenging terrain,” Science Robotics, vol. 5, no. 47, 2020.}
 \end{minipage}
 
     
@@ -726,7 +656,7 @@ episode $\gets 0$
     \begin{itemize}
         \item \underline{Глава 1.} Обзор методов обучения с подкреплением и их применения в роботике. 
         \item \underline{Глава 2.} Разработка метода, способного оперировать действиями различного масштаба, устойчивого к шумам, и его применение для настройки оптического интерферометра (вызов 1,2).
-        \item \underline{Глава 3.} Метод, который позволяет достичь сходимости к хорошему оптимутму для многозадачного агента и его применение  для управления движением шагающего робота (вызов 3).
+        \item \underline{Глава 3.} Метод, который позволяет достичь сходимости к хорошему оптимуму для многозадачного агента и его применение  для управления движением шагающего робота (вызов 3).
         {\color{orange}\item \underline{Глава 4.} Иерархический алгоритм, комбинирующий алгоритмический и нейросетевой подходы и его применение для управления агентом в среде NetHack (вызов 4).}
     \end{itemize}
 \end{frame}
