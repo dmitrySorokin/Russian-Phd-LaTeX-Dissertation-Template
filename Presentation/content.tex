@@ -29,7 +29,7 @@ $$\pi = \argmax_{a \in \mathcal{A}}Q(s,a)$$
 \end{enumerate}
 \end{frame}
 
-\begin{frame}{Алгоритм 1: Подбор параметров симулятора и их рандомизация \footnotemark \footnotemark}
+\begin{frame}{Алгоритм 1: Подбор параметров симулятора и их рандомизация \footnotemark[1,2]}
 
 \vspace{-10pt}
 \begin{minipage}{\linewidth}
@@ -141,8 +141,8 @@ $\varepsilon \gets f(<s_{sim}>, <s_{\exp}>)$\;
 \vspace{-10pt}
 
 \setcounter{footnote}{0} 
-Смежные задачи рассматривались в работах\footnote{Degrave, J., Felici, F., Buchli, J. et al. Magnetic control of tokamak plasmas through deep reinforcement learning. Nature, 2022.}
-\footnote{Chen, IJ., Aapro, M., Kipnis, A. et al. Precise atom manipulation through deep reinforcement learning. Nat Commun, 2022.}
+Смежные задачи рассматривались в работах\footnotemark[1,2]\footnotetext[1]{Degrave, J., Felici, F., Buchli, J. et al. Magnetic control of tokamak plasmas through deep reinforcement learning. Nature, 2022.}
+\footnotetext[2]{Chen, IJ., Aapro, M., Kipnis, A. et al. Precise atom manipulation through deep reinforcement learning. Nat Commun, 2022.}
 \end{frame}
 
 \subsection{Постановка задачи}
@@ -332,15 +332,15 @@ VGG-16
 \column{0.6\linewidth}
 \textbf{в начале каждого эпизода}
 \begin{itemize}
-    \item radius randomization $\pm 20\%$
+    \item рандомизация радиуса пучка $\pm 20\%$
 \end{itemize}
 \textbf{на каждом шаге}
 \begin{itemize}
-    \item exposure randomization $\pm 30\%$
-    \item image noise $20\%$
-    \item cycle frame shift
-    \item duty cycle randomization
-    \item phase noise $\phi \sim \mathcal{N}(\frac{2\pi k}{N}, 0.5)$
+    \item рандомизация времени выдержки камеры $\pm 30\%$
+    \item шум в изображениях $20\%$
+    \item циклический сдвиг кадров
+    \item рандомизация движения пьезо зеркала
+    \item фазовый шум $\phi \sim \mathcal{N}(\frac{2\pi k}{N}, 0.5)$
 \end{itemize}
 \end{columns}
 \end{frame}
@@ -398,16 +398,16 @@ C++, Python3\\
     \centering
     \begin{threeparttable}
         \caption*{{\color{orange} Проверка идеи 1:} Анализ влияния шумов, используемых при обучении агента, на качество настройки физической установки}
-        \begin{tabular}{| p{5cm} || p{2cm} || p{2cm} |}
+        \begin{tabular}{| p{6cm} || p{2cm} || p{2cm} |}
             \hline
             \hline
-             & visibility & return \\
+             & видность & награда \\
             \hline
-            All randomizations  & $\textbf{0.96} \pm \textbf{0.02}$ & $\textbf{221} \pm \textbf{54}$ \\
-            No radius randomization & $0.74 \pm 0.20$ & $85 \pm 69$ \\
-            No exposure randomization& $0.91 \pm 0.04$ & $178 \pm 39$ \\
-            No image noise & $0.82 \pm 0.07$ & $129 \pm 43$ \\
-            No duty cycle and frame shift  &  $0.89 \pm 0.07$ & $200 \pm 42$ \\
+            Все рандомизации  & $\textbf{0.96} \pm \textbf{0.02}$ & $\textbf{221} \pm \textbf{54}$ \\
+            Без рандомизации радиуса & $0.74 \pm 0.20$ & $85 \pm 69$ \\
+            Без рандомизации выдержки & $0.91 \pm 0.04$ & $178 \pm 39$ \\
+            Без шума в изображениях & $0.82 \pm 0.07$ & $129 \pm 43$ \\
+            Без шума в движении пьезо зеркала &  $0.89 \pm 0.07$ & $200 \pm 42$ \\
             \hline
             \hline
         \end{tabular}
@@ -482,7 +482,7 @@ C++, Python3\\
 \end{frame}
 
 
-\begin{frame}{Выводы}
+\begin{frame}{Результаты}
 \begin{itemize}
     \item[\textcolor{ForestGreen}{\checkmark}] Разработаны алгоритмы, подбора параметров симуляции и масштабирования пространства действий. 
     \item[\textcolor{ForestGreen}{\checkmark}] На основе предложенных алгоритмов реализованы методы настройки оптического интерферометра основанные на обучении с подкреплением.
@@ -565,7 +565,7 @@ $$\pi(s_t) = \argmax_{a \in \mathcal{A}}\ex_{r_{t+1},s_{t+1}}\left[r_{t+1} + \ga
 
 \vspace{5pt}
 \setcounter{footnote}{0} 
-Связанные работы (нет многозадачности)\footnote[frame]{Hwangbo, J. et al., Learning agile and dynamic motor skills for legged robots, Science Robotics, 2019.}\footnote[frame]{Lee, J. et al. Learning quadrupedal locomotion over challenging terrain, Science Robotics, 2020.}
+Связанные работы (нет многозадачности)\footnotemark[1,2]\footnotetext[1]{Hwangbo, J. et al., Learning agile and dynamic motor skills for legged robots, Science Robotics, 2019.}\footnotetext[2]{Lee, J. et al. Learning quadrupedal locomotion over challenging terrain, Science Robotics, 2020.}
 \end{minipage}
 
     
@@ -638,7 +638,7 @@ $$\pi(s_t) = \argmax_{a \in \mathcal{A}}\ex_{r_{t+1},s_{t+1}}\left[r_{t+1} + \ga
 \end{table}
 \end{frame}
 
-\begin{frame}{Выводы}
+\begin{frame}{Результаты}
 \begin{itemize}
     \item[\textcolor{ForestGreen}{\checkmark}] Был разработан метод обучения робота Unitree A1 решать различные задачи перемещения.
     \item[\textcolor{ForestGreen}{\checkmark}] Разработанная функция награды побуждает агента следовать плавной и безопасной стратегии.
@@ -676,7 +676,7 @@ $$\pi(s_t) = \argmax_{a \in \mathcal{A}}\ex_{r_{t+1},s_{t+1}}\left[r_{t+1} + \ga
 \end{frame}
 
 \setcounter{footnote}{0} 
-\begin{frame}{Алгоритм: объединение обучаемых и алгоритмических стратегий в иерархического агента\footnotemark\footnotemark}
+\begin{frame}{Алгоритм: объединение обучаемых и алгоритмических стратегий в иерархического агента\footnotemark[1,2]}
 
 \begin{minipage}{\linewidth}
 \begin{columns}
@@ -691,15 +691,14 @@ $$\pi(s_t) = \argmax_{a \in \mathcal{A}}\ex_{r_{t+1},s_{t+1}}\left[r_{t+1} + \ga
 \SetKwComment{Comment}{/* }{ */}
 \SetKw{Continue}{continue}
 \KwData{condition, $\pi_{\theta}$, $<\pi_{\mathrm{alg}}>$}
-s $\gets$ env.reset()\;
 \While{not done}{
-  \eIf{condition(s)}{
-    $a \sim \pi_{\theta}(s)$\;
+  \eIf{condition($s_t$)}{
+    $a_t \sim \pi_{\theta}(s_t)$\;
   }{
-    $\pi = \mathrm{rank}(\pi_{\mathrm{alg}}, s)$
-    $a \sim \pi(s)$
+    $\pi = \mathrm{rank}(\pi_{\mathrm{alg}}, s_t)$\;
+    $a_t \sim \pi(s_t)$\;
   }
-  s, r, done, info = env.step(a)\;
+  $s_{t+1} \sim p(s_{t+1}|s_t,a_t)$\;
 }
 \end{algorithm}
 \end{columns}
@@ -780,7 +779,7 @@ $distance(agent, monster) < 5$
 \end{frame}
 
 
-\begin{frame}{Выводы}
+\begin{frame}{Результаты}
 \begin{itemize}
     \item[\textcolor{ForestGreen}{\checkmark}] Предложен метод объединения обучаемого и алгоритмического подходов в рамках одного агента. С использованием предложенного метода реализован гибридный нейро-символьный агент для среды NetHack.
     \item[\textcolor{ForestGreen}{\checkmark}] В реализованном методе RL агент решает одну из наиболее сложных задач возникающих в среде NetHack — сражение с монстрами.
