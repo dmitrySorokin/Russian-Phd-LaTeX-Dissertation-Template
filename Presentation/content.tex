@@ -169,68 +169,8 @@ $\varepsilon \gets f(<s_{sim}>, <s_{\exp}>)$\;
 \begin{frame}
 \frametitle{Интерферометр Маха-Цендера}
   \centering
-  \includegraphics[width=0.8\linewidth]{scheme_with_experiment.pdf}
+  \includegraphics[width=0.8\linewidth]{Presentation/images/scheme_with_experiment.pdf}
 \end{frame}
-
-
-\begin{frame}
-\frametitle{Математическая модель интерферометра Маха-Цендера}
-\begin{minipage}{\textwidth}
-\begin{columns}
-\column{0.6\linewidth}
-  \centering
-  \includegraphics[width=1\linewidth]{Presentation/images/MZI_matmodel_v2.png}
-  
-\column{0.5\linewidth}
-\begin{itemize}
-    \item управление положением луча на камере $(x_0, y_0)$
-    \item управление направлением $\vec{k}$
-  \end{itemize}
-\end{columns}
-\end{minipage}
-
-\vspace{20pt}
-
-\begin{minipage}{\textwidth}
-\begin{columns}
-\column{0.6\linewidth}
-  \centering
-  \includegraphics[width=1\linewidth]{images/MZI_expl_lenses.pdf}
-  
-\column{0.5\linewidth}
-\begin{itemize}
-    \item \textcolor{red}{управление волновым фронтом}
-  \end{itemize}
-\end{columns}
-\end{minipage}
-\end{frame}
-
-
-\begin{frame}{Численная модель интерферометра Маха-Цендера}
-\begin{columns}
-\column{0.5\linewidth}
-\centering
-\includegraphics[width=0.8\linewidth]{images/wave_front_projection.png}
-\column{0.5\linewidth}
-\begin{enumerate}
-    \item трассировка лучей 
-    \begin{itemize}
-        \item прохождение через зеркала $\vec{k}$, $(x_0, y_0)$
-        \item радиус $r(z)$ и волновой фронт $\rho(z)$
-    \end{itemize}
-    \item вычисление интерференционной картины
-    \begin{itemize}
-        \item пространственное разрешение 64×64 пикселя
-        \item временное разрешение 16 кадров
-        \item параллельно для каждого пикселя и кадра
-    \end{itemize}
-
-    
-\end{enumerate}
-
-\end{columns}
-\end{frame}
-
 
 
 \begin{frame}
@@ -268,7 +208,72 @@ $\varepsilon \gets f(<s_{sim}>, <s_{\exp}>)$\;
 \end{frame}
 
 
+\begin{frame}
+\frametitle{Математическая модель интерферометра Маха-Цендера}
+\begin{minipage}{\textwidth}
+\begin{columns}
+\column{0.6\linewidth}
+\centering
+\begin{tikzpicture}
+  \node[anchor=south west,inner sep=0] (image) at (0,0) {\includegraphics[width=1\linewidth]{MZI_matmodel_v2.png}};
+  \node[align=center,font={\normalsize}] at (0,2) {1.};
+\end{tikzpicture}
+  %\centering
+  %\includegraphics[width=1\linewidth]5{Presentation/images/MZI_matmodel_v2.png}
+  
+\column{0.5\linewidth}
+\begin{itemize}
+    \item управление положением луча на камере $(x_0, y_0)$
+    \item управление направлением $\vec{k}$
+  \end{itemize}
+\end{columns}
+\end{minipage}
 
+\vspace{20pt}
+
+\begin{minipage}{\textwidth}
+\begin{columns}
+\column{0.6\linewidth}
+\begin{tikzpicture}
+  \node[anchor=south west,inner sep=0] (image) at (0,0) {\includegraphics[width=1\linewidth]{images/MZI_expl_lenses.pdf}};
+  \node[align=center,font={\normalsize}] at (0,2) {2.};
+\end{tikzpicture}
+  %\centering
+  %\includegraphics[width=1\linewidth]%{images/MZI_expl_lenses.pdf}
+  
+\column{0.5\linewidth}
+\begin{itemize}
+    \item \textcolor{red}{управление волновым фронтом}
+  \end{itemize}
+\end{columns}
+\end{minipage}
+\end{frame}
+
+
+\begin{frame}{Численная модель интерферометра Маха-Цендера}
+\begin{columns}
+\column{0.5\linewidth}
+\centering
+\includegraphics[width=0.8\linewidth]{images/wave_front_projection.png}
+\column{0.5\linewidth}
+\begin{enumerate}
+    \item трассировка лучей 
+    \begin{itemize}
+        \item прохождение через зеркала $\vec{k}$, $(x_0, y_0)$
+        \item радиус $r(z)$ и волновой фронт $\rho(z)$
+    \end{itemize}
+    \item вычисление интерференционной картины
+    \begin{itemize}
+        \item пространственное разрешение 64×64 пикселя
+        \item временное разрешение 16 кадров
+        \item параллельно для каждого пикселя и кадра
+    \end{itemize}
+
+    
+\end{enumerate}
+
+\end{columns}
+\end{frame}
 
 \subsection{Метод способный оперировать
 действиями различного масштаба и устойчивый к оптическим
@@ -345,22 +350,6 @@ VGG-16
 \end{frame}
 
 \subsection{Программно-аппаратный комплекс Интерферобот}
-
-\begin{frame}{Программно-аппаратный комплекс Интерферобот}
-\begin{columns}
-\column{0.35\linewidth}
-\centering
-\includegraphics[width=1\linewidth]{images/interferobot_complex.png}
-Схема взаимодействия модулей
-\column{0.65\linewidth}
-\centering
-\includegraphics[width=1\linewidth]{images/gui.png}
-Графический интерфейс пользователя
-\end{columns}
-\vspace{15pt}
-C++, Python3\\
-200 состояний среды (16x64х64) за одну секунду (16 потоков на intel core i7)
-\end{frame}
 
 \begin{frame}[allowframebreaks]{Настройка интерферометра Маха-Цендера без линз}
 \begin{columns}
@@ -465,6 +454,22 @@ C++, Python3\\
     \end{threeparttable}
 \end{table}
 
+\end{frame}
+
+\begin{frame}{Программно-аппаратный комплекс «Интерферобот»}
+\begin{columns}
+\column{0.35\linewidth}
+\centering
+\includegraphics[width=1\linewidth]{images/interferobot_complex.png}
+Схема взаимодействия модулей
+\column{0.65\linewidth}
+\centering
+\includegraphics[width=1\linewidth]{images/gui.png}
+Графический интерфейс пользователя
+\end{columns}
+\vspace{15pt}
+C++, Python3\\
+200 состояний среды (16x64х64) за одну секунду (16 потоков на intel core i7)
 \end{frame}
 
 \begin{frame}{Пример настройки}
@@ -578,7 +583,7 @@ $$\pi(s_t) = \argmax_{a \in \mathcal{A}}\ex_{r_{t+1},s_{t+1}}\left[r_{t+1} + \ga
 \begin{itemize}
     \item ``Движение вперед / назад''
 	\item ``Движение вперед с заданной скоростью''
-    \item ``Поворот по / против часовой стрелке''
+    \item ``Поворот по / против часовой стрелки''
 \end{itemize}
 \end{columns}
 \textbf{Пространство наблюдений} положение корпуса, суставов, линейные и угловые скорости ($\mathcal{R}^{50}$) 
@@ -777,7 +782,7 @@ $distance(agent, monster) < 5$
 
 \begin{frame}{Результаты задачи 3}
 \begin{itemize}
-    \item[\textcolor{ForestGreen}{\checkmark}] Предложен метод объединения обучаемого и алгоритмического подходов в рамках одного агента. С использованием предложенного метода реализован гибридный нейро-символьный агент для среды NetHack.
+    \item[\textcolor{ForestGreen}{\checkmark}] Предложен метод объединения обучаемого и алгоритмического подходов в рамках одного агента. С использованием предложенного метода реализован иерархический агент для среды NetHack.
     \item[\textcolor{ForestGreen}{\checkmark}] В реализованном методе RL агент решает одну из наиболее сложных задач возникающих в среде NetHack — сражение с монстрами.
     \item[\textcolor{ForestGreen}{\checkmark}] В соревновании по игре NetHack (NeurIPS 2021 Competition Track) агент занял \textcolor{orange}{первое место} среди 37 команд из 19 стран мира.
 \end{itemize}
